@@ -52,12 +52,9 @@ extern "C" {
     fn _IO_getc(__fp: *mut _IO_FILE) -> libc::c_int;
     #[no_mangle]
     static mut pe_rel_addr: libc::c_int;
-    #[no_mangle]
-    fn addr2offset(addr: dword, pe: *const pe) -> libc::c_long;
-    #[no_mangle]
-    fn read_sections(pe: *mut pe);
-    #[no_mangle]
-    fn print_sections(pe: *mut pe);
+    
+    
+    
 }
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
@@ -70,8 +67,8 @@ pub type uint8_t = __uint8_t;
 pub type uint16_t = __uint16_t;
 pub type uint32_t = __uint32_t;
 pub type uint64_t = __uint64_t;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_FILE {
     pub _flags: libc::c_int,
     pub _IO_read_ptr: *mut libc::c_char,
@@ -104,8 +101,8 @@ pub struct _IO_FILE {
     pub _unused2: [libc::c_char; 20],
 }
 pub type _IO_lock_t = ();
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_marker {
     pub _next: *mut _IO_marker,
     pub _sbuf: *mut _IO_FILE,
@@ -120,8 +117,8 @@ pub type C2RustUnnamed = libc::c_uint;
 pub const MASM: C2RustUnnamed = 2;
 pub const NASM: C2RustUnnamed = 1;
 pub const GAS: C2RustUnnamed = 0;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct pe {
     pub magic: word,
     pub imagebase: qword,
@@ -138,30 +135,30 @@ pub struct pe {
     pub relocs: *mut reloc_pe,
     pub reloc_count: libc::c_uint,
 }
-#[derive(Copy, Clone, BitfieldStruct)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone, BitfieldStruct)]
 pub struct reloc_pe {
     #[bitfield(name = "offset", ty = "libc::c_uint", bits = "0..=11")]
     #[bitfield(name = "type_0", ty = "libc::c_uint", bits = "12..=15")]
     pub offset_type_0: [u8; 2],
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct import_module {
     pub module: *mut libc::c_char,
     pub nametab_addr: dword,
     pub nametab: *mut *mut libc::c_char,
     pub count: libc::c_uint,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct export {
     pub address: dword,
     pub ordinal: word,
     pub name: *mut libc::c_char,
 }
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct section {
     pub name: [libc::c_char; 8],
     pub min_alloc: dword,
@@ -176,20 +173,20 @@ pub struct section {
     pub instr_flags: *mut byte,
 }
 /* 16 */
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct directory {
     pub address: dword,
     pub size: dword,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub union C2RustUnnamed_0 {
     pub opt32: optional_header,
     pub opt64: optional_header_pep,
 }
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct optional_header_pep {
     pub Magic: word,
     pub MajorLinkerVersion: byte,
@@ -221,8 +218,8 @@ pub struct optional_header_pep {
     pub LoaderFlags: dword,
     pub NumberOfRvaAndSizes: dword,
 }
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct optional_header {
     pub Magic: word,
     pub MajorLinkerVersion: byte,
@@ -255,8 +252,8 @@ pub struct optional_header {
     pub LoaderFlags: dword,
     pub NumberOfRvaAndSizes: dword,
 }
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct file_header {
     pub Machine: word,
     pub NumberOfSections: word,
@@ -266,8 +263,8 @@ pub struct file_header {
     pub SizeOfOptionalHeader: word,
     pub Characteristics: word,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct export_header {
     pub flags: dword,
     pub timestamp: dword,
@@ -286,28 +283,28 @@ unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
     return _IO_putc(__c, stdout);
 }
 #[no_mangle]
-pub static mut f: *mut FILE = 0 as *const FILE as *mut FILE;
+pub static mut f: *mut FILE =  0 as *mut FILE;
 #[inline]
 unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
 #[inline]
 unsafe extern "C" fn read_word() -> word {
-    let mut w: word = 0;
+     let mut w =  0;
     fread(&mut w as *mut word as *mut libc::c_void,
-          2 as libc::c_int as size_t, 1 as libc::c_int as size_t, f);
+          2u64, 1u64, f);
     return w;
 }
 #[inline]
 unsafe extern "C" fn read_dword() -> dword {
-    let mut d: dword = 0;
+     let mut d =  0;
     fread(&mut d as *mut dword as *mut libc::c_void,
-          4 as libc::c_int as size_t, 1 as libc::c_int as size_t, f);
+          4u64, 1u64, f);
     return d;
 }
 #[inline]
 unsafe extern "C" fn read_qword() -> dword {
-    let mut q: qword = 0;
+     let mut q =  0;
     fread(&mut q as *mut qword as *mut libc::c_void,
-          8 as libc::c_int as size_t, 1 as libc::c_int as size_t, f);
+          8u64, 1u64, f);
     return q as dword;
 }
 #[no_mangle]
@@ -318,7 +315,8 @@ pub static mut opts: word = 0;
 pub static mut asm_syntax: C2RustUnnamed = GAS;
 #[no_mangle]
 pub static mut resource_filters: *mut *mut libc::c_char =
-    0 as *const *mut libc::c_char as *mut *mut libc::c_char;
+    
+    0 as *mut *mut libc::c_char;
 #[no_mangle]
 pub static mut resource_filters_count: libc::c_uint = 0;
 /*
@@ -343,152 +341,154 @@ pub static mut resource_filters_count: libc::c_uint = 0;
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 unsafe extern "C" fn print_flags(mut flags: word) {
-    let mut buffer: [libc::c_char; 1024] =
+     let mut buffer =
+    
         *::std::mem::transmute::<&[u8; 1024],
                                  &mut [libc::c_char; 1024]>(b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"); /* deprecated and reserved */
-    if flags as libc::c_int & 0x1 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x1i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", relocations stripped\x00" as *const u8 as
                    *const libc::c_char); /* 44 */
     } /* 1a */
-    if flags as libc::c_int & 0x2 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x2i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", executable\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x4 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x4i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", line numbers stripped\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x8 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x8i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", local symbols stripped\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x10 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x10i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", aggressively trimmed\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x20 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x20i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", large address aware\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x40 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x40i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", 16-bit\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x80 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x80i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", little-endian\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x100 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x100i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", 32-bit\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x200 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x200i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", debug info stripped\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x400 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x400i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x800 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x800i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", IMAGE_FILE_NET_RUN_FROM_SWAP\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x1000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x1000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", system file\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x2000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x2000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", DLL\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x4000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x4000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", uniprocessor\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x8000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x8000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", big-endian\x00" as *const u8 as *const libc::c_char);
     }
     printf(b"Flags: 0x%04x (%s)\n\x00" as *const u8 as *const libc::c_char,
            flags as libc::c_int,
-           buffer.as_mut_ptr().offset(2 as libc::c_int as isize));
+           buffer.as_mut_ptr().offset(2isize));
 }
 unsafe extern "C" fn print_dll_flags(mut flags: word) {
-    let mut buffer: [libc::c_char; 1024] =
+     let mut buffer =
+    
         *::std::mem::transmute::<&[u8; 1024],
                                  &mut [libc::c_char; 1024]>(b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
-    if flags as libc::c_int & 0x1 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x1i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", per-process initialization\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x2 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x2i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", per-process termination\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x4 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x4i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", per-thread initialization\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x8 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x8i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", per-thread termination\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x40 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x40i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", dynamic base\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x80 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x80i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", force integrity\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x100 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x100i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", DEP compatible\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x200 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x200i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", no isolation\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x400 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x400i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", no SEH\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x800 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x800i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", no bind\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x2000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x2000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", WDM driver\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x8000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x8000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", terminal server aware\x00" as *const u8 as
                    *const libc::c_char);
     }
-    if flags as libc::c_int & 0x5030 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x5030i32 != 0 {
         sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
                                                isize),
                 b", (unknown flags 0x%04x)\x00" as *const u8 as
                     *const libc::c_char,
-                flags as libc::c_int & 0x5030 as libc::c_int);
+                flags as libc::c_int & 0x5030i32);
     }
     printf(b"DLL flags: 0x%04x (%s)\n\x00" as *const u8 as
                *const libc::c_char, flags as libc::c_int,
-           buffer.as_mut_ptr().offset(2 as libc::c_int as isize));
+           buffer.as_mut_ptr().offset(2isize));
 }
 static mut subsystems: [*const libc::c_char; 18] =
     [b"unknown\x00" as *const u8 as *const libc::c_char,
@@ -517,11 +517,11 @@ unsafe extern "C" fn print_opt32(mut opt: *mut optional_header) {
            (*opt).MajorLinkerVersion as libc::c_int,
            (*opt).MinorLinkerVersion as libc::c_int);
     if (*opt).AddressOfEntryPoint != 0 {
-        let mut address: dword = (*opt).AddressOfEntryPoint;
+         let mut address =  (*opt).AddressOfEntryPoint;
         if pe_rel_addr == 0 {
             address =
-                (address as libc::c_uint).wrapping_add((*opt).ImageBase) as
-                    dword as dword
+                
+                (address).wrapping_add((*opt).ImageBase)
         }
         printf(b"Program entry point: 0x%x\n\x00" as *const u8 as
                    *const libc::c_char, address);
@@ -537,13 +537,13 @@ unsafe extern "C" fn print_opt32(mut opt: *mut optional_header) {
                *const libc::c_char,
            (*opt).MajorOperatingSystemVersion as libc::c_int,
            (*opt).MinorOperatingSystemVersion as libc::c_int); /* 4c */
-    if (*opt).Win32VersionValue != 0 as libc::c_int as libc::c_uint {
+    if (*opt).Win32VersionValue != 0u32 {
         fprintf(stderr,
                 b"Warning: Win32VersionValue is %d (expected 0)\n\x00" as
                     *const u8 as *const libc::c_char,
                 (*opt).Win32VersionValue);
     }
-    if (*opt).Subsystem as libc::c_int <= 16 as libc::c_int {
+    if (*opt).Subsystem as libc::c_int <= 16i32 {
         /* 5c */
         printf(b"Subsystem: %s\n\x00" as *const u8 as *const libc::c_char,
                subsystems[(*opt).Subsystem as usize]); /* 48 */
@@ -565,7 +565,7 @@ unsafe extern "C" fn print_opt32(mut opt: *mut optional_header) {
                *const libc::c_char, (*opt).SizeOfHeapReserve);
     printf(b"Heap size (commit): %d bytes\n\x00" as *const u8 as
                *const libc::c_char, (*opt).SizeOfHeapCommit);
-    if (*opt).LoaderFlags != 0 as libc::c_int as libc::c_uint {
+    if (*opt).LoaderFlags != 0u32 {
         fprintf(stderr,
                 b"Warning: LoaderFlags is 0x%x (expected 0)\n\x00" as
                     *const u8 as *const libc::c_char, (*opt).LoaderFlags);
@@ -580,11 +580,11 @@ unsafe extern "C" fn print_opt64(mut opt: *mut optional_header_pep) {
            (*opt).MajorLinkerVersion as libc::c_int,
            (*opt).MinorLinkerVersion as libc::c_int); /* 1a */
     if (*opt).AddressOfEntryPoint != 0 {
-        let mut address: dword = (*opt).AddressOfEntryPoint;
+         let mut address =  (*opt).AddressOfEntryPoint;
         if pe_rel_addr == 0 {
             address =
-                (address as libc::c_ulong).wrapping_add((*opt).ImageBase) as
-                    dword as dword
+                
+                (address as libc::c_ulong).wrapping_add((*opt).ImageBase) as dword
         }
         printf(b"Program entry point: 0x%x\n\x00" as *const u8 as
                    *const libc::c_char, address);
@@ -598,13 +598,13 @@ unsafe extern "C" fn print_opt64(mut opt: *mut optional_header_pep) {
                *const libc::c_char,
            (*opt).MajorOperatingSystemVersion as libc::c_int,
            (*opt).MinorOperatingSystemVersion as libc::c_int); /* 4c */
-    if (*opt).Win32VersionValue != 0 as libc::c_int as libc::c_uint {
+    if (*opt).Win32VersionValue != 0u32 {
         fprintf(stderr,
                 b"Warning: Win32VersionValue is %d (expected 0)\n\x00" as
                     *const u8 as *const libc::c_char,
                 (*opt).Win32VersionValue);
     }
-    if (*opt).Subsystem as libc::c_int <= 16 as libc::c_int {
+    if (*opt).Subsystem as libc::c_int <= 16i32 {
         /* 5c */
         printf(b"Subsystem: %s\n\x00" as *const u8 as *const libc::c_char,
                subsystems[(*opt).Subsystem as usize]); /* 48 */
@@ -626,7 +626,7 @@ unsafe extern "C" fn print_opt64(mut opt: *mut optional_header_pep) {
                *const libc::c_char, (*opt).SizeOfHeapReserve);
     printf(b"Heap size (commit): %ld bytes\n\x00" as *const u8 as
                *const libc::c_char, (*opt).SizeOfHeapCommit);
-    if (*opt).LoaderFlags != 0 as libc::c_int as libc::c_uint {
+    if (*opt).LoaderFlags != 0u32 {
         fprintf(stderr,
                 b"Warning: LoaderFlags is 0x%x (expected 0)\n\x00" as
                     *const u8 as *const libc::c_char, (*opt).LoaderFlags);
@@ -651,26 +651,28 @@ unsafe extern "C" fn print_header(mut pe: *mut pe) {
         }
     }
     print_flags((*pe).header.Characteristics);
-    if (*pe).magic as libc::c_int == 0x10b as libc::c_int {
+    if (*pe).magic as libc::c_int == 0x10bi32 {
         printf(b"Image type: 32-bit\n\x00" as *const u8 as
                    *const libc::c_char);
         print_opt32(&mut (*pe).c2rust_unnamed.opt32);
-    } else if (*pe).magic as libc::c_int == 0x20b as libc::c_int {
+    } else if (*pe).magic as libc::c_int == 0x20bi32 {
         printf(b"Image type: 64-bit\n\x00" as *const u8 as
                    *const libc::c_char);
         print_opt64(&mut (*pe).c2rust_unnamed.opt64);
     };
 }
 unsafe extern "C" fn print_specfile(mut pe: *mut pe) {
-    let mut i: libc::c_int = 0;
-    let mut specfile: *mut FILE = 0 as *mut FILE;
-    let mut spec_name: *mut libc::c_char =
-        malloc(strlen((*pe).name).wrapping_add(4 as libc::c_int as
-                                                   libc::c_ulong)) as
+    
+    
+     let mut spec_name =
+    
+        malloc(strlen((*pe).name).wrapping_add(4u64)) as
             *mut libc::c_char;
     sprintf(spec_name, b"%s.ord\x00" as *const u8 as *const libc::c_char,
             (*pe).name);
-    specfile = fopen(spec_name, b"w\x00" as *const u8 as *const libc::c_char);
+      let mut specfile =
+    
+     fopen(spec_name, b"w\x00" as *const u8 as *const libc::c_char);
     if specfile.is_null() {
         perror(b"Couldn\'t open %s\x00" as *const u8 as *const libc::c_char);
         return
@@ -678,7 +680,7 @@ unsafe extern "C" fn print_specfile(mut pe: *mut pe) {
     fprintf(specfile,
             b"#Generated by dump -o\n\x00" as *const u8 as
                 *const libc::c_char);
-    i = 0 as libc::c_int;
+      let mut i =   0i32;
     while (i as libc::c_uint) < (*pe).export_count {
         fprintf(specfile, b"%d\t%s\n\x00" as *const u8 as *const libc::c_char,
                 (*(*pe).exports.offset(i as isize)).ordinal as libc::c_int,
@@ -688,23 +690,27 @@ unsafe extern "C" fn print_specfile(mut pe: *mut pe) {
     fclose(specfile);
 }
 unsafe extern "C" fn fstrdup(mut offset: libc::c_long) -> *mut libc::c_char {
-    let mut cursor: libc::c_long = ftell(f);
-    let mut len: libc::c_int = 0;
-    let mut ret: *mut libc::c_char = 0 as *mut libc::c_char;
-    fseek(f, offset, 0 as libc::c_int);
+     let mut cursor =  ftell(f);
+    
+    
+    fseek(f, offset, 0i32);
     while read_byte() != 0 { }
-    len =
-        (ftell(f) - offset + 1 as libc::c_int as libc::c_long) as libc::c_int;
-    fseek(f, offset, 0 as libc::c_int);
-    ret = malloc(len as libc::c_ulong) as *mut libc::c_char;
+      let mut len = 
+    
+        (ftell(f) - offset + 1i64) as libc::c_int;
+    fseek(f, offset, 0i32);
+      let mut ret = 
+     malloc(len as libc::c_ulong) as *mut libc::c_char;
     fread(ret as *mut libc::c_void,
           ::std::mem::size_of::<libc::c_char>() as libc::c_ulong,
           len as size_t, f);
-    fseek(f, cursor, 0 as libc::c_int);
+    fseek(f, cursor, 0i32);
     return ret;
 }
 unsafe extern "C" fn get_export_table(mut pe: *mut pe) {
-    let mut header: export_header =
+    
+     let mut header =
+    
         export_header{flags: 0,
                       timestamp: 0,
                       ver_major: 0,
@@ -715,91 +721,110 @@ unsafe extern "C" fn get_export_table(mut pe: *mut pe) {
                       export_count: 0,
                       addr_table_addr: 0,
                       name_table_addr: 0,
-                      ord_table_addr: 0,};
-    let mut offset: libc::c_long =
-        addr2offset((*(*pe).dirs.offset(0 as libc::c_int as isize)).address,
+                      ord_table_addr: 0,}; let mut offset =
+    
+        crate::src::pe_section::addr2offset((*(*pe).dirs.offset(0isize)).address,
                     pe);
-    let mut i: libc::c_int = 0;
+    
     /* More headers. It's like a PE file is nothing but headers.
      * Do we really need to print any of this? No, not really. Just use the data. */
-    fseek(f, offset, 0 as libc::c_int);
+    fseek(f, offset, 0i32);
     fread(&mut header as *mut export_header as *mut libc::c_void,
           ::std::mem::size_of::<export_header>() as libc::c_ulong,
-          1 as libc::c_int as size_t, f);
+          1u64, f);
     /* Grab the name. */
-    (*pe).name = fstrdup(addr2offset(header.module_name_addr, pe));
+    
     /* Grab the exports. */
-    (*pe).exports =
+     *pe =
+    crate::src::pe_header::pe{name:
+                                  
+                               fstrdup(crate::src::pe_section::addr2offset(header.module_name_addr, pe)),
+                              exports:
+                                  
+                              
         malloc((header.addr_table_count as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<export>()
                                                     as libc::c_ulong)) as
-            *mut export;
+            *mut export, ..*pe};
     /* If addr_table_count exceeds export_count, this means that some exports
      * are nameless (and thus exported by ordinal). */
-    fseek(f, addr2offset(header.addr_table_addr, pe), 0 as libc::c_int);
-    i = 0 as libc::c_int;
+    fseek(f, crate::src::pe_section::addr2offset(header.addr_table_addr, pe), 0i32);
+      let mut i =   0i32;
     while (i as libc::c_uint) < header.addr_table_count {
-        (*(*pe).exports.offset(i as isize)).ordinal =
-            (i as libc::c_uint).wrapping_add(header.ordinal_base) as word;
-        (*(*pe).exports.offset(i as isize)).address = read_dword();
+        
+         *(*pe).exports.offset(i as isize) =
+    crate::src::pe_header::export{ordinal:
+                                      
+                                  
+            (i as libc::c_uint).wrapping_add(header.ordinal_base) as word,
+                                  address:
+                                      
+                                   read_dword(),
+                                                      ..*(*pe).exports.offset(i as isize)};
         let ref mut fresh0 = (*(*pe).exports.offset(i as isize)).name;
         *fresh0 = 0 as *mut libc::c_char;
         i += 1
     }
     /* Why? WHY? */
-    i = 0 as libc::c_int;
+    i = 0i32;
     while (i as libc::c_uint) < header.export_count {
-        let mut index: word = 0;
+        
         fseek(f,
-              (addr2offset(header.ord_table_addr, pe) as
+              (crate::src::pe_section::addr2offset(header.ord_table_addr, pe) as
                    libc::c_ulong).wrapping_add((i as
                                                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<word>()
                                                                                     as
                                                                                     libc::c_ulong))
-                  as libc::c_long, 0 as libc::c_int);
-        index = read_word();
+                  as libc::c_long, 0i32);
+          let mut index =   read_word();
         fseek(f,
-              (addr2offset(header.name_table_addr, pe) as
+              (crate::src::pe_section::addr2offset(header.name_table_addr, pe) as
                    libc::c_ulong).wrapping_add((i as
                                                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<dword>()
                                                                                     as
                                                                                     libc::c_ulong))
-                  as libc::c_long, 0 as libc::c_int);
+                  as libc::c_long, 0i32);
         let ref mut fresh1 = (*(*pe).exports.offset(index as isize)).name;
-        *fresh1 = fstrdup(addr2offset(read_dword(), pe));
+        *fresh1 = fstrdup(crate::src::pe_section::addr2offset(read_dword(), pe));
         i += 1
     }
-    (*pe).export_count = header.addr_table_count;
+     *pe = crate::src::pe_header::pe{export_count:   header.addr_table_count, ..*pe};
 }
 unsafe extern "C" fn get_import_name_table(mut module: *mut import_module,
                                            mut pe: *mut pe) {
-    let mut offset: libc::c_long = addr2offset((*module).nametab_addr, pe);
-    let mut cursor: libc::c_long = ftell(f);
-    let mut i: libc::c_uint = 0;
-    let mut count: libc::c_uint = 0;
-    fseek(f, offset, 0 as libc::c_int);
-    count = 0 as libc::c_int as libc::c_uint;
-    if (*pe).magic as libc::c_int == 0x10b as libc::c_int {
+    
+     let mut offset =
+     crate::src::pe_section::addr2offset((*module).nametab_addr, pe); let mut cursor =  ftell(f);
+    
+    
+    fseek(f, offset, 0i32);
+      let mut count =   0u32;
+    if (*pe).magic as libc::c_int == 0x10bi32 {
         while read_dword() != 0 { count = count.wrapping_add(1) }
     } else { while read_qword() != 0 { count = count.wrapping_add(1) } }
-    (*module).nametab =
+     *module =
+    crate::src::pe_header::import_module{nametab:
+                                             
+                                         
         malloc((count as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<*mut libc::c_char>()
                                                     as libc::c_ulong)) as
-            *mut *mut libc::c_char;
-    fseek(f, offset, 0 as libc::c_int);
-    i = 0 as libc::c_int as libc::c_uint;
+            *mut *mut libc::c_char,
+                                                                           ..*module};
+    fseek(f, offset, 0i32);
+      let mut i =   0u32;
     while i < count {
-        let mut address: qword =
-            if (*pe).magic as libc::c_int == 0x10b as libc::c_int {
+         let mut address =
+    
+            if (*pe).magic as libc::c_int == 0x10bi32 {
                 read_dword()
             } else { read_qword() } as qword;
-        if address & 0x80000000 as libc::c_uint as libc::c_ulong != 0 {
-            address &= 0x7fffffff as libc::c_int as libc::c_ulong;
+        if address & 0x80000000u64 != 0 {
+            address &= 0x7fffffffu64;
             let ref mut fresh2 = *(*module).nametab.offset(i as isize);
             *fresh2 =
                 malloc(snprintf(0 as *mut libc::c_char,
-                                0 as libc::c_int as libc::c_ulong,
+                                0u64,
                                 b"%s.%lu\x00" as *const u8 as
                                     *const libc::c_char, (*module).module,
                                 address) as libc::c_ulong) as
@@ -810,72 +835,84 @@ unsafe extern "C" fn get_import_name_table(mut module: *mut import_module,
         } else {
             let ref mut fresh3 = *(*module).nametab.offset(i as isize);
             *fresh3 =
-                fstrdup(addr2offset(address as dword, pe) +
-                            2 as libc::c_int as libc::c_long)
+                fstrdup(crate::src::pe_section::addr2offset(address as dword, pe) +
+                            2i64)
         }
         i = i.wrapping_add(1)
         /* skip hint */
     }
-    (*module).count = count;
-    fseek(f, cursor, 0 as libc::c_int);
+     *module = crate::src::pe_header::import_module{count:   count, ..*module};
+    fseek(f, cursor, 0i32);
 }
 unsafe extern "C" fn get_import_module_table(mut pe: *mut pe) {
-    let mut offset: libc::c_long =
-        addr2offset((*(*pe).dirs.offset(1 as libc::c_int as isize)).address,
+     let mut offset =
+    
+        crate::src::pe_section::addr2offset((*(*pe).dirs.offset(1isize)).address,
                     pe);
-    static mut zeroes: [dword; 5] = [0 as libc::c_int as dword, 0, 0, 0, 0];
-    let mut entry: [dword; 5] = [0; 5];
-    let mut i: libc::c_int = 0;
-    fseek(f, offset, 0 as libc::c_int);
-    (*pe).import_count = 0 as libc::c_int as libc::c_uint;
+    static mut zeroes: [dword; 5] = [0u32, 0, 0, 0, 0];
+     let mut entry =  [0; 5];
+    
+    fseek(f, offset, 0i32);
+     *pe = crate::src::pe_header::pe{import_count:   0u32, ..*pe};
     while fread(entry.as_mut_ptr() as *mut libc::c_void,
                 ::std::mem::size_of::<dword>() as libc::c_ulong,
-                5 as libc::c_int as size_t, f) ==
-              5 as libc::c_int as libc::c_ulong &&
+                5u64, f) ==
+              5u64 &&
               memcmp(entry.as_mut_ptr() as *const libc::c_void,
                      zeroes.as_ptr() as *const libc::c_void,
                      ::std::mem::size_of::<[dword; 5]>() as libc::c_ulong) !=
                   0 {
-        (*pe).import_count = (*pe).import_count.wrapping_add(1)
+        *pe = crate::src::pe_header::pe{import_count:
+                               (*pe).import_count.wrapping_add(1), ..*pe}
     }
-    (*pe).imports =
+     *pe =
+    crate::src::pe_header::pe{imports:
+                                  
+                              
         malloc(((*pe).import_count as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<import_module>()
                                                     as libc::c_ulong)) as
-            *mut import_module;
-    fseek(f, offset, 0 as libc::c_int);
-    i = 0 as libc::c_int;
+            *mut import_module, ..*pe};
+    fseek(f, offset, 0i32);
+      let mut i =   0i32;
     while (i as libc::c_uint) < (*pe).import_count {
         fseek(f,
-              (3 as libc::c_int as
-                   libc::c_ulong).wrapping_mul(::std::mem::size_of::<dword>()
+              (3u64).wrapping_mul(::std::mem::size_of::<dword>()
                                                    as libc::c_ulong) as
-                  libc::c_long, 1 as libc::c_int);
+                  libc::c_long, 1i32);
         let ref mut fresh4 = (*(*pe).imports.offset(i as isize)).module;
-        *fresh4 = fstrdup(addr2offset(read_dword(), pe));
-        (*(*pe).imports.offset(i as isize)).nametab_addr = read_dword();
+        *fresh4 = fstrdup(crate::src::pe_section::addr2offset(read_dword(), pe));
+         *(*pe).imports.offset(i as isize) =
+    crate::src::pe_header::import_module{nametab_addr:
+                                             
+                                          read_dword(),
+                                                             ..*(*pe).imports.offset(i as isize)};
         /* grab the imports themselves */
         get_import_name_table(&mut *(*pe).imports.offset(i as isize), pe);
         i += 1
     };
 }
 unsafe extern "C" fn get_reloc_table(mut pe: *mut pe) {
-    let mut offset: libc::c_long =
-        addr2offset((*(*pe).dirs.offset(5 as libc::c_int as isize)).address,
+     let mut offset =
+    
+        crate::src::pe_section::addr2offset((*(*pe).dirs.offset(5isize)).address,
                     pe);
-    fseek(f, offset, 0 as libc::c_int);
-    (*pe).reloc_base = read_dword();
-    (*pe).reloc_count =
-        read_dword().wrapping_sub(8 as libc::c_int as
-                                      libc::c_uint).wrapping_div(2 as
-                                                                     libc::c_int
-                                                                     as
-                                                                     libc::c_uint);
-    (*pe).relocs =
+    fseek(f, offset, 0i32);
+    
+    
+     *pe =
+    crate::src::pe_header::pe{reloc_base:   read_dword(),
+                              reloc_count:
+                                  
+                              
+        read_dword().wrapping_sub(8u32).wrapping_div(2u32),
+                              relocs:
+                                  
+                              
         malloc(((*pe).reloc_count as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<reloc_pe>()
                                                     as libc::c_ulong)) as
-            *mut reloc_pe;
+            *mut reloc_pe, ..*pe};
     fread((*pe).relocs as *mut libc::c_void,
           ::std::mem::size_of::<reloc_pe>() as libc::c_ulong,
           (*pe).reloc_count as size_t, f);
@@ -883,65 +920,78 @@ unsafe extern "C" fn get_reloc_table(mut pe: *mut pe) {
 #[no_mangle]
 pub unsafe extern "C" fn readpe(mut offset_pe: libc::c_long,
                                 mut pe: *mut pe) {
-    let mut i: libc::c_int = 0;
-    let mut cdirs: libc::c_int = 0;
+    
+     let mut cdirs =  0;
     fseek(f,
           (offset_pe as
                libc::c_ulong).wrapping_add(::std::mem::size_of::<dword>() as
                                                libc::c_ulong) as libc::c_long,
-          0 as libc::c_int);
+          0i32);
     fread(&mut (*pe).header as *mut file_header as *mut libc::c_void,
           ::std::mem::size_of::<file_header>() as libc::c_ulong,
-          1 as libc::c_int as size_t, f);
-    (*pe).magic = read_word();
+          1u64, f);
+     *pe = crate::src::pe_header::pe{magic:   read_word(), ..*pe};
     fseek(f,
           (::std::mem::size_of::<word>() as libc::c_ulong).wrapping_neg() as
-              libc::c_long, 1 as libc::c_int);
-    if (*pe).magic as libc::c_int == 0x10b as libc::c_int {
+              libc::c_long, 1i32);
+    if (*pe).magic as libc::c_int == 0x10bi32 {
         fread(&mut (*pe).c2rust_unnamed.opt32 as *mut optional_header as
                   *mut libc::c_void,
               ::std::mem::size_of::<optional_header>() as libc::c_ulong,
-              1 as libc::c_int as size_t, f);
-        (*pe).imagebase = (*pe).c2rust_unnamed.opt32.ImageBase as qword;
+              1u64, f);
+         *pe =
+    crate::src::pe_header::pe{imagebase:
+                                  
+                               (*pe).c2rust_unnamed.opt32.ImageBase as qword, ..*pe};
         cdirs = (*pe).c2rust_unnamed.opt32.NumberOfRvaAndSizes as libc::c_int
-    } else if (*pe).magic as libc::c_int == 0x20b as libc::c_int {
+    } else if (*pe).magic as libc::c_int == 0x20bi32 {
         fread(&mut (*pe).c2rust_unnamed.opt64 as *mut optional_header_pep as
                   *mut libc::c_void,
               ::std::mem::size_of::<optional_header_pep>() as libc::c_ulong,
-              1 as libc::c_int as size_t, f);
-        (*pe).imagebase = (*pe).c2rust_unnamed.opt64.ImageBase;
+              1u64, f);
+         *pe =
+    crate::src::pe_header::pe{imagebase:
+                                  
+                               (*pe).c2rust_unnamed.opt64.ImageBase,
+                                                                          ..*pe};
         cdirs = (*pe).c2rust_unnamed.opt64.NumberOfRvaAndSizes as libc::c_int
     } else {
         fprintf(stderr,
                 b"Warning: Don\'t know how to read image type %#x\n\x00" as
                     *const u8 as *const libc::c_char,
                 (*pe).magic as libc::c_int);
-        exit(1 as libc::c_int);
+        exit(1i32);
     }
-    (*pe).dirs =
+     *pe =
+    crate::src::pe_header::pe{dirs:
+                                  
+                              
         malloc((cdirs as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<directory>()
                                                     as libc::c_ulong)) as
-            *mut directory;
+            *mut directory, ..*pe};
     fread((*pe).dirs as *mut libc::c_void,
           ::std::mem::size_of::<directory>() as libc::c_ulong,
           cdirs as size_t, f);
     /* read the section table */
-    (*pe).sections =
+     *pe =
+    crate::src::pe_header::pe{sections:
+                                  
+                              
         malloc(((*pe).header.NumberOfSections as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<section>()
                                                     as libc::c_ulong)) as
-            *mut section;
-    i = 0 as libc::c_int;
+            *mut section, ..*pe};
+      let mut i =   0i32;
     while i < (*pe).header.NumberOfSections as libc::c_int {
         fread(&mut *(*pe).sections.offset(i as isize) as *mut section as
-                  *mut libc::c_void, 0x28 as libc::c_int as size_t,
-              1 as libc::c_int as size_t, f);
+                  *mut libc::c_void, 0x28u64,
+              1u64, f);
         /* allocate zeroes, but only if it's a code section */
         /* in theory nobody will ever try to jump into a data section.
          * VirtualProtect() be damned */
         if (*(*pe).sections.offset(i as isize)).flags &
-               0x20 as libc::c_int as libc::c_uint != 0 {
+               0x20u32 != 0 {
             let ref mut fresh5 =
                 (*(*pe).sections.offset(i as isize)).instr_flags;
             *fresh5 =
@@ -960,27 +1010,27 @@ pub unsafe extern "C" fn readpe(mut offset_pe: libc::c_long,
      * PE is bizarre. It tries to make all of these things generic by putting
      * them in separate "directories". But the order of these seems to be fixed
      * anyway, so why bother? */
-    if cdirs >= 1 as libc::c_int &&
-           (*(*pe).dirs.offset(0 as libc::c_int as isize)).size != 0 {
+    if cdirs >= 1i32 &&
+           (*(*pe).dirs.offset(0isize)).size != 0 {
         get_export_table(pe);
     }
-    if cdirs >= 2 as libc::c_int &&
-           (*(*pe).dirs.offset(1 as libc::c_int as isize)).size != 0 {
+    if cdirs >= 2i32 &&
+           (*(*pe).dirs.offset(1isize)).size != 0 {
         get_import_module_table(pe);
     }
-    if cdirs >= 6 as libc::c_int &&
-           (*(*pe).dirs.offset(5 as libc::c_int as isize)).size != 0 {
+    if cdirs >= 6i32 &&
+           (*(*pe).dirs.offset(5isize)).size != 0 {
         get_reloc_table(pe);
     }
     /* Read the code. */
-    read_sections(pe);
+    crate::src::pe_section::read_sections(pe);
 }
 #[no_mangle]
 pub unsafe extern "C" fn freepe(mut pe: *mut pe) {
-    let mut i: libc::c_int = 0;
-    let mut j: libc::c_int = 0;
+    
+     let mut j =  0;
     free((*pe).dirs as *mut libc::c_void);
-    i = 0 as libc::c_int;
+      let mut i =   0i32;
     while i < (*pe).header.NumberOfSections as libc::c_int {
         free((*(*pe).sections.offset(i as isize)).instr_flags as
                  *mut libc::c_void);
@@ -988,15 +1038,15 @@ pub unsafe extern "C" fn freepe(mut pe: *mut pe) {
     }
     free((*pe).sections as *mut libc::c_void);
     free((*pe).name as *mut libc::c_void);
-    i = 0 as libc::c_int;
+    i = 0i32;
     while (i as libc::c_uint) < (*pe).export_count {
         free((*(*pe).exports.offset(i as isize)).name as *mut libc::c_void);
         i += 1
     }
     free((*pe).exports as *mut libc::c_void);
-    i = 0 as libc::c_int;
+    i = 0i32;
     while (i as libc::c_uint) < (*pe).import_count {
-        j = 0 as libc::c_int;
+        j = 0i32;
         while (j as libc::c_uint) < (*(*pe).imports.offset(i as isize)).count
               {
             free(*(*(*pe).imports.offset(i as
@@ -1021,10 +1071,12 @@ pub unsafe extern "C" fn freepe(mut pe: *mut pe) {
 /* Entry points */
 #[no_mangle]
 pub unsafe extern "C" fn dumppe(mut offset_pe: libc::c_long) {
-    let mut pe: pe =
+    
+     let mut pe =
+    
         {
             let mut init =
-                pe{magic: 0 as libc::c_int as word,
+                pe{magic: 0u16,
                    imagebase: 0,
                    header:
                        file_header{Machine: 0,
@@ -1096,10 +1148,9 @@ pub unsafe extern "C" fn dumppe(mut offset_pe: libc::c_long) {
                    relocs: 0 as *mut reloc_pe,
                    reloc_count: 0,};
             init
-        };
-    let mut i: libc::c_int = 0;
+        }; let mut i =  0;
     readpe(offset_pe, &mut pe);
-    if mode as libc::c_int == 0x80 as libc::c_int {
+    if mode as libc::c_int == 0x80i32 {
         print_specfile(&mut pe);
         freepe(&mut pe);
         return
@@ -1119,9 +1170,9 @@ pub unsafe extern "C" fn dumppe(mut offset_pe: libc::c_long) {
      *
      * Internally we want to use relative IPs everywhere possible. The only place
      * that we can't is in arg->value. */
-    if pe_rel_addr == -(1 as libc::c_int) {
+    if pe_rel_addr == -(1i32) {
         pe_rel_addr =
-            pe.header.Characteristics as libc::c_int & 0x2000 as libc::c_int
+            pe.header.Characteristics as libc::c_int & 0x2000i32
     }
     printf(b"Module type: PE (Portable Executable)\n\x00" as *const u8 as
                *const libc::c_char);
@@ -1129,21 +1180,21 @@ pub unsafe extern "C" fn dumppe(mut offset_pe: libc::c_long) {
         printf(b"Module name: %s\n\x00" as *const u8 as *const libc::c_char,
                pe.name);
     }
-    if mode as libc::c_int & 0x1 as libc::c_int != 0 {
+    if mode as libc::c_int & 0x1i32 != 0 {
         print_header(&mut pe);
     }
-    if mode as libc::c_int & 0x4 as libc::c_int != 0 {
+    if mode as libc::c_int & 0x4i32 != 0 {
         putchar('\n' as i32);
         if !pe.exports.is_null() {
             printf(b"Exports:\n\x00" as *const u8 as *const libc::c_char);
-            i = 0 as libc::c_int;
+            i = 0i32;
             while (i as libc::c_uint) < pe.export_count {
-                let mut address: dword =
+                 let mut address = 
                     (*pe.exports.offset(i as isize)).address;
                 if pe_rel_addr == 0 {
                     address =
-                        (address as libc::c_ulong).wrapping_add(pe.imagebase)
-                            as dword as dword
+                        
+                        (address as libc::c_ulong).wrapping_add(pe.imagebase) as dword
                 }
                 printf(b"\t%5d\t%#8x\t%s\x00" as *const u8 as
                            *const libc::c_char,
@@ -1156,21 +1207,16 @@ pub unsafe extern "C" fn dumppe(mut offset_pe: libc::c_long) {
                                *const libc::c_char
                        });
                 if (*pe.exports.offset(i as isize)).address >=
-                       (*pe.dirs.offset(0 as libc::c_int as isize)).address &&
+                       (*pe.dirs.offset(0isize)).address &&
                        (*pe.exports.offset(i as isize)).address <
-                           (*pe.dirs.offset(0 as libc::c_int as
-                                                isize)).address.wrapping_add((*pe.dirs.offset(0
-                                                                                                  as
-                                                                                                  libc::c_int
-                                                                                                  as
-                                                                                                  isize)).size)
+                           (*pe.dirs.offset(0isize)).address.wrapping_add((*pe.dirs.offset(0isize)).size)
                    {
-                    let mut c: libc::c_char = 0;
+                     let mut c =  0;
                     printf(b" -> \x00" as *const u8 as *const libc::c_char);
                     fseek(f,
-                          addr2offset((*pe.exports.offset(i as
+                          crate::src::pe_section::addr2offset((*pe.exports.offset(i as
                                                               isize)).address,
-                                      &mut pe), 0 as libc::c_int);
+                                      &mut pe), 0i32);
                     loop  {
                         c = read_byte() as libc::c_char;
                         if !(c != 0) { break ; }
@@ -1185,12 +1231,12 @@ pub unsafe extern "C" fn dumppe(mut offset_pe: libc::c_long) {
                        *const libc::c_char);
         }
     }
-    if mode as libc::c_int & 0x8 as libc::c_int != 0 {
+    if mode as libc::c_int & 0x8i32 != 0 {
         putchar('\n' as i32);
         if !pe.imports.is_null() {
             printf(b"Imported modules:\n\x00" as *const u8 as
                        *const libc::c_char);
-            i = 0 as libc::c_int;
+            i = 0i32;
             while (i as libc::c_uint) < pe.import_count {
                 printf(b"\t%s\n\x00" as *const u8 as *const libc::c_char,
                        (*pe.imports.offset(i as isize)).module);
@@ -1201,8 +1247,8 @@ pub unsafe extern "C" fn dumppe(mut offset_pe: libc::c_long) {
                        *const libc::c_char);
         }
     }
-    if mode as libc::c_int & 0x10 as libc::c_int != 0 {
-        print_sections(&mut pe);
+    if mode as libc::c_int & 0x10i32 != 0 {
+        crate::src::pe_section::print_sections(&mut pe);
     }
     freepe(&mut pe);
 }

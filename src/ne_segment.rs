@@ -44,13 +44,8 @@ extern "C" {
     fn strcmp(_: *const libc::c_char, _: *const libc::c_char) -> libc::c_int;
     #[no_mangle]
     fn strlen(_: *const libc::c_char) -> libc::c_ulong;
-    #[no_mangle]
-    fn get_instr(ip: dword, p: *const byte, instr: *mut instr,
-                 bits: libc::c_int) -> libc::c_int;
-    #[no_mangle]
-    fn print_instr(ip: *mut libc::c_char, p: *mut byte, len: libc::c_int,
-                   flags: byte, instr: *mut instr,
-                   comment: *const libc::c_char, bits: libc::c_int);
+    
+    
 }
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
@@ -59,8 +54,8 @@ pub type __uint32_t = libc::c_uint;
 pub type __uint64_t = libc::c_ulong;
 pub type __off_t = libc::c_long;
 pub type __off64_t = libc::c_long;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_FILE {
     pub _flags: libc::c_int,
     pub _IO_read_ptr: *mut libc::c_char,
@@ -93,8 +88,8 @@ pub struct _IO_FILE {
     pub _unused2: [libc::c_char; 20],
 }
 pub type _IO_lock_t = ();
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_marker {
     pub _next: *mut _IO_marker,
     pub _sbuf: *mut _IO_FILE,
@@ -114,8 +109,8 @@ pub type C2RustUnnamed = libc::c_uint;
 pub const MASM: C2RustUnnamed = 2;
 pub const NASM: C2RustUnnamed = 1;
 pub const GAS: C2RustUnnamed = 0;
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct header_ne {
     pub ne_magic: word,
     pub ne_ver: byte,
@@ -152,8 +147,8 @@ pub struct header_ne {
     pub ne_expver_min: byte,
     pub ne_expver_maj: byte,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct entry {
     pub flags: byte,
     pub segment: byte,
@@ -161,21 +156,21 @@ pub struct entry {
     pub name: *mut libc::c_char,
 }
 /* may be NULL */
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct export {
     pub ordinal: word,
     pub name: *mut libc::c_char,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct import_module {
     pub name: *mut libc::c_char,
     pub exports: *mut export,
     pub export_count: libc::c_uint,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct reloc {
     pub size: byte,
     pub type_0: byte,
@@ -185,8 +180,8 @@ pub struct reloc {
     pub toffset: word,
     pub text: *mut libc::c_char,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct segment {
     pub cs: word,
     pub start: libc::c_long,
@@ -197,8 +192,8 @@ pub struct segment {
     pub reloc_table: *mut reloc,
     pub reloc_count: word,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct ne {
     pub header: header_ne,
     pub name: *mut libc::c_char,
@@ -210,8 +205,8 @@ pub struct ne {
     pub segments: *mut segment,
 }
 /* branch to target (jmp, jXX) */
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct op {
     pub opcode: word,
     pub subcode: byte,
@@ -305,8 +300,8 @@ pub const AL: argtype = 2;
 /* the literal value 1, used for bit shift ops */
 pub const ONE: argtype = 1;
 pub const NONE: argtype = 0;
-#[derive(Copy, Clone, BitfieldStruct)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone, BitfieldStruct)]
 pub struct instr {
     pub prefix: word,
     pub op: op,
@@ -350,8 +345,8 @@ pub const DISP_16: disptype = 2;
 /* no disp, i.e. mod == 0 && m != 6 */
 pub const DISP_8: disptype = 1;
 pub const DISP_NONE: disptype = 0;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct arg {
     pub string: [libc::c_char; 32],
     pub ip: dword,
@@ -367,7 +362,8 @@ unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
 /* additional options */
 #[no_mangle]
 pub static mut resource_filters: *mut *mut libc::c_char =
-    0 as *const *mut libc::c_char as *mut *mut libc::c_char;
+    
+    0 as *mut *mut libc::c_char;
 #[no_mangle]
 pub static mut mode: word = 0;
 #[no_mangle]
@@ -376,13 +372,13 @@ pub static mut opts: word = 0;
 pub static mut asm_syntax: C2RustUnnamed = GAS;
 #[inline]
 unsafe extern "C" fn read_word() -> word {
-    let mut w: word = 0;
+     let mut w =  0;
     fread(&mut w as *mut word as *mut libc::c_void,
-          2 as libc::c_int as size_t, 1 as libc::c_int as size_t, f);
+          2u64, 1u64, f);
     return w;
 }
 #[no_mangle]
-pub static mut f: *mut FILE = 0 as *const FILE as *mut FILE;
+pub static mut f: *mut FILE =  0 as *mut FILE;
 #[inline]
 unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
 #[no_mangle]
@@ -411,8 +407,8 @@ pub static mut resource_filters_count: libc::c_uint = 0;
 /* index function */
 unsafe extern "C" fn get_entry_name(mut cs: word, mut ip: word,
                                     mut ne: *const ne) -> *mut libc::c_char {
-    let mut i: libc::c_uint = 0;
-    i = 0 as libc::c_int as libc::c_uint;
+    
+      let mut i =   0u32;
     while i < (*ne).entcount {
         if (*(*ne).enttab.offset(i as isize)).segment as libc::c_int ==
                cs as libc::c_int &&
@@ -427,11 +423,11 @@ unsafe extern "C" fn get_entry_name(mut cs: word, mut ip: word,
 /* index function */
 unsafe extern "C" fn get_reloc(mut seg: *const segment, mut ip: word)
  -> *const reloc {
-    let mut i: libc::c_uint = 0;
-    let mut o: libc::c_uint = 0;
-    i = 0 as libc::c_int as libc::c_uint;
+    
+    
+      let mut o =  0; let mut i =   0u32;
     while i < (*seg).reloc_count as libc::c_uint {
-        o = 0 as libc::c_int as libc::c_uint;
+        o = 0u32;
         while o <
                   (*(*seg).reloc_table.offset(i as isize)).offset_count as
                       libc::c_uint {
@@ -452,18 +448,18 @@ unsafe extern "C" fn get_reloc(mut seg: *const segment, mut ip: word)
 unsafe extern "C" fn get_imported_name(mut module: word, mut ordinal: word,
                                        mut ne: *const ne)
  -> *mut libc::c_char {
-    let mut i: libc::c_uint = 0;
-    i = 0 as libc::c_int as libc::c_uint;
+    
+      let mut i =   0u32;
     while i <
-              (*(*ne).imptab.offset((module as libc::c_int - 1 as libc::c_int)
+              (*(*ne).imptab.offset((module as libc::c_int - 1i32)
                                         as isize)).export_count {
-        if (*(*(*ne).imptab.offset((module as libc::c_int - 1 as libc::c_int)
+        if (*(*(*ne).imptab.offset((module as libc::c_int - 1i32)
                                        as
                                        isize)).exports.offset(i as
                                                                   isize)).ordinal
                as libc::c_int == ordinal as libc::c_int {
             return (*(*(*ne).imptab.offset((module as libc::c_int -
-                                                1 as libc::c_int) as
+                                                1i32) as
                                                isize)).exports.offset(i as
                                                                           isize)).name
         }
@@ -474,14 +470,16 @@ unsafe extern "C" fn get_imported_name(mut module: word, mut ordinal: word,
 /* Tweak the inline string and return the comment. */
 unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                                   mut ne: *const ne) -> *const libc::c_char {
-    let mut r: *const reloc = get_reloc(seg, (*arg).ip as word);
-    let mut module: *mut libc::c_char = 0 as *mut libc::c_char;
+    
+     let mut r =  get_reloc(seg, (*arg).ip as word); let mut module =  0 as *mut libc::c_char;
     if r.is_null() &&
-           (*arg).type_0 as libc::c_uint ==
-               PTR32 as libc::c_int as libc::c_uint {
+           
+           (*arg).type_0 ==
+               
+               PTR32 {
         r =
             get_reloc(seg,
-                      (*arg).ip.wrapping_add(2 as libc::c_int as libc::c_uint)
+                      (*arg).ip.wrapping_add(2u32)
                           as word)
     }
     if r.is_null() {
@@ -490,16 +488,16 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                     as *const u8 as *const libc::c_char, (*arg).ip);
         return b"?\x00" as *const u8 as *const libc::c_char
     }
-    if (*r).type_0 as libc::c_int == 1 as libc::c_int ||
-           (*r).type_0 as libc::c_int == 2 as libc::c_int {
+    if (*r).type_0 as libc::c_int == 1i32 ||
+           (*r).type_0 as libc::c_int == 2i32 {
         module =
             (*(*ne).imptab.offset(((*r).tseg as libc::c_int -
-                                       1 as libc::c_int) as isize)).name
+                                       1i32) as isize)).name
     }
-    if (*arg).type_0 as libc::c_uint == PTR32 as libc::c_int as libc::c_uint
-           && (*r).size as libc::c_int == 3 as libc::c_int {
+    if  (*arg).type_0 ==  PTR32
+           && (*r).size as libc::c_int == 3i32 {
         /* 32-bit relocation on 32-bit pointer, so just copy the name */
-        if (*r).type_0 as libc::c_int == 0 as libc::c_int {
+        if (*r).type_0 as libc::c_int == 0i32 {
             snprintf((*arg).string.as_mut_ptr(),
                      ::std::mem::size_of::<[libc::c_char; 32]>() as
                          libc::c_ulong,
@@ -507,7 +505,7 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                      (*r).tseg as libc::c_int, (*r).toffset as libc::c_int);
             return (*r).text
         } else {
-            if (*r).type_0 as libc::c_int == 1 as libc::c_int {
+            if (*r).type_0 as libc::c_int == 1i32 {
                 snprintf((*arg).string.as_mut_ptr(),
                          ::std::mem::size_of::<[libc::c_char; 32]>() as
                              libc::c_ulong,
@@ -515,7 +513,7 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                          module, (*r).toffset as libc::c_int);
                 return get_imported_name((*r).tseg, (*r).toffset, ne)
             } else {
-                if (*r).type_0 as libc::c_int == 2 as libc::c_int {
+                if (*r).type_0 as libc::c_int == 2i32 {
                     snprintf((*arg).string.as_mut_ptr(),
                              ::std::mem::size_of::<[libc::c_char; 32]>() as
                                  libc::c_ulong,
@@ -525,17 +523,18 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                                  libc::c_int,
                              &mut *(*ne).nametab.offset(((*r).toffset as
                                                              libc::c_int +
-                                                             1 as libc::c_int)
+                                                             1i32)
                                                             as isize) as
                                  *mut byte);
                     return 0 as *const libc::c_char
                 }
             }
         }
-    } else if (*arg).type_0 as libc::c_uint ==
-                  PTR32 as libc::c_int as libc::c_uint &&
-                  (*r).size as libc::c_int == 2 as libc::c_int &&
-                  (*r).type_0 as libc::c_int == 0 as libc::c_int {
+    } else if  (*arg).type_0 ==
+                  
+                  PTR32 &&
+                  (*r).size as libc::c_int == 2i32 &&
+                  (*r).type_0 as libc::c_int == 0i32 {
         /* segment relocation on 32-bit pointer; copy the segment but keep the
          * offset */
         snprintf((*arg).string.as_mut_ptr(),
@@ -544,16 +543,16 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                  (*r).tseg as libc::c_int, (*arg).value);
         return get_entry_name((*r).tseg, (*arg).value as word, ne)
     } else {
-        if (*arg).type_0 as libc::c_uint == IMM as libc::c_int as libc::c_uint
+        if  (*arg).type_0 ==  IMM
                &&
-               ((*r).size as libc::c_int == 2 as libc::c_int ||
-                    (*r).size as libc::c_int == 5 as libc::c_int) {
-            /* imm16 referencing a segment or offset directly */
-            let mut pfx: *const libc::c_char =
-                if (*r).size as libc::c_int == 2 as libc::c_int {
+               ((*r).size as libc::c_int == 2i32 ||
+                    (*r).size as libc::c_int == 5i32) {
+             let mut pfx =
+    
+                if (*r).size as libc::c_int == 2i32 {
                     b"seg \x00" as *const u8 as *const libc::c_char
                 } else { b"\x00" as *const u8 as *const libc::c_char };
-            if (*r).type_0 as libc::c_int == 0 as libc::c_int {
+            if (*r).type_0 as libc::c_int == 0i32 {
                 snprintf((*arg).string.as_mut_ptr(),
                          ::std::mem::size_of::<[libc::c_char; 32]>() as
                              libc::c_ulong,
@@ -561,7 +560,7 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                          (*r).tseg as libc::c_int);
                 return 0 as *const libc::c_char
             } else {
-                if (*r).type_0 as libc::c_int == 1 as libc::c_int {
+                if (*r).type_0 as libc::c_int == 1i32 {
                     snprintf((*arg).string.as_mut_ptr(),
                              ::std::mem::size_of::<[libc::c_char; 32]>() as
                                  libc::c_ulong,
@@ -570,7 +569,7 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                              (*r).toffset as libc::c_int);
                     return get_imported_name((*r).tseg, (*r).toffset, ne)
                 } else {
-                    if (*r).type_0 as libc::c_int == 2 as libc::c_int {
+                    if (*r).type_0 as libc::c_int == 2i32 {
                         snprintf((*arg).string.as_mut_ptr(),
                                  ::std::mem::size_of::<[libc::c_char; 32]>()
                                      as libc::c_ulong,
@@ -580,8 +579,7 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
                                      as libc::c_int,
                                  &mut *(*ne).nametab.offset(((*r).toffset as
                                                                  libc::c_int +
-                                                                 1 as
-                                                                     libc::c_int)
+                                                                 1i32)
                                                                 as isize) as
                                      *mut byte);
                         return 0 as *const libc::c_char
@@ -594,20 +592,27 @@ unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
             b"Warning: %#x: unhandled relocation: size %d, type %d, argtype %x\n\x00"
                 as *const u8 as *const libc::c_char, (*arg).ip,
             (*r).size as libc::c_int, (*r).type_0 as libc::c_int,
-            (*arg).type_0 as libc::c_uint);
+            
+            (*arg).type_0);
     return 0 as *const libc::c_char;
 }
 /* Returns the number of bytes processed (same as get_instr). */
 unsafe extern "C" fn print_ne_instr(mut seg: *const segment, mut ip: word,
                                     mut p: *mut byte, mut ne: *const ne)
  -> libc::c_int {
-    let mut cs: word = (*seg).cs;
-    let mut instr: instr =
+    
+    
+    
+    
+    
+    
+      let mut cs =  (*seg).cs; let mut instr =
+    
         {
             let mut init =
                 instr{usedmem_vex_vex_reg_vex_256: [0; 1],
                       c2rust_padding: [0; 4],
-                      prefix: 0 as libc::c_int as word,
+                      prefix: 0u16,
                       op:
                           op{opcode: 0,
                              subcode: 0,
@@ -631,85 +636,77 @@ unsafe extern "C" fn print_ne_instr(mut seg: *const segment, mut ip: word,
             init.set_vex_reg(0);
             init.set_vex_256(0);
             init
-        };
-    let mut len: libc::c_uint = 0;
-    let mut bits: libc::c_int =
-        if (*seg).flags as libc::c_int & 0x2000 as libc::c_int != 0 {
-            32 as libc::c_int
-        } else { 16 as libc::c_int };
-    let mut comment: *const libc::c_char = 0 as *const libc::c_char;
-    let mut ip_string: [libc::c_char; 11] = [0; 11];
-    len = get_instr(ip as dword, p, &mut instr, bits) as libc::c_uint;
+        }; let mut bits =
+    
+        if (*seg).flags as libc::c_int & 0x2000i32 != 0 {
+            32i32
+        } else { 16i32 }; let mut comment =  0 as *const libc::c_char; let mut ip_string =  [0; 11]; let mut len =
+    
+     crate::src::x86_instr::get_instr(ip as dword, p, &mut instr, bits) as libc::c_uint;
     sprintf(ip_string.as_mut_ptr(),
             b"%3d:%04x\x00" as *const u8 as *const libc::c_char,
             (*seg).cs as libc::c_int, ip as libc::c_int);
     /* check for relocations */
-    if *(*seg).instr_flags.offset(instr.args[0 as libc::c_int as usize].ip as
+    if *(*seg).instr_flags.offset(instr.args[0usize].ip as
                                       isize) as libc::c_int &
-           0x20 as libc::c_int != 0 {
+           0x20i32 != 0 {
         comment =
             relocate_arg(seg,
-                         &mut *instr.args.as_mut_ptr().offset(0 as libc::c_int
-                                                                  as isize),
+                         &mut *instr.args.as_mut_ptr().offset(0isize),
                          ne)
     }
-    if *(*seg).instr_flags.offset(instr.args[1 as libc::c_int as usize].ip as
+    if *(*seg).instr_flags.offset(instr.args[1usize].ip as
                                       isize) as libc::c_int &
-           0x20 as libc::c_int != 0 {
+           0x20i32 != 0 {
         comment =
             relocate_arg(seg,
-                         &mut *instr.args.as_mut_ptr().offset(1 as libc::c_int
-                                                                  as isize),
+                         &mut *instr.args.as_mut_ptr().offset(1isize),
                          ne)
     }
     /* make sure to check for PTR32 segment-only relocations */
-    if instr.op.arg0 as libc::c_uint == PTR32 as libc::c_int as libc::c_uint
+    if  instr.op.arg0 ==  PTR32
            &&
-           *(*seg).instr_flags.offset(instr.args[0 as libc::c_int as
-                                                     usize].ip.wrapping_add(2
-                                                                                as
-                                                                                libc::c_int
-                                                                                as
-                                                                                libc::c_uint)
+           *(*seg).instr_flags.offset(instr.args[0usize].ip.wrapping_add(2u32)
                                           as isize) as libc::c_int &
-               0x20 as libc::c_int != 0 {
+               0x20i32 != 0 {
         comment =
             relocate_arg(seg,
-                         &mut *instr.args.as_mut_ptr().offset(0 as libc::c_int
-                                                                  as isize),
+                         &mut *instr.args.as_mut_ptr().offset(0isize),
                          ne)
     }
     /* check if we are referencing a named export */
     if comment.is_null() &&
-           instr.op.arg0 as libc::c_uint ==
-               REL16 as libc::c_int as libc::c_uint {
+           
+           instr.op.arg0 ==
+               
+               REL16 {
         comment =
             get_entry_name(cs,
-                           instr.args[0 as libc::c_int as usize].value as
+                           instr.args[0usize].value as
                                word, ne)
     }
-    print_instr(ip_string.as_mut_ptr(), p, len as libc::c_int,
+    crate::src::x86_instr::print_instr(ip_string.as_mut_ptr(), p, len as libc::c_int,
                 *(*seg).instr_flags.offset(ip as isize), &mut instr, comment,
                 bits);
     return len as libc::c_int;
 }
 unsafe extern "C" fn print_disassembly(mut seg: *const segment,
                                        mut ne: *const ne) {
-    let cs: word = (*seg).cs;
-    let mut ip: word = 0 as libc::c_int as word;
-    let mut buffer: [byte; 16] = [0; 16];
+    
+    
+     let cs =  (*seg).cs; let mut ip =  0u16; let mut buffer =  [0; 16];
     while (ip as libc::c_int) < (*seg).length as libc::c_int {
-        fseek(f, (*seg).start + ip as libc::c_long, 0 as libc::c_int);
+        fseek(f, (*seg).start + ip as libc::c_long, 0i32);
         /* find a valid instruction */
         if *(*seg).instr_flags.offset(ip as isize) as libc::c_int &
-               0x2 as libc::c_int == 0 {
-            if opts as libc::c_int & 0x1 as libc::c_int != 0 {
+               0x2i32 == 0 {
+            if opts as libc::c_int & 0x1i32 != 0 {
                 /* still skip zeroes */
-                if read_byte() as libc::c_int == 0 as libc::c_int {
+                if read_byte() as libc::c_int == 0i32 {
                     printf(b"     ...\n\x00" as *const u8 as
                                *const libc::c_char);
                     ip = ip.wrapping_add(1);
-                    while read_byte() as libc::c_int == 0 as libc::c_int {
+                    while read_byte() as libc::c_int == 0i32 {
                         ip = ip.wrapping_add(1)
                     }
                 }
@@ -717,19 +714,19 @@ unsafe extern "C" fn print_disassembly(mut seg: *const segment,
                 printf(b"     ...\n\x00" as *const u8 as *const libc::c_char);
                 while (ip as libc::c_int) < (*seg).length as libc::c_int &&
                           *(*seg).instr_flags.offset(ip as isize) as
-                              libc::c_int & 0x2 as libc::c_int == 0 {
+                              libc::c_int & 0x2i32 == 0 {
                     ip = ip.wrapping_add(1)
                 }
             }
         }
-        fseek(f, (*seg).start + ip as libc::c_long, 0 as libc::c_int);
+        fseek(f, (*seg).start + ip as libc::c_long, 0i32);
         if ip as libc::c_int >= (*seg).length as libc::c_int { return }
         /* Instructions can "hang over" the end of a segment.
          * Zero should be supplied. */
-        memset(buffer.as_mut_ptr() as *mut libc::c_void, 0 as libc::c_int,
+        memset(buffer.as_mut_ptr() as *mut libc::c_void, 0i32,
                ::std::mem::size_of::<[byte; 16]>() as libc::c_ulong);
         fread(buffer.as_mut_ptr() as *mut libc::c_void,
-              1 as libc::c_int as size_t,
+              1u64,
               if (::std::mem::size_of::<[byte; 16]>() as libc::c_ulong) <
                      ((*seg).length as libc::c_int - ip as libc::c_int) as
                          libc::c_ulong {
@@ -739,8 +736,8 @@ unsafe extern "C" fn print_disassembly(mut seg: *const segment,
                       libc::c_ulong
               }, f);
         if *(*seg).instr_flags.offset(ip as isize) as libc::c_int &
-               0x8 as libc::c_int != 0 {
-            let mut name: *mut libc::c_char = get_entry_name(cs, ip, ne);
+               0x8i32 != 0 {
+             let mut name =  get_entry_name(cs, ip, ne);
             printf(b"\n\x00" as *const u8 as *const libc::c_char);
             printf(b"%d:%04x <%s>:\n\x00" as *const u8 as *const libc::c_char,
                    cs as libc::c_int, ip as libc::c_int,
@@ -759,24 +756,25 @@ unsafe extern "C" fn print_disassembly(mut seg: *const segment,
     putchar('\n' as i32);
 }
 unsafe extern "C" fn print_data(mut seg: *const segment) {
-    let mut ip: word = 0;
-    ip = 0 as libc::c_int as word;
+    
+      let mut ip =   0u16;
     while (ip as libc::c_int) < (*seg).length as libc::c_int {
-        let mut row: [byte; 16] = [0; 16];
-        let mut len: libc::c_int =
+        
+         let mut row =  [0; 16]; let mut len =
+    
             if ((*seg).length as libc::c_int - ip as libc::c_int) <
-                   16 as libc::c_int {
+                   16i32 {
                 ((*seg).length as libc::c_int) - ip as libc::c_int
-            } else { 16 as libc::c_int };
-        let mut i: libc::c_int = 0;
-        fseek(f, (*seg).start + ip as libc::c_long, 0 as libc::c_int);
+            } else { 16i32 };
+        
+        fseek(f, (*seg).start + ip as libc::c_long, 0i32);
         fread(row.as_mut_ptr() as *mut libc::c_void,
               ::std::mem::size_of::<byte>() as libc::c_ulong, len as size_t,
               f);
         printf(b"%3d:%04x\x00" as *const u8 as *const libc::c_char,
                (*seg).cs as libc::c_int, ip as libc::c_int);
-        i = 0 as libc::c_int;
-        while i < 16 as libc::c_int {
+          let mut i =   0i32;
+        while i < 16i32 {
             if i < len {
                 printf(b" %02x\x00" as *const u8 as *const libc::c_char,
                        row[i as usize] as libc::c_int);
@@ -784,25 +782,29 @@ unsafe extern "C" fn print_data(mut seg: *const segment) {
             i += 1
         }
         printf(b"  \x00" as *const u8 as *const libc::c_char);
-        i = 0 as libc::c_int;
-        while i < len {
+        
+         for i in  0i32.. len {
+    
             if row[i as usize] as libc::c_int >= ' ' as i32 &&
                    row[i as usize] as libc::c_int <= '~' as i32 {
                 putchar(row[i as usize] as libc::c_int);
             } else { putchar('.' as i32); }
-            i += 1
-        }
+}
         putchar('\n' as i32);
-        ip = (ip as libc::c_int + 16 as libc::c_int) as word
+        ip = (ip as libc::c_int + 16i32) as word
     };
 }
 unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
                                   mut ne: *mut ne) {
-    let mut seg: *mut segment =
-        &mut *(*ne).segments.offset((cs as libc::c_int - 1 as libc::c_int) as
-                                        isize) as *mut segment;
-    let mut buffer: [byte; 16] = [0; 16];
-    let mut instr: instr =
+    
+    
+    
+    
+     let mut seg =
+    
+        &mut *(*ne).segments.offset((cs as libc::c_int - 1i32) as
+                                        isize) as *mut segment; let mut buffer =  [0; 16]; let mut instr =
+    
         instr{prefix: 0,
               op:
                   op{opcode: 0,
@@ -819,9 +821,7 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
               sib_scale: 0,
               sib_index: 0,
               usedmem_vex_vex_reg_vex_256: [0; 1],
-              c2rust_padding: [0; 4],};
-    let mut instr_length: libc::c_int = 0;
-    let mut i: libc::c_int = 0;
+              c2rust_padding: [0; 4],}; let mut instr_length =  0; let mut i =  0;
     if ip as libc::c_int >= (*seg).length as libc::c_int {
         fprintf(stderr,
                 b"Warning: %d:%04x: \x00" as *const u8 as *const libc::c_char,
@@ -832,7 +832,7 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
         return
     }
     if *(*seg).instr_flags.offset(ip as isize) as libc::c_int &
-           (0x2 as libc::c_int | 0x1 as libc::c_int) == 0x1 as libc::c_int {
+           (0x2i32 | 0x1i32) == 0x1i32 {
         fprintf(stderr,
                 b"Warning: %d:%04x: \x00" as *const u8 as *const libc::c_char,
                 cs as libc::c_int, ip as libc::c_int);
@@ -843,15 +843,15 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
     while (ip as libc::c_int) < (*seg).length as libc::c_int {
         /* check if we already read from here */
         if *(*seg).instr_flags.offset(ip as isize) as libc::c_int &
-               0x1 as libc::c_int != 0 {
+               0x1i32 != 0 {
             return
         }
         /* read the instruction */
-        fseek(f, (*seg).start + ip as libc::c_long, 0 as libc::c_int);
-        memset(buffer.as_mut_ptr() as *mut libc::c_void, 0 as libc::c_int,
+        fseek(f, (*seg).start + ip as libc::c_long, 0i32);
+        memset(buffer.as_mut_ptr() as *mut libc::c_void, 0i32,
                ::std::mem::size_of::<[byte; 16]>() as libc::c_ulong);
         fread(buffer.as_mut_ptr() as *mut libc::c_void,
-              1 as libc::c_int as size_t,
+              1u64,
               if (::std::mem::size_of::<[byte; 16]>() as libc::c_ulong) <
                      ((*seg).length as libc::c_int - ip as libc::c_int) as
                          libc::c_ulong {
@@ -861,19 +861,19 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
                       libc::c_ulong
               }, f);
         instr_length =
-            get_instr(ip as dword, buffer.as_mut_ptr(), &mut instr,
-                      if (*seg).flags as libc::c_int & 0x2000 as libc::c_int
+            crate::src::x86_instr::get_instr(ip as dword, buffer.as_mut_ptr(), &mut instr,
+                      if (*seg).flags as libc::c_int & 0x2000i32
                              != 0 {
-                          32 as libc::c_int
-                      } else { 16 as libc::c_int });
+                          32i32
+                      } else { 16i32 });
         /* mark the bytes */
         let ref mut fresh0 = *(*seg).instr_flags.offset(ip as isize);
-        *fresh0 = (*fresh0 as libc::c_int | 0x2 as libc::c_int) as byte;
+        *fresh0 = (*fresh0 as libc::c_int | 0x2i32) as byte;
         i = ip as libc::c_int;
         while i < ip as libc::c_int + instr_length &&
                   i < (*seg).min_alloc as libc::c_int {
             let ref mut fresh1 = *(*seg).instr_flags.offset(i as isize);
-            *fresh1 = (*fresh1 as libc::c_int | 0x1 as libc::c_int) as byte;
+            *fresh1 = (*fresh1 as libc::c_int | 0x1i32) as byte;
             i += 1
         }
         /* instruction which hangs over the minimum allocation */
@@ -882,30 +882,33 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
             break ;
         }
         /* handle conditional and unconditional jumps */
-        if instr.op.arg0 as libc::c_uint ==
-               PTR32 as libc::c_int as libc::c_uint {
+        if  instr.op.arg0 ==
+               
+               PTR32 {
             i = ip as libc::c_int;
             while i < ip as libc::c_int + instr_length {
                 if *(*seg).instr_flags.offset(i as isize) as libc::c_int &
-                       0x20 as libc::c_int != 0 {
-                    let mut r: *const reloc = get_reloc(seg, i as word);
-                    let mut tseg: *const segment = 0 as *const segment;
+                       0x20i32 != 0 {
+                     let mut r =  get_reloc(seg, i as word);
+                    
                     if r.is_null() { break ; }
-                    tseg =
+                      let mut tseg =
+    
+    
                         &mut *(*ne).segments.offset(((*r).tseg as libc::c_int
-                                                         - 1 as libc::c_int)
+                                                         - 1i32)
                                                         as isize) as
                             *mut segment;
-                    if (*r).type_0 as libc::c_int != 0 as libc::c_int {
+                    if (*r).type_0 as libc::c_int != 0i32 {
                         break ;
                     }
-                    if (*r).size as libc::c_int == 3 as libc::c_int {
+                    if (*r).size as libc::c_int == 3i32 {
                         /* 32-bit relocation on 32-bit pointer */
                         let ref mut fresh2 =
                             *(*tseg).instr_flags.offset((*r).toffset as
                                                             isize);
                         *fresh2 =
-                            (*fresh2 as libc::c_int | 0x10 as libc::c_int) as
+                            (*fresh2 as libc::c_int | 0x10i32) as
                                 byte;
                         if strcmp(instr.op.name.as_mut_ptr(),
                                   b"call\x00" as *const u8 as
@@ -914,83 +917,71 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
                                 *(*tseg).instr_flags.offset((*r).toffset as
                                                                 isize);
                             *fresh3 =
-                                (*fresh3 as libc::c_int | 0x8 as libc::c_int)
+                                (*fresh3 as libc::c_int | 0x8i32)
                                     as byte
                         } else {
                             let ref mut fresh4 =
                                 *(*tseg).instr_flags.offset((*r).toffset as
                                                                 isize);
                             *fresh4 =
-                                (*fresh4 as libc::c_int | 0x4 as libc::c_int)
+                                (*fresh4 as libc::c_int | 0x4i32)
                                     as byte
                         }
                         scan_segment((*r).tseg, (*r).toffset, ne);
-                    } else if (*r).size as libc::c_int == 2 as libc::c_int {
+                    } else if (*r).size as libc::c_int == 2i32 {
                         /* segment relocation on 32-bit pointer */
                         let ref mut fresh5 =
-                            *(*tseg).instr_flags.offset(instr.args[0 as
-                                                                       libc::c_int
-                                                                       as
-                                                                       usize].value
+                            *(*tseg).instr_flags.offset(instr.args[0usize].value
                                                             as isize);
                         *fresh5 =
-                            (*fresh5 as libc::c_int | 0x10 as libc::c_int) as
+                            (*fresh5 as libc::c_int | 0x10i32) as
                                 byte;
                         if strcmp(instr.op.name.as_mut_ptr(),
                                   b"call\x00" as *const u8 as
                                       *const libc::c_char) == 0 {
                             let ref mut fresh6 =
-                                *(*tseg).instr_flags.offset(instr.args[0 as
-                                                                           libc::c_int
-                                                                           as
-                                                                           usize].value
+                                *(*tseg).instr_flags.offset(instr.args[0usize].value
                                                                 as isize);
                             *fresh6 =
-                                (*fresh6 as libc::c_int | 0x8 as libc::c_int)
+                                (*fresh6 as libc::c_int | 0x8i32)
                                     as byte
                         } else {
                             let ref mut fresh7 =
-                                *(*tseg).instr_flags.offset(instr.args[0 as
-                                                                           libc::c_int
-                                                                           as
-                                                                           usize].value
+                                *(*tseg).instr_flags.offset(instr.args[0usize].value
                                                                 as isize);
                             *fresh7 =
-                                (*fresh7 as libc::c_int | 0x4 as libc::c_int)
+                                (*fresh7 as libc::c_int | 0x4i32)
                                     as byte
                         }
                         scan_segment((*r).tseg,
-                                     instr.args[0 as libc::c_int as
-                                                    usize].value as word, ne);
+                                     instr.args[0usize].value as word, ne);
                     }
                     break ;
                 } else { i += 1 }
             }
-        } else if instr.op.flags & 0x8000 as libc::c_int as libc::c_uint != 0
+        } else if instr.op.flags & 0x8000u32 != 0
          {
             /* near relative jump, loop, or call */
             if strcmp(instr.op.name.as_mut_ptr(),
                       b"call\x00" as *const u8 as *const libc::c_char) == 0 {
                 let ref mut fresh8 =
-                    *(*seg).instr_flags.offset(instr.args[0 as libc::c_int as
-                                                              usize].value as
+                    *(*seg).instr_flags.offset(instr.args[0usize].value as
                                                    isize);
                 *fresh8 =
-                    (*fresh8 as libc::c_int | 0x8 as libc::c_int) as byte
+                    (*fresh8 as libc::c_int | 0x8i32) as byte
             } else {
                 let ref mut fresh9 =
-                    *(*seg).instr_flags.offset(instr.args[0 as libc::c_int as
-                                                              usize].value as
+                    *(*seg).instr_flags.offset(instr.args[0usize].value as
                                                    isize);
                 *fresh9 =
-                    (*fresh9 as libc::c_int | 0x4 as libc::c_int) as byte
+                    (*fresh9 as libc::c_int | 0x4i32) as byte
             }
             /* scan it */
             scan_segment(cs,
-                         instr.args[0 as libc::c_int as usize].value as word,
+                         instr.args[0usize].value as word,
                          ne);
         }
-        if instr.op.flags & 0x4000 as libc::c_int as libc::c_uint != 0 {
+        if instr.op.flags & 0x4000u32 != 0 {
             return
         }
         ip = (ip as libc::c_int + instr_length) as word
@@ -1003,8 +994,8 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
                 *const libc::c_char);
 }
 unsafe extern "C" fn print_segment_flags(mut flags: word) {
-    let mut buffer: [libc::c_char; 1024] = [0; 1024];
-    if flags as libc::c_int & 0x1 as libc::c_int != 0 {
+     let mut buffer =  [0; 1024];
+    if flags as libc::c_int & 0x1i32 != 0 {
         strcpy(buffer.as_mut_ptr(),
                b"data\x00" as *const u8 as *const libc::c_char);
     } else {
@@ -1012,64 +1003,64 @@ unsafe extern "C" fn print_segment_flags(mut flags: word) {
                b"code\x00" as *const u8 as *const libc::c_char);
     }
     /* I think these three should never occur in a file */
-    if flags as libc::c_int & 0x2 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x2i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", allocated\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x4 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x4i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", loaded\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x8 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x8i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", iterated\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x10 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x10i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", moveable\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x20 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x20i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", shareable\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x40 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x40i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", preload\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x80 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x80i32 != 0 {
         strcat(buffer.as_mut_ptr(),
-               if flags as libc::c_int & 0x1 as libc::c_int != 0 {
+               if flags as libc::c_int & 0x1i32 != 0 {
                    b", read-only\x00" as *const u8 as *const libc::c_char
                } else {
                    b", execute-only\x00" as *const u8 as *const libc::c_char
                });
     }
-    if flags as libc::c_int & 0x100 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x100i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", has relocation data\x00" as *const u8 as
                    *const libc::c_char);
     }
     /* there's still an unidentified flag 0x0400 which appears in all of my testcases.
      * but WINE doesn't know what it is, so... */
-    if flags as libc::c_int & 0x800 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x800i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", self-loading\x00" as *const u8 as
                    *const libc::c_char); /* or segment */
     } /* or offset */
-    if flags as libc::c_int & 0x1000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x1000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", discardable\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x2000 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x2000i32 != 0 {
         strcat(buffer.as_mut_ptr(),
                b", 32-bit\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0xc608 as libc::c_int != 0 {
+    if flags as libc::c_int & 0xc608i32 != 0 {
         sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
                                                isize),
                 b", (unknown flags 0x%04x)\x00" as *const u8 as
                     *const libc::c_char,
-                flags as libc::c_int & 0xc608 as libc::c_int);
+                flags as libc::c_int & 0xc608i32);
     }
     printf(b"    Flags: 0x%04x (%s)\n\x00" as *const u8 as
                *const libc::c_char, flags as libc::c_int,
@@ -1077,48 +1068,58 @@ unsafe extern "C" fn print_segment_flags(mut flags: word) {
 }
 unsafe extern "C" fn read_reloc(mut seg: *const segment, mut r: *mut reloc,
                                 mut ne: *mut ne) {
-    let mut size: byte = read_byte();
-    let mut type_0: byte = read_byte();
-    let mut offset: word = read_word();
-    let mut module: word = read_word();
-    let mut ordinal: word = read_word();
-    let mut offset_cursor: word = 0;
-    let mut next: word = 0;
-    memset(r as *mut libc::c_void, 0 as libc::c_int,
+    
+    
+    
+    
+    
+    
+     let mut size =  read_byte(); let mut type_0 =  read_byte(); let mut offset =  read_word(); let mut module =  read_word(); let mut ordinal =  read_word(); let mut next =  0;
+    memset(r as *mut libc::c_void, 0i32,
            ::std::mem::size_of::<reloc>() as libc::c_ulong);
-    (*r).size = size;
-    (*r).type_0 = (type_0 as libc::c_int & 3 as libc::c_int) as byte;
-    if type_0 as libc::c_int & 3 as libc::c_int == 0 as libc::c_int {
+    
+     *r =
+    crate::src::ne_segment::reloc{size:   size,
+                                  type_0:
+                                      
+                                   (type_0 as libc::c_int & 3i32) as byte, ..*r};
+    if type_0 as libc::c_int & 3i32 == 0i32 {
         /* internal reference */
-        let mut name: *mut libc::c_char = 0 as *mut libc::c_char;
-        if module as libc::c_int == 0xff as libc::c_int {
-            (*r).tseg =
+        
+        if module as libc::c_int == 0xffi32 {
+             *r =
+    crate::src::ne_segment::reloc{tseg:
+                                      
+                                  
                 (*(*ne).enttab.offset((ordinal as libc::c_int -
-                                           1 as libc::c_int) as
-                                          isize)).segment as word;
-            (*r).toffset =
+                                           1i32) as
+                                          isize)).segment as word, ..*r};
+            *r =
+                crate::src::ne_segment::reloc{toffset:
+                                  
                 (*(*ne).enttab.offset((ordinal as libc::c_int -
-                                           1 as libc::c_int) as isize)).offset
-        } else { (*r).tseg = module; (*r).toffset = ordinal }
+                                           1i32) as isize)).offset,
+                                                                              ..*r}
+        } else {  *r = crate::src::ne_segment::reloc{tseg:   module, ..*r}; *r = crate::src::ne_segment::reloc{toffset:  ordinal, ..*r} }
         /* grab the name, if we can */
-        name = get_entry_name((*r).tseg, (*r).toffset, ne);
-        if !name.is_null() { (*r).text = name }
-    } else if type_0 as libc::c_int & 3 as libc::c_int == 1 as libc::c_int {
+          let mut name =   get_entry_name((*r).tseg, (*r).toffset, ne);
+        if !name.is_null() { *r = crate::src::ne_segment::reloc{text:  name, ..*r} }
+    } else if type_0 as libc::c_int & 3i32 == 1i32 {
         /* imported ordinal */
-        (*r).tseg = module;
-        (*r).toffset = ordinal
-    } else if type_0 as libc::c_int & 3 as libc::c_int == 2 as libc::c_int {
+         *r = crate::src::ne_segment::reloc{tseg:   module, ..*r};
+        *r = crate::src::ne_segment::reloc{toffset:  ordinal, ..*r}
+    } else if type_0 as libc::c_int & 3i32 == 2i32 {
         /* imported name */
-        (*r).tseg = module;
-        (*r).toffset = ordinal
-    } else if type_0 as libc::c_int & 3 as libc::c_int == 3 as libc::c_int {
+         *r = crate::src::ne_segment::reloc{tseg:   module, ..*r};
+        *r = crate::src::ne_segment::reloc{toffset:  ordinal, ..*r}
+    } else if type_0 as libc::c_int & 3i32 == 3i32 {
         /* OSFIXUP */
         /* FIXME: the meaning of this is not understood! */
         return
     }
     /* get the offset list */
-    offset_cursor = offset;
-    (*r).offset_count = 0 as libc::c_int as word;
+      let mut offset_cursor =   offset;
+     *r = crate::src::ne_segment::reloc{offset_count:   0u16, ..*r};
     loop 
          /* One of my testcases has relocation offsets that exceed the length of
          * the segment. Until we figure out what that's about, ignore them. */
@@ -1132,55 +1133,66 @@ unsafe extern "C" fn read_reloc(mut seg: *const segment, mut r: *mut reloc,
             break ;
         } else {
             if *(*seg).instr_flags.offset(offset_cursor as isize) as
-                   libc::c_int & 0x20 as libc::c_int != 0 {
+                   libc::c_int & 0x20i32 != 0 {
                 fprintf(stderr,
                         b"Warning: %d:%04x: Infinite loop reading relocation data.\n\x00"
                             as *const u8 as *const libc::c_char,
                         (*seg).cs as libc::c_int,
                         offset_cursor as libc::c_int);
-                (*r).offset_count = 0 as libc::c_int as word;
+                 *r = crate::src::ne_segment::reloc{offset_count:   0u16, ..*r};
                 return
             }
-            (*r).offset_count = (*r).offset_count.wrapping_add(1);
+             *r =
+    crate::src::ne_segment::reloc{offset_count:
+                                      
+                                   (*r).offset_count.wrapping_add(1),
+                                                                           ..*r};
             let ref mut fresh10 =
                 *(*seg).instr_flags.offset(offset_cursor as isize);
             *fresh10 =
-                (*fresh10 as libc::c_int | 0x20 as libc::c_int) as byte;
+                (*fresh10 as libc::c_int | 0x20i32) as byte;
             fseek(f, (*seg).start + offset_cursor as libc::c_long,
-                  0 as libc::c_int);
+                  0i32);
             next = read_word();
-            if type_0 as libc::c_int & 4 as libc::c_int != 0 {
+            if type_0 as libc::c_int & 4i32 != 0 {
                 offset_cursor =
                     (offset_cursor as libc::c_int + next as libc::c_int) as
                         word
             } else { offset_cursor = next }
-            if !((next as libc::c_int) < 0xfffb as libc::c_int) { break ; }
+            if !((next as libc::c_int) < 0xfffbi32) { break ; }
         }
     }
-    (*r).offsets =
+     *r =
+    crate::src::ne_segment::reloc{offsets:
+                                      
+                                  
         malloc(((*r).offset_count as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<*mut word>()
                                                     as libc::c_ulong)) as
-            *mut word;
+            *mut word, ..*r};
     offset_cursor = offset;
-    (*r).offset_count = 0 as libc::c_int as word;
+     *r = crate::src::ne_segment::reloc{offset_count:   0u16, ..*r};
     while !(offset_cursor as libc::c_int >= (*seg).length as libc::c_int) {
         *(*r).offsets.offset((*r).offset_count as isize) = offset_cursor;
-        (*r).offset_count = (*r).offset_count.wrapping_add(1);
+         *r =
+    crate::src::ne_segment::reloc{offset_count:
+                                      
+                                   (*r).offset_count.wrapping_add(1),
+                                                                           ..*r};
         fseek(f, (*seg).start + offset_cursor as libc::c_long,
-              0 as libc::c_int);
+              0i32);
         next = read_word();
-        if type_0 as libc::c_int & 4 as libc::c_int != 0 {
+        if type_0 as libc::c_int & 4i32 != 0 {
             offset_cursor =
                 (offset_cursor as libc::c_int + next as libc::c_int) as word
         } else { offset_cursor = next }
-        if !((next as libc::c_int) < 0xfffb as libc::c_int) { break ; }
+        if !((next as libc::c_int) < 0xfffbi32) { break ; }
     };
 }
 unsafe extern "C" fn free_reloc(mut reloc_data: *mut reloc,
                                 mut reloc_count: word) {
-    let mut i: libc::c_int = 0;
-    i = 0 as libc::c_int;
+    
+      let mut i =   0i32;
     while i < reloc_count as libc::c_int {
         free((*reloc_data.offset(i as isize)).offsets as *mut libc::c_void);
         i += 1
@@ -1191,93 +1203,108 @@ unsafe extern "C" fn free_reloc(mut reloc_data: *mut reloc,
 #[no_mangle]
 pub unsafe extern "C" fn read_segments(mut start: libc::c_long,
                                        mut ne: *mut ne) {
-    let mut entry_cs: word = (*ne).header.ne_cs;
-    let mut entry_ip: word = (*ne).header.ne_ip;
-    let mut count: word = (*ne).header.ne_cseg;
-    let mut i: libc::c_uint = 0;
-    let mut cs: libc::c_uint = 0;
-    let mut seg: *mut segment = 0 as *mut segment;
-    fseek(f, start, 0 as libc::c_int);
-    (*ne).segments =
+    
+    
+    
+    
+    
+     let mut entry_cs =  (*ne).header.ne_cs; let mut entry_ip =  (*ne).header.ne_ip; let mut count =  (*ne).header.ne_cseg; let mut i =  0; let mut seg =  0 as *mut segment;
+    fseek(f, start, 0i32);
+     *ne =
+    crate::src::ne_segment::ne{segments:
+                                   
+                               
         malloc((count as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<segment>()
                                                     as libc::c_ulong)) as
-            *mut segment;
-    cs = 1 as libc::c_int as libc::c_uint;
+            *mut segment, ..*ne};
+      let mut cs =   1u32;
     while cs <= count as libc::c_uint {
         seg =
-            &mut *(*ne).segments.offset(cs.wrapping_sub(1 as libc::c_int as
-                                                            libc::c_uint) as
+            &mut *(*ne).segments.offset(cs.wrapping_sub(1u32) as
                                             isize) as *mut segment;
-        (*seg).cs = cs as word;
-        (*seg).start =
-            ((read_word() as libc::c_int) <<
-                 (*ne).header.ne_align as libc::c_int) as libc::c_long;
-        (*seg).length = read_word();
-        (*seg).flags = read_word();
-        (*seg).min_alloc = read_word();
+        
+        
+        
+        
+        
         /* Use min_alloc rather than length because data can "hang over". */
-        (*seg).instr_flags =
+         *seg =
+    crate::src::ne_segment::segment{cs:   cs as word,
+                                    start:
+                                        
+                                    
+            ((read_word() as libc::c_int) <<
+                 (*ne).header.ne_align as libc::c_int) as libc::c_long,
+                                    length:   read_word(),
+                                    flags:   read_word(),
+                                    min_alloc:   read_word(),
+                                    instr_flags:
+                                        
+                                    
             calloc((*seg).min_alloc as libc::c_ulong,
                    ::std::mem::size_of::<byte>() as libc::c_ulong) as
-                *mut byte;
+                *mut byte, ..*seg};
         cs = cs.wrapping_add(1)
     }
     /* First pass: just read the relocation data */
-    cs = 1 as libc::c_int as libc::c_uint;
+    cs = 1u32;
     while cs <= count as libc::c_uint {
         seg =
-            &mut *(*ne).segments.offset(cs.wrapping_sub(1 as libc::c_int as
-                                                            libc::c_uint) as
+            &mut *(*ne).segments.offset(cs.wrapping_sub(1u32) as
                                             isize) as *mut segment;
-        if (*seg).flags as libc::c_int & 0x100 as libc::c_int != 0 {
+        if (*seg).flags as libc::c_int & 0x100i32 != 0 {
             fseek(f, (*seg).start + (*seg).length as libc::c_long,
-                  0 as libc::c_int);
-            (*seg).reloc_count = read_word();
-            (*seg).reloc_table =
+                  0i32);
+            
+             *seg =
+    crate::src::ne_segment::segment{reloc_count:   read_word(),
+                                    reloc_table:
+                                        
+                                    
                 malloc(((*seg).reloc_count as
                             libc::c_ulong).wrapping_mul(::std::mem::size_of::<reloc>()
                                                             as libc::c_ulong))
-                    as *mut reloc;
-            i = 0 as libc::c_int as libc::c_uint;
+                    as *mut reloc, ..*seg};
+            i = 0u32;
             while i < (*seg).reloc_count as libc::c_uint {
                 fseek(f,
                       (*seg).start + (*seg).length as libc::c_long +
-                          2 as libc::c_int as libc::c_long +
-                          i.wrapping_mul(8 as libc::c_int as libc::c_uint) as
-                              libc::c_long, 0 as libc::c_int);
+                          2i64 +
+                          i.wrapping_mul(8u32) as
+                              libc::c_long, 0i32);
                 read_reloc(seg, &mut *(*seg).reloc_table.offset(i as isize),
                            ne);
                 i = i.wrapping_add(1)
             }
         } else {
-            (*seg).reloc_count = 0 as libc::c_int as word;
-            (*seg).reloc_table = 0 as *mut reloc
+             *seg = crate::src::ne_segment::segment{reloc_count:   0u16, ..*seg};
+            *seg = crate::src::ne_segment::segment{reloc_table:  0 as *mut reloc, ..*seg}
         }
         cs = cs.wrapping_add(1)
     }
     /* Second pass: scan entry points (we have to do this after we read
      * relocation data for all segments.) */
-    i = 0 as libc::c_int as libc::c_uint;
+    i = 0u32;
     while i < (*ne).entcount {
         /* don't scan exported values */
         if !((*(*ne).enttab.offset(i as isize)).segment as libc::c_int ==
-                 0 as libc::c_int ||
+                 0i32 ||
                  (*(*ne).enttab.offset(i as isize)).segment as libc::c_int ==
-                     0xfe as libc::c_int) {
+                     0xfei32) {
             /* or values that live in data segments */
             if !((*(*ne).segments.offset(((*(*ne).enttab.offset(i as
                                                                     isize)).segment
                                               as libc::c_int -
-                                              1 as libc::c_int) as
+                                              1i32) as
                                              isize)).flags as libc::c_int &
-                     0x1 as libc::c_int != 0) {
+                     0x1i32 != 0) {
                 /* Annoyingly, data can be put in code segments, and without any
          * apparent indication that it is not code. As a dumb heuristic,
          * only scan exported entries—this won't work universally, and it
          * may potentially miss private entries, but it's better than nothing. */
                 if !((*(*ne).enttab.offset(i as isize)).flags as libc::c_int &
-                         1 as libc::c_int == 0) {
+                         1i32 == 0) {
                     scan_segment((*(*ne).enttab.offset(i as isize)).segment as
                                      word,
                                  (*(*ne).enttab.offset(i as isize)).offset,
@@ -1286,25 +1313,25 @@ pub unsafe extern "C" fn read_segments(mut start: libc::c_long,
                         *(*(*ne).segments.offset(((*(*ne).enttab.offset(i as
                                                                             isize)).segment
                                                       as libc::c_int -
-                                                      1 as libc::c_int) as
+                                                      1i32) as
                                                      isize)).instr_flags.offset((*(*ne).enttab.offset(i
                                                                                                           as
                                                                                                           isize)).offset
                                                                                     as
                                                                                     isize);
                     *fresh11 =
-                        (*fresh11 as libc::c_int | 0x8 as libc::c_int) as byte
+                        (*fresh11 as libc::c_int | 0x8i32) as byte
                 }
             }
         }
         i = i.wrapping_add(1)
     }
     /* and don't forget to scan the program entry point */
-    if !(entry_cs as libc::c_int == 0 as libc::c_int &&
-             entry_ip as libc::c_int == 0 as libc::c_int) {
+    if !(entry_cs as libc::c_int == 0i32 &&
+             entry_ip as libc::c_int == 0i32) {
         if entry_ip as libc::c_int >=
                (*(*ne).segments.offset((entry_cs as libc::c_int -
-                                            1 as libc::c_int) as
+                                            1i32) as
                                            isize)).length as libc::c_int {
             /* see note above under relocations */
             fprintf(stderr,
@@ -1312,30 +1339,29 @@ pub unsafe extern "C" fn read_segments(mut start: libc::c_long,
                         as *const u8 as *const libc::c_char,
                     entry_cs as libc::c_int, entry_ip as libc::c_int,
                     (*(*ne).segments.offset((entry_cs as libc::c_int -
-                                                 1 as libc::c_int) as
+                                                 1i32) as
                                                 isize)).length as
                         libc::c_int);
         } else {
             let ref mut fresh12 =
                 *(*(*ne).segments.offset((entry_cs as libc::c_int -
-                                              1 as libc::c_int) as
+                                              1i32) as
                                              isize)).instr_flags.offset(entry_ip
                                                                             as
                                                                             isize);
-            *fresh12 = (*fresh12 as libc::c_int | 0x8 as libc::c_int) as byte;
+            *fresh12 = (*fresh12 as libc::c_int | 0x8i32) as byte;
             scan_segment(entry_cs, entry_ip, ne);
         }
     };
 }
 #[no_mangle]
 pub unsafe extern "C" fn free_segments(mut ne: *mut ne) {
-    let mut cs: libc::c_uint = 0;
-    let mut seg: *mut segment = 0 as *mut segment;
-    cs = 1 as libc::c_int as libc::c_uint;
+    
+    
+      let mut seg =  0 as *mut segment; let mut cs =   1u32;
     while cs <= (*ne).header.ne_cseg as libc::c_uint {
         seg =
-            &mut *(*ne).segments.offset(cs.wrapping_sub(1 as libc::c_int as
-                                                            libc::c_uint) as
+            &mut *(*ne).segments.offset(cs.wrapping_sub(1u32) as
                                             isize) as *mut segment;
         free_reloc((*seg).reloc_table, (*seg).reloc_count);
         free((*seg).instr_flags as *mut libc::c_void);
@@ -1345,14 +1371,13 @@ pub unsafe extern "C" fn free_segments(mut ne: *mut ne) {
 }
 #[no_mangle]
 pub unsafe extern "C" fn print_segments(mut ne: *mut ne) {
-    let mut cs: libc::c_uint = 0;
-    let mut seg: *mut segment = 0 as *mut segment;
+    
+    
     /* Final pass: print data */
-    cs = 1 as libc::c_int as libc::c_uint;
+      let mut seg =  0 as *mut segment; let mut cs =   1u32;
     while cs <= (*ne).header.ne_cseg as libc::c_uint {
         seg =
-            &mut *(*ne).segments.offset(cs.wrapping_sub(1 as libc::c_int as
-                                                            libc::c_uint) as
+            &mut *(*ne).segments.offset(cs.wrapping_sub(1u32) as
                                             isize) as *mut segment;
         putchar('\n' as i32);
         printf(b"Segment %d (start = 0x%lx, length = 0x%x, minimum allocation = 0x%x):\n\x00"
@@ -1360,15 +1385,15 @@ pub unsafe extern "C" fn print_segments(mut ne: *mut ne) {
                (*seg).length as libc::c_int,
                if (*seg).min_alloc as libc::c_int != 0 {
                    (*seg).min_alloc as libc::c_int
-               } else { 65536 as libc::c_int });
+               } else { 65536i32 });
         print_segment_flags((*seg).flags);
-        if (*seg).flags as libc::c_int & 0x1 as libc::c_int != 0 {
+        if (*seg).flags as libc::c_int & 0x1i32 != 0 {
             /* FIXME: We should at least make a special note of entry points. */
             /* FIXME #2: Data segments can still have relocations... */
             print_data(seg);
         } else {
             /* like objdump, print the whole code segment like a data segment */
-            if opts as libc::c_int & 0x20 as libc::c_int != 0 {
+            if opts as libc::c_int & 0x20i32 != 0 {
                 print_data(seg);
             }
             print_disassembly(seg, ne);

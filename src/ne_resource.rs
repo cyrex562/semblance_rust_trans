@@ -54,8 +54,8 @@ pub type __uint16_t = libc::c_ushort;
 pub type __uint32_t = libc::c_uint;
 pub type __off_t = libc::c_long;
 pub type __off64_t = libc::c_long;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_FILE {
     pub _flags: libc::c_int,
     pub _IO_read_ptr: *mut libc::c_char,
@@ -88,8 +88,8 @@ pub struct _IO_FILE {
     pub _unused2: [libc::c_char; 20],
 }
 pub type _IO_lock_t = ();
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_marker {
     pub _next: *mut _IO_marker,
     pub _sbuf: *mut _IO_FILE,
@@ -108,8 +108,8 @@ pub type C2RustUnnamed = libc::c_uint;
 pub const MASM: C2RustUnnamed = 2;
 pub const NASM: C2RustUnnamed = 1;
 pub const GAS: C2RustUnnamed = 0;
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct resource {
     pub offset: word,
     pub length: word,
@@ -121,8 +121,8 @@ pub struct resource {
 /* This is actually two headers, with the first (VS_VERSIONINFO)
  * describing the second. However it seems the second is always
  * a VS_FIXEDFILEINFO header, so we ignore most of those details. */
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct version_header {
     pub length: word,
     pub value_length: word,
@@ -146,8 +146,8 @@ pub struct version_header {
     pub date_1: dword,
     pub date_2: dword,
 }
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct dialog_control {
     pub x: word,
     pub y: word,
@@ -178,8 +178,8 @@ pub struct dialog_control {
  * along with Semblance; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct header_bitmap_info {
     pub biSize: dword,
     pub biWidth: dword,
@@ -198,31 +198,31 @@ unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
     return _IO_putc(__c, stdout);
 }
 #[no_mangle]
-pub static mut f: *mut FILE = 0 as *const FILE as *mut FILE;
+pub static mut f: *mut FILE =  0 as *mut FILE;
 #[inline]
 unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
 #[inline]
 unsafe extern "C" fn read_word() -> word {
-    let mut w: word = 0;
+     let mut w =  0;
     fread(&mut w as *mut word as *mut libc::c_void,
-          2 as libc::c_int as size_t, 1 as libc::c_int as size_t, f);
+          2u64, 1u64, f);
     return w;
 }
 #[inline]
 unsafe extern "C" fn read_dword() -> dword {
-    let mut d: dword = 0;
+     let mut d =  0;
     fread(&mut d as *mut dword as *mut libc::c_void,
-          4 as libc::c_int as size_t, 1 as libc::c_int as size_t, f);
+          4u64, 1u64, f);
     return d;
 }
 #[inline]
 unsafe extern "C" fn skip_padding(mut bytes: libc::c_char) {
     fseek(f,
-          (((bytes as libc::c_int - 1 as libc::c_int) as libc::c_long &
+          (((bytes as libc::c_int - 1i32) as libc::c_long &
                 bytes as libc::c_long - ftell(f) % bytes as libc::c_long) as
                libc::c_ulong).wrapping_mul(::std::mem::size_of::<byte>() as
                                                libc::c_ulong) as libc::c_long,
-          1 as libc::c_int);
+          1i32);
 }
 /* Common globals */
 #[no_mangle]
@@ -234,24 +234,27 @@ pub static mut opts: word = 0;
 pub static mut asm_syntax: C2RustUnnamed = GAS;
 #[no_mangle]
 pub static mut resource_filters: *mut *mut libc::c_char =
-    0 as *const *mut libc::c_char as *mut *mut libc::c_char;
+    
+    0 as *mut *mut libc::c_char;
 #[no_mangle]
 pub static mut resource_filters_count: libc::c_uint = 0;
 unsafe extern "C" fn dup_string_resource(mut ptr: libc::c_long)
  -> *mut libc::c_char {
-    let mut length: libc::c_char = 0;
-    let mut ret: *mut libc::c_char = 0 as *mut libc::c_char;
-    let mut cursor: libc::c_long = ftell(f);
-    fseek(f, ptr, 0 as libc::c_int);
-    length = read_byte() as libc::c_char;
-    ret =
-        malloc((length as libc::c_int + 1 as libc::c_int) as libc::c_ulong) as
+    
+    
+     let mut cursor =  ftell(f);
+    fseek(f, ptr, 0i32);
+    
+       let mut length =   read_byte() as libc::c_char; let mut ret =
+    
+    
+        malloc((length as libc::c_int + 1i32) as libc::c_ulong) as
             *mut libc::c_char;
     fread(ret as *mut libc::c_void,
           ::std::mem::size_of::<libc::c_char>() as libc::c_ulong,
           length as size_t, f);
-    *ret.offset(length as isize) = 0 as libc::c_int as libc::c_char;
-    fseek(f, cursor, 0 as libc::c_int);
+    *ret.offset(length as isize) = 0i8;
+    fseek(f, cursor, 0i32);
     return ret;
 }
 /* length-indexed */
@@ -261,7 +264,7 @@ unsafe extern "C" fn print_escaped_string(mut length: libc::c_long) {
         let fresh0 = length;
         length = length - 1;
         if !(fresh0 != 0) { break ; }
-        let mut c: libc::c_char = read_byte() as libc::c_char;
+         let mut c =  read_byte() as libc::c_char;
         if c as libc::c_int == '\t' as i32 {
             printf(b"\\t\x00" as *const u8 as *const libc::c_char);
         } else if c as libc::c_int == '\n' as i32 {
@@ -284,7 +287,7 @@ unsafe extern "C" fn print_escaped_string(mut length: libc::c_long) {
 }
 /* null-terminated */
 unsafe extern "C" fn print_escaped_string0() {
-    let mut c: libc::c_char = 0;
+     let mut c =  0;
     putchar('\"' as i32);
     loop  {
         c = read_byte() as libc::c_char;
@@ -350,19 +353,19 @@ static mut rsrc_bmp_compression: [*const libc::c_char; 15] =
      b"RLE (4 bpp, CMYK)\x00" as *const u8 as *const libc::c_char,
      0 as *const libc::c_char];
 unsafe extern "C" fn print_rsrc_flags(mut flags: word) {
-    if flags as libc::c_int & 0x10 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x10i32 != 0 {
         printf(b", moveable\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x20 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x20i32 != 0 {
         printf(b", shareable\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0x40 as libc::c_int != 0 {
+    if flags as libc::c_int & 0x40i32 != 0 {
         printf(b", preloaded\x00" as *const u8 as *const libc::c_char);
     }
-    if flags as libc::c_int & 0xff8f as libc::c_int != 0 {
+    if flags as libc::c_int & 0xff8fi32 != 0 {
         printf(b", (unknown flags 0x%04x)\x00" as *const u8 as
                    *const libc::c_char,
-               flags as libc::c_int & 0xff8f as libc::c_int);
+               flags as libc::c_int & 0xff8fi32);
     };
 }
 /* There are a lot of styles here and most of them would require longer
@@ -405,12 +408,12 @@ static mut rsrc_dialog_style: [*const libc::c_char; 33] =
      b"WS_POPUP\x00" as *const u8 as *const libc::c_char,
      0 as *const libc::c_char];
 unsafe extern "C" fn print_rsrc_dialog_style(mut flags: dword) {
-    let mut i: libc::c_int = 0;
-    let mut buffer: [libc::c_char; 1024] = [0; 1024];
-    buffer[0 as libc::c_int as usize] = 0 as libc::c_int as libc::c_char;
-    i = 0 as libc::c_int;
-    while i < 32 as libc::c_int {
-        if flags & ((1 as libc::c_int) << i) as libc::c_uint != 0 {
+    
+     let mut buffer =  [0; 1024];
+    buffer[0usize] = 0i8;
+      let mut i =   0i32;
+    while i < 32i32 {
+        if flags & ((1i32) << i) as libc::c_uint != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", \x00" as *const u8 as *const libc::c_char);
             strcat(buffer.as_mut_ptr(), rsrc_dialog_style[i as usize]);
@@ -418,7 +421,7 @@ unsafe extern "C" fn print_rsrc_dialog_style(mut flags: dword) {
         i += 1
     }
     printf(b"    Style: %s\n\x00" as *const u8 as *const libc::c_char,
-           buffer.as_mut_ptr().offset(2 as libc::c_int as isize));
+           buffer.as_mut_ptr().offset(2isize));
 }
 static mut rsrc_button_type: [*const libc::c_char; 17] =
     [b"BS_PUSHBUTTON\x00" as *const u8 as *const libc::c_char,
@@ -525,191 +528,189 @@ static mut rsrc_combobox_style: [*const libc::c_char; 16] =
      0 as *const libc::c_char];
 unsafe extern "C" fn print_rsrc_control_style(mut class: byte,
                                               mut flags: dword) {
-    let mut i: libc::c_int = 0;
-    let mut buffer: [libc::c_char; 1024] = [0; 1024];
-    buffer[0 as libc::c_int as usize] = 0 as libc::c_int as libc::c_char;
+    
+     let mut i =  0; let mut buffer =  [0; 1024];
+    buffer[0usize] = 0i8;
     printf(b"        Style: \x00" as *const u8 as *const libc::c_char);
     match class as libc::c_int {
         128 => {
             /* Button */
             strcpy(buffer.as_mut_ptr(),
                    rsrc_button_type[(flags &
-                                         0xf as libc::c_int as libc::c_uint)
+                                         0xfu32)
                                         as usize]);
-            if flags & 0x10 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0x10u32 != 0 {
                 strcat(buffer.as_mut_ptr(),
                        b", (unknown flag 0x0010)\x00" as *const u8 as
                            *const libc::c_char);
             }
-            if flags & 0x20 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0x20u32 != 0 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_LEFTTEXT\x00" as *const u8 as
                            *const libc::c_char);
             }
-            if flags & 0x40 as libc::c_int as libc::c_uint ==
-                   0 as libc::c_int as libc::c_uint {
+            if flags & 0x40u32 ==
+                   0u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_TEXT\x00" as *const u8 as *const libc::c_char);
             } else {
-                if flags & 0x40 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x40u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", BS_ICON\x00" as *const u8 as
                                *const libc::c_char);
                 }
-                if flags & 0x80 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x80u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", BS_BITMAP\x00" as *const u8 as
                                *const libc::c_char);
                 }
             }
-            if flags & 0x300 as libc::c_int as libc::c_uint ==
-                   0x100 as libc::c_int as libc::c_uint {
+            if flags & 0x300u32 ==
+                   0x100u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_LEFT\x00" as *const u8 as *const libc::c_char);
-            } else if flags & 0x300 as libc::c_int as libc::c_uint ==
-                          0x200 as libc::c_int as libc::c_uint {
+            } else if flags & 0x300u32 ==
+                          0x200u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_RIGHT\x00" as *const u8 as *const libc::c_char);
-            } else if flags & 0x300 as libc::c_int as libc::c_uint ==
-                          0x300 as libc::c_int as libc::c_uint {
+            } else if flags & 0x300u32 ==
+                          0x300u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_CENTER\x00" as *const u8 as
                            *const libc::c_char);
             }
-            if flags & 0xc00 as libc::c_int as libc::c_uint ==
-                   0x400 as libc::c_int as libc::c_uint {
+            if flags & 0xc00u32 ==
+                   0x400u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_TOP\x00" as *const u8 as *const libc::c_char);
-            } else if flags & 0xc00 as libc::c_int as libc::c_uint ==
-                          0x800 as libc::c_int as libc::c_uint {
+            } else if flags & 0xc00u32 ==
+                          0x800u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_BOTTOM\x00" as *const u8 as
                            *const libc::c_char);
-            } else if flags & 0xc00 as libc::c_int as libc::c_uint ==
-                          0xc00 as libc::c_int as libc::c_uint {
+            } else if flags & 0xc00u32 ==
+                          0xc00u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_VCENTER\x00" as *const u8 as
                            *const libc::c_char);
             }
-            if flags & 0x1000 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0x1000u32 != 0 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_PUSHLIKE\x00" as *const u8 as
                            *const libc::c_char);
             }
-            if flags & 0x2000 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0x2000u32 != 0 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_MULTILINE\x00" as *const u8 as
                            *const libc::c_char);
             }
-            if flags & 0x4000 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0x4000u32 != 0 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_NOTIFY\x00" as *const u8 as
                            *const libc::c_char);
             }
-            if flags & 0x8000 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0x8000u32 != 0 {
                 strcat(buffer.as_mut_ptr(),
                        b", BS_FLAT\x00" as *const u8 as *const libc::c_char);
             }
         }
         129 => {
             /* Edit */
-            if flags & 3 as libc::c_int as libc::c_uint ==
-                   0 as libc::c_int as libc::c_uint {
+            if flags & 3u32 ==
+                   0u32 {
                 strcpy(buffer.as_mut_ptr(),
                        b"ES_LEFT\x00" as *const u8 as *const libc::c_char);
-            } else if flags & 3 as libc::c_int as libc::c_uint ==
-                          1 as libc::c_int as libc::c_uint {
+            } else if flags & 3u32 ==
+                          1u32 {
                 strcpy(buffer.as_mut_ptr(),
                        b"ES_CENTER\x00" as *const u8 as *const libc::c_char);
-            } else if flags & 3 as libc::c_int as libc::c_uint ==
-                          2 as libc::c_int as libc::c_uint {
+            } else if flags & 3u32 ==
+                          2u32 {
                 strcpy(buffer.as_mut_ptr(),
                        b"ES_RIGHT\x00" as *const u8 as *const libc::c_char);
-            } else if flags & 3 as libc::c_int as libc::c_uint ==
-                          3 as libc::c_int as libc::c_uint {
+            } else if flags & 3u32 ==
+                          3u32 {
                 strcpy(buffer.as_mut_ptr(),
                        b"(unknown type 3)\x00" as *const u8 as
                            *const libc::c_char);
             }
-            i = 2 as libc::c_int;
-            while i < 16 as libc::c_int {
-                if flags & ((1 as libc::c_int) << i) as libc::c_uint != 0 {
+            
+             for i in  2i32.. 16i32 {
+    
+                if flags & ((1i32) << i) as libc::c_uint != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", \x00" as *const u8 as *const libc::c_char);
                     strcat(buffer.as_mut_ptr(), rsrc_edit_style[i as usize]);
                 }
-                i += 1
-            }
+}
         }
         130 => {
             /* Static */
-            if flags & 0x1f as libc::c_int as libc::c_uint <=
-                   0x12 as libc::c_int as libc::c_uint {
+            if flags & 0x1fu32 <=
+                   0x12u32 {
                 strcpy(buffer.as_mut_ptr(),
                        rsrc_static_type[(flags &
-                                             0x1f as libc::c_int as
-                                                 libc::c_uint) as usize]);
+                                             0x1fu32) as usize]);
             } else {
                 sprintf(buffer.as_mut_ptr(),
                         b"(unknown type %d)\x00" as *const u8 as
                             *const libc::c_char,
-                        flags & 0x1f as libc::c_int as libc::c_uint);
+                        flags & 0x1fu32);
             }
-            i = 5 as libc::c_int;
-            while i < 14 as libc::c_int {
-                if flags & ((1 as libc::c_int) << i) as libc::c_uint != 0 {
+            
+             for i in  5i32.. 14i32 {
+    
+                if flags & ((1i32) << i) as libc::c_uint != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", \x00" as *const u8 as *const libc::c_char);
                     strcat(buffer.as_mut_ptr(),
                            rsrc_static_style[i as usize]);
                 }
-                i += 1
-            }
+}
         }
         131 => {
-            /* ListBox */
-            i = 0 as libc::c_int;
-            while i < 16 as libc::c_int {
-                if flags & ((1 as libc::c_int) << i) as libc::c_uint != 0 {
+            
+             for i in  0i32.. 16i32 {
+    
+                if flags & ((1i32) << i) as libc::c_uint != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", \x00" as *const u8 as *const libc::c_char);
                     strcat(buffer.as_mut_ptr(),
                            rsrc_listbox_style[i as usize]);
                 }
-                i += 1
-            }
+}
         }
         132 => {
             /* ScrollBar */
-            if flags & 0x18 as libc::c_int as libc::c_uint != 0 {
-                if flags & 0x8 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0x18u32 != 0 {
+                if flags & 0x8u32 != 0 {
                     strcpy(buffer.as_mut_ptr(),
                            b"SBS_SIZEBOX\x00" as *const u8 as
                                *const libc::c_char);
-                } else if flags & 0x10 as libc::c_int as libc::c_uint != 0 {
+                } else if flags & 0x10u32 != 0 {
                     strcpy(buffer.as_mut_ptr(),
                            b"SBS_SIZEGRIP\x00" as *const u8 as
                                *const libc::c_char);
                 }
-                if flags & 0x2 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x2u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", SBS_SIZEBOXTOPLEFTALIGN\x00" as *const u8 as
                                *const libc::c_char);
                 }
-                if flags & 0x4 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x4u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", SBS_SIZEBOXBOTTOMRIGHTALIGN\x00" as *const u8
                                as *const libc::c_char);
                 }
-            } else if flags & 0x1 as libc::c_int as libc::c_uint != 0 {
+            } else if flags & 0x1u32 != 0 {
                 strcpy(buffer.as_mut_ptr(),
                        b"SBS_VERT\x00" as *const u8 as *const libc::c_char);
-                if flags & 0x2 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x2u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", SBS_LEFTALIGN\x00" as *const u8 as
                                *const libc::c_char);
                 }
-                if flags & 0x4 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x4u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", SBS_RIGHTALIGN\x00" as *const u8 as
                                *const libc::c_char);
@@ -717,81 +718,80 @@ unsafe extern "C" fn print_rsrc_control_style(mut class: byte,
             } else {
                 strcpy(buffer.as_mut_ptr(),
                        b"SBS_HORZ\x00" as *const u8 as *const libc::c_char);
-                if flags & 0x2 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x2u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", SBS_TOPALIGN\x00" as *const u8 as
                                *const libc::c_char);
                 }
-                if flags & 0x4 as libc::c_int as libc::c_uint != 0 {
+                if flags & 0x4u32 != 0 {
                     strcat(buffer.as_mut_ptr(),
                            b", SBS_BOTTOMALIGN\x00" as *const u8 as
                                *const libc::c_char);
                 }
             }
-            if flags & 0xffe0 as libc::c_int as libc::c_uint != 0 {
+            if flags & 0xffe0u32 != 0 {
                 sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr())
                                                        as isize),
                         b", (unknown flags 0x%04x)\x00" as *const u8 as
                             *const libc::c_char,
-                        flags & 0xffe0 as libc::c_int as libc::c_uint);
+                        flags & 0xffe0u32);
             }
         }
         133 => {
             /* ComboBox */
-            if flags & 3 as libc::c_int as libc::c_uint ==
-                   1 as libc::c_int as libc::c_uint {
+            if flags & 3u32 ==
+                   1u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", CBS_SIMPLE\x00" as *const u8 as
                            *const libc::c_char);
-            } else if flags & 3 as libc::c_int as libc::c_uint ==
-                          2 as libc::c_int as libc::c_uint {
+            } else if flags & 3u32 ==
+                          2u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", CBS_DROPDOWN\x00" as *const u8 as
                            *const libc::c_char);
-            } else if flags & 3 as libc::c_int as libc::c_uint ==
-                          3 as libc::c_int as libc::c_uint {
+            } else if flags & 3u32 ==
+                          3u32 {
                 strcat(buffer.as_mut_ptr(),
                        b", CBS_DROPDOWNLIST\x00" as *const u8 as
                            *const libc::c_char);
             }
-            i = 4 as libc::c_int;
-            while i < 15 as libc::c_int {
-                if flags & ((1 as libc::c_int) << i) as libc::c_uint != 0 &&
+            
+             for i in  4i32.. 15i32 {
+    
+                if flags & ((1i32) << i) as libc::c_uint != 0 &&
                        !rsrc_combobox_style[i as usize].is_null() {
                     strcat(buffer.as_mut_ptr(),
                            b", \x00" as *const u8 as *const libc::c_char);
                     strcat(buffer.as_mut_ptr(),
                            rsrc_combobox_style[i as usize]);
                 }
-                i += 1
-            }
-            if flags & 0x900c as libc::c_int as libc::c_uint != 0 {
+}
+            if flags & 0x900cu32 != 0 {
                 sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr())
                                                        as isize),
                         b", (unknown flags 0x%04x)\x00" as *const u8 as
                             *const libc::c_char,
-                        flags & 0x900c as libc::c_int as libc::c_uint);
+                        flags & 0x900cu32);
             }
         }
         _ => {
             sprintf(buffer.as_mut_ptr(),
                     b"0x%04x\x00" as *const u8 as *const libc::c_char,
-                    flags & 0xffff as libc::c_int as libc::c_uint);
+                    flags & 0xffffu32);
         }
     }
-    /* and finally, WS_ flags */
-    i = 16 as libc::c_int;
-    while i < 32 as libc::c_int {
-        if flags & ((1 as libc::c_int) << i) as libc::c_uint != 0 {
+    
+     for i in  16i32.. 32i32 {
+    
+        if flags & ((1i32) << i) as libc::c_uint != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", \x00" as *const u8 as *const libc::c_char);
             strcat(buffer.as_mut_ptr(), rsrc_dialog_style[i as usize]);
         }
-        i += 1
-    }
+}
     printf(b"%s\n\x00" as *const u8 as *const libc::c_char,
-           if buffer[0 as libc::c_int as usize] as libc::c_int == ',' as i32 {
-               buffer.as_mut_ptr().offset(2 as libc::c_int as isize)
+           if buffer[0usize] as libc::c_int == ',' as i32 {
+               buffer.as_mut_ptr().offset(2isize)
            } else { buffer.as_mut_ptr() });
 }
 static mut rsrc_dialog_class: [*const libc::c_char; 7] =
@@ -803,19 +803,19 @@ static mut rsrc_dialog_class: [*const libc::c_char; 7] =
      b"ComboBox\x00" as *const u8 as *const libc::c_char,
      0 as *const libc::c_char];
 unsafe extern "C" fn print_rsrc_menu_items(mut depth: libc::c_int) {
-    let mut flags: word = 0;
-    let mut id: word = 0;
-    let mut buffer: [libc::c_char; 1024] = [0; 1024];
-    let mut i: libc::c_int = 0;
+    
+    
+    
+     let mut flags =  0; let mut id =  0; let mut buffer =  [0; 1024]; let mut i =  0;
     loop  {
         flags = read_word();
         printf(b"        \x00" as *const u8 as *const libc::c_char);
-        i = 0 as libc::c_int;
-        while i < depth {
+        
+         for i in  0i32.. depth {
+    
             printf(b"  \x00" as *const u8 as *const libc::c_char);
-            i += 1
-        }
-        if flags as libc::c_int & 0x10 as libc::c_int == 0 {
+}
+        if flags as libc::c_int & 0x10i32 == 0 {
             /* item ID */
             id = read_word();
             printf(b"%d: \x00" as *const u8 as *const libc::c_char,
@@ -823,54 +823,54 @@ unsafe extern "C" fn print_rsrc_menu_items(mut depth: libc::c_int) {
         }
         print_escaped_string0();
         /* and print flags */
-        buffer[0 as libc::c_int as usize] = '\u{0}' as i32 as libc::c_char;
-        if flags as libc::c_int & 0x1 as libc::c_int != 0 {
+        buffer[0usize] =  '\u{0}' as libc::c_char;
+        if flags as libc::c_int & 0x1i32 != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", grayed\x00" as *const u8 as *const libc::c_char);
         }
-        if flags as libc::c_int & 0x2 as libc::c_int != 0 {
+        if flags as libc::c_int & 0x2i32 != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", inactive\x00" as *const u8 as *const libc::c_char);
         }
-        if flags as libc::c_int & 0x4 as libc::c_int != 0 {
+        if flags as libc::c_int & 0x4i32 != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", bitmap\x00" as *const u8 as *const libc::c_char);
         }
-        if flags as libc::c_int & 0x8 as libc::c_int != 0 {
+        if flags as libc::c_int & 0x8i32 != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", checked\x00" as *const u8 as *const libc::c_char);
         }
-        if flags as libc::c_int & 0x10 as libc::c_int != 0 {
+        if flags as libc::c_int & 0x10i32 != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", popup\x00" as *const u8 as *const libc::c_char);
         }
-        if flags as libc::c_int & 0x20 as libc::c_int != 0 {
+        if flags as libc::c_int & 0x20i32 != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", menu bar break\x00" as *const u8 as
                        *const libc::c_char);
         }
-        if flags as libc::c_int & 0x40 as libc::c_int != 0 {
+        if flags as libc::c_int & 0x40i32 != 0 {
             strcat(buffer.as_mut_ptr(),
                    b", menu break\x00" as *const u8 as *const libc::c_char);
         }
         /* don't print ENDMENU */
-        if flags as libc::c_int & 0xff00 as libc::c_int != 0 {
+        if flags as libc::c_int & 0xff00i32 != 0 {
             sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
                                                    isize),
                     b", unknown flags 0x%04x\x00" as *const u8 as
                         *const libc::c_char,
-                    flags as libc::c_int & 0xff00 as libc::c_int);
+                    flags as libc::c_int & 0xff00i32);
         }
-        if buffer[0 as libc::c_int as usize] != 0 {
+        if buffer[0usize] != 0 {
             printf(b" (%s)\x00" as *const u8 as *const libc::c_char,
-                   buffer.as_mut_ptr().offset(2 as libc::c_int as isize));
+                   buffer.as_mut_ptr().offset(2isize));
         }
         putchar('\n' as i32);
         /* if we have a popup, recurse */
-        if flags as libc::c_int & 0x10 as libc::c_int != 0 {
-            print_rsrc_menu_items(depth + 1 as libc::c_int);
+        if flags as libc::c_int & 0x10i32 != 0 {
+            print_rsrc_menu_items(depth + 1i32);
         }
-        if flags as libc::c_int & 0x80 as libc::c_int != 0 { break ; }
+        if flags as libc::c_int & 0x80i32 != 0 { break ; }
     };
 }
 static mut rsrc_version_file: [*const libc::c_char; 7] =
@@ -907,12 +907,12 @@ static mut rsrc_version_subtype_drv: [*const libc::c_char; 14] =
      b"versioned printer\x00" as *const u8 as *const libc::c_char,
      0 as *const libc::c_char];
 unsafe extern "C" fn print_rsrc_version_flags(mut header: version_header) {
-    let mut buffer: [libc::c_char; 1024] = [0; 1024];
-    let mut i: libc::c_int = 0;
-    buffer[0 as libc::c_int as usize] = '\u{0}' as i32 as libc::c_char;
-    i = 0 as libc::c_int;
-    while i < 6 as libc::c_int {
-        if header.flags_file & ((1 as libc::c_int) << i) as libc::c_uint != 0
+     let mut buffer =  [0; 1024];
+    
+    buffer[0usize] =  '\u{0}' as libc::c_char;
+      let mut i =   0i32;
+    while i < 6i32 {
+        if header.flags_file & ((1i32) << i) as libc::c_uint != 0
            {
             strcat(buffer.as_mut_ptr(),
                    b", \x00" as *const u8 as *const libc::c_char);
@@ -920,24 +920,24 @@ unsafe extern "C" fn print_rsrc_version_flags(mut header: version_header) {
         }
         i += 1
     }
-    if header.flags_file & 0xffc0 as libc::c_int as libc::c_uint != 0 {
+    if header.flags_file & 0xffc0u32 != 0 {
         sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
                                                isize),
                 b", (unknown flags 0x%04x)\x00" as *const u8 as
                     *const libc::c_char,
-                header.flags_file & 0xffc0 as libc::c_int as libc::c_uint);
+                header.flags_file & 0xffc0u32);
     }
     printf(b"    File flags: \x00" as *const u8 as *const libc::c_char);
     if header.flags_file != 0 {
         printf(b"%s\x00" as *const u8 as *const libc::c_char,
-               buffer.as_mut_ptr().offset(2 as libc::c_int as isize));
+               buffer.as_mut_ptr().offset(2isize));
     }
-    buffer[0 as libc::c_int as usize] = '\u{0}' as i32 as libc::c_char;
-    if header.flags_os == 0 as libc::c_int as libc::c_uint {
+    buffer[0usize] =  '\u{0}' as libc::c_char;
+    if header.flags_os == 0u32 {
         strcpy(buffer.as_mut_ptr(),
                b", VOS_UNKNOWN\x00" as *const u8 as *const libc::c_char);
     } else {
-        match header.flags_os & 0xffff as libc::c_int as libc::c_uint {
+        match header.flags_os & 0xffffu32 {
             1 => {
                 strcpy(buffer.as_mut_ptr(),
                        b", VOS__WINDOWS16\x00" as *const u8 as
@@ -963,10 +963,10 @@ unsafe extern "C" fn print_rsrc_version_flags(mut header: version_header) {
                         b", (unknown OS 0x%04x)\x00" as *const u8 as
                             *const libc::c_char,
                         header.flags_os &
-                            0xffff as libc::c_int as libc::c_uint);
+                            0xffffu32);
             }
         }
-        match header.flags_os >> 16 as libc::c_int {
+        match header.flags_os >> 16i32 {
             1 => {
                 strcat(buffer.as_mut_ptr(),
                        b", VOS_DOS\x00" as *const u8 as *const libc::c_char);
@@ -995,22 +995,22 @@ unsafe extern "C" fn print_rsrc_version_flags(mut header: version_header) {
                                                        as isize),
                         b", (unknown OS 0x%04x)\x00" as *const u8 as
                             *const libc::c_char,
-                        header.flags_os >> 16 as libc::c_int);
+                        header.flags_os >> 16i32);
             }
         }
     }
     printf(b"\n    OS flags: %s\n\x00" as *const u8 as *const libc::c_char,
-           buffer.as_mut_ptr().offset(2 as libc::c_int as isize));
-    if header.flags_type <= 7 as libc::c_int as libc::c_uint {
+           buffer.as_mut_ptr().offset(2isize));
+    if header.flags_type <= 7u32 {
         printf(b"    Type: %s\n\x00" as *const u8 as *const libc::c_char,
                rsrc_version_type[header.flags_type as usize]);
     } else {
         printf(b"    Type: (unknown type %d)\n\x00" as *const u8 as
                    *const libc::c_char, header.flags_type);
     }
-    if header.flags_type == 3 as libc::c_int as libc::c_uint {
+    if header.flags_type == 3u32 {
         /* driver */
-        if header.flags_subtype <= 12 as libc::c_int as libc::c_uint {
+        if header.flags_subtype <= 12u32 {
             printf(b"    Subtype: %s driver\n\x00" as *const u8 as
                        *const libc::c_char,
                    rsrc_version_subtype_drv[header.flags_subtype as usize]);
@@ -1018,25 +1018,25 @@ unsafe extern "C" fn print_rsrc_version_flags(mut header: version_header) {
             printf(b"    Subtype: (unknown subtype %d)\n\x00" as *const u8 as
                        *const libc::c_char, header.flags_subtype);
         }
-    } else if header.flags_type == 4 as libc::c_int as libc::c_uint {
+    } else if header.flags_type == 4u32 {
         /* font */
-        if header.flags_subtype == 0 as libc::c_int as libc::c_uint {
+        if header.flags_subtype == 0u32 {
             printf(b"    Subtype: unknown font\n\x00" as *const u8 as
                        *const libc::c_char);
-        } else if header.flags_subtype == 1 as libc::c_int as libc::c_uint {
+        } else if header.flags_subtype == 1u32 {
             printf(b"    Subtype: raster font\n\x00" as *const u8 as
                        *const libc::c_char);
-        } else if header.flags_subtype == 2 as libc::c_int as libc::c_uint {
+        } else if header.flags_subtype == 2u32 {
             printf(b"    Subtype: vector font\n\x00" as *const u8 as
                        *const libc::c_char);
-        } else if header.flags_subtype == 3 as libc::c_int as libc::c_uint {
+        } else if header.flags_subtype == 3u32 {
             printf(b"    Subtype: TrueType font\n\x00" as *const u8 as
                        *const libc::c_char);
         } else {
             printf(b"    Subtype: (unknown subtype %d)\n\x00" as *const u8 as
                        *const libc::c_char, header.flags_subtype);
         }
-    } else if header.flags_type == 5 as libc::c_int as libc::c_uint {
+    } else if header.flags_type == 5u32 {
         /* VXD */
         printf(b"    Virtual device ID: %d\n\x00" as *const u8 as
                    *const libc::c_char, header.flags_subtype);
@@ -1047,34 +1047,35 @@ unsafe extern "C" fn print_rsrc_version_flags(mut header: version_header) {
     };
 }
 unsafe extern "C" fn print_rsrc_strings(mut end: libc::c_long) {
-    let mut length: word = 0;
+     let mut length =  0;
     while ftell(f) < end {
         /* first length is redundant */
         fseek(f,
-              ::std::mem::size_of::<word>() as libc::c_ulong as libc::c_long,
-              1 as libc::c_int);
+              
+              ::std::mem::size_of::<word>() as libc::c_long,
+              1i32);
         length = read_word();
         printf(b"        \x00" as *const u8 as *const libc::c_char);
         print_escaped_string0();
-        skip_padding(4 as libc::c_int as libc::c_char);
+        skip_padding(4i8);
         printf(b": \x00" as *const u8 as *const libc::c_char);
         /* According to MSDN this is zero-terminated, and in most cases it is.
          * However, at least one application (msbsolar) has NEs with what
          * appears to be a non-zero-terminated string. In Windows this is cut
          * off at one minus the given length, just like other strings, so
          * we'll do that here. */
-        print_escaped_string((length as libc::c_int - 1 as libc::c_int) as
+        print_escaped_string((length as libc::c_int - 1i32) as
                                  libc::c_long); /* and skip the zero */
-        fseek(f, 1 as libc::c_int as libc::c_long, 1 as libc::c_int);
-        skip_padding(4 as libc::c_int as libc::c_char);
+        fseek(f, 1i64, 1i32);
+        skip_padding(4i8);
         putchar('\n' as i32);
     };
 }
 unsafe extern "C" fn print_rsrc_stringfileinfo(mut end: libc::c_long) {
-    let mut cursor: libc::c_long = 0;
-    let mut length: word = 0;
-    let mut lang: libc::c_uint = 0 as libc::c_int as libc::c_uint;
-    let mut codepage: libc::c_uint = 0 as libc::c_int as libc::c_uint;
+    
+    
+    
+     let mut cursor =  0; let mut length =  0; let mut lang =  0u32; let mut codepage =  0u32;
     loop 
          /* we already processed the StringFileInfo header */
          {
@@ -1083,8 +1084,9 @@ unsafe extern "C" fn print_rsrc_stringfileinfo(mut end: libc::c_long) {
         /* StringTable header */
         length = read_word(); /* ValueLength, always 0 */
         fseek(f,
-              ::std::mem::size_of::<word>() as libc::c_ulong as libc::c_long,
-              1 as libc::c_int);
+              
+              ::std::mem::size_of::<word>() as libc::c_long,
+              1i32);
         /* codepage and language code */
         fscanf(f, b"%4x%4x\x00" as *const u8 as *const libc::c_char,
                &mut lang as *mut libc::c_uint,
@@ -1092,25 +1094,23 @@ unsafe extern "C" fn print_rsrc_stringfileinfo(mut end: libc::c_long) {
         printf(b"    String table (lang=%04x, codepage=%04x):\n\x00" as
                    *const u8 as *const libc::c_char, lang, codepage);
         fseek(f,
-              (4 as libc::c_int as
-                   libc::c_ulong).wrapping_mul(::std::mem::size_of::<byte>()
+              (4u64).wrapping_mul(::std::mem::size_of::<byte>()
                                                    as libc::c_ulong) as
-                  libc::c_long, 1 as libc::c_int);
+                  libc::c_long, 1i32);
         print_rsrc_strings(cursor + length as libc::c_long);
     };
 }
 unsafe extern "C" fn print_rsrc_varfileinfo(mut end: libc::c_long) {
-    let mut length: word = 0;
+     let mut length =  0;
     while ftell(f) < end {
         /* first length is redundant */
         length = read_word(); /* Translation\0 */
         fseek(f,
-              (12 as libc::c_int as
-                   libc::c_ulong).wrapping_mul(::std::mem::size_of::<byte>()
+              (12u64).wrapping_mul(::std::mem::size_of::<byte>()
                                                    as libc::c_ulong) as
-                  libc::c_long, 1 as libc::c_int);
+                  libc::c_long, 1i32);
         loop  {
-            length = (length as libc::c_int - 4 as libc::c_int) as word;
+            length = (length as libc::c_int - 4i32) as word;
             if !(length != 0) { break ; }
             printf(b"    Var (lang=%04x, codepage=%04x)\n\x00" as *const u8 as
                        *const libc::c_char, read_word() as libc::c_int,
@@ -1122,7 +1122,7 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                                          mut offset: libc::c_long,
                                          mut length: libc::c_long,
                                          mut rn_id: word) {
-    fseek(f, offset, 0 as libc::c_int);
+    fseek(f, offset, 0i32);
     let mut current_block_166: u64;
     match type_0 as libc::c_int {
         32769 => {
@@ -1136,10 +1136,9 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
         32770 => { current_block_166 = 5358520172556667279; }
         32771 => { current_block_166 = 17778012151635330486; }
         32772 => {
-            /* Menu */
-            let mut extended: word = read_word();
-            let mut offset_0: word = read_word();
-            if extended as libc::c_int > 1 as libc::c_int {
+            
+             let mut extended =  read_word(); let mut offset_0 =  read_word();
+            if extended as libc::c_int > 1i32 {
                 fprintf(stderr,
                         b"Warning: Unknown menu version %d\n\x00" as *const u8
                             as *const libc::c_char, extended as libc::c_int);
@@ -1152,12 +1151,12 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                                *const libc::c_char
                        });
                 if offset_0 as libc::c_int !=
-                       extended as libc::c_int * 4 as libc::c_int {
+                       extended as libc::c_int * 4i32 {
                     fprintf(stderr,
                             b"Warning: Unexpected offset value %d (expected %d)\n\x00"
                                 as *const u8 as *const libc::c_char,
                             offset_0 as libc::c_int,
-                            extended as libc::c_int * 4 as libc::c_int);
+                            extended as libc::c_int * 4i32);
                 }
                 if extended != 0 {
                     printf(b"    Help ID: %d\n\x00" as *const u8 as
@@ -1165,24 +1164,23 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 }
                 printf(b"    Items:\n\x00" as *const u8 as
                            *const libc::c_char);
-                print_rsrc_menu_items(0 as libc::c_int);
+                print_rsrc_menu_items(0i32);
             }
             current_block_166 = 2885804587290726961;
         }
         32773 => {
-            /* Dialog box */
-            let mut count: byte = 0;
-            let mut font_size: word = 0;
-            let mut style: dword = read_dword();
+            
+            
+             let mut font_size =  0; let mut style =  read_dword();
             print_rsrc_dialog_style(style);
-            count = read_byte();
+              let mut count =   read_byte();
             printf(b"    Position: (%d, %d)\n\x00" as *const u8 as
                        *const libc::c_char, read_word() as libc::c_int,
                    read_word() as libc::c_int);
             printf(b"    Size: %dx%d\n\x00" as *const u8 as
                        *const libc::c_char, read_word() as libc::c_int,
                    read_word() as libc::c_int);
-            if read_byte() as libc::c_int == 0xff as libc::c_int {
+            if read_byte() as libc::c_int == 0xffi32 {
                 printf(b"    Menu resource: #%d\x00" as *const u8 as
                            *const libc::c_char, read_word() as libc::c_int);
             } else {
@@ -1191,7 +1189,7 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 fseek(f,
                       (::std::mem::size_of::<byte>() as
                            libc::c_ulong).wrapping_neg() as libc::c_long,
-                      1 as libc::c_int);
+                      1i32);
                 print_escaped_string0();
             }
             printf(b"\n    Class name: \x00" as *const u8 as
@@ -1200,7 +1198,7 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
             printf(b"\n    Caption: \x00" as *const u8 as
                        *const libc::c_char);
             print_escaped_string0();
-            if style & 0x40 as libc::c_int as libc::c_uint != 0 {
+            if style & 0x40u32 != 0 {
                 /* DS_SETFONT */
                 font_size = read_word();
                 printf(b"\n    Font: \x00" as *const u8 as
@@ -1214,7 +1212,8 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 let fresh1 = count;
                 count = count.wrapping_sub(1);
                 if !(fresh1 != 0) { break ; }
-                let mut control: dialog_control =
+                 let mut control =
+    
                     dialog_control{x: 0,
                                    y: 0,
                                    width: 0,
@@ -1225,14 +1224,14 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 fread(&mut control as *mut dialog_control as
                           *mut libc::c_void,
                       ::std::mem::size_of::<dialog_control>() as
-                          libc::c_ulong, 1 as libc::c_int as size_t, f);
-                if control.class as libc::c_int & 0x80 as libc::c_int != 0 {
-                    if control.class as libc::c_int <= 0x85 as libc::c_int {
+                          libc::c_ulong, 1u64, f);
+                if control.class as libc::c_int & 0x80i32 != 0 {
+                    if control.class as libc::c_int <= 0x85i32 {
                         printf(b"    %s\x00" as *const u8 as
                                    *const libc::c_char,
                                rsrc_dialog_class[(control.class as libc::c_int
                                                       &
-                                                      !(0x80 as libc::c_int))
+                                                      !(0x80i32))
                                                      as usize]);
                     } else {
                         printf(b"    (unknown class %d)\x00" as *const u8 as
@@ -1243,7 +1242,7 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                     fseek(f,
                           (::std::mem::size_of::<byte>() as
                                libc::c_ulong).wrapping_neg() as libc::c_long,
-                          1 as libc::c_int);
+                          1i32);
                     print_escaped_string0();
                 }
                 printf(b" %d:\n\x00" as *const u8 as *const libc::c_char,
@@ -1255,7 +1254,7 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                            *const libc::c_char, control.width as libc::c_int,
                        control.height as libc::c_int);
                 print_rsrc_control_style(control.class, control.style);
-                if read_byte() as libc::c_int == 0xff as libc::c_int {
+                if read_byte() as libc::c_int == 0xffi32 {
                     /* todo: we can check the style for SS_ICON/SS_BITMAP and *maybe* also
                  * refer back to a printed RT_GROUPICON/GROUPCUROR/BITMAP resource. */
                     printf(b"        Resource: #%d\x00" as *const u8 as
@@ -1265,7 +1264,7 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                     fseek(f,
                           (::std::mem::size_of::<byte>() as
                                libc::c_ulong).wrapping_neg() as libc::c_long,
-                          1 as libc::c_int);
+                          1i32);
                     printf(b"        Text: \x00" as *const u8 as
                                *const libc::c_char);
                     print_escaped_string0();
@@ -1277,20 +1276,19 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
             current_block_166 = 2885804587290726961;
         }
         32774 => {
-            /* String */
-            let mut i: libc::c_int = 0 as libc::c_int;
-            let mut cursor: libc::c_long = 0;
+            
+             let mut i =  0i32; let mut cursor =  0;
             loop  {
                 cursor = ftell(f);
                 if !(cursor < offset + length) { break ; }
-                let mut length_0: byte = read_byte();
+                 let mut length_0 =  read_byte();
                 if length_0 != 0 {
                     printf(b"    %3d (0x%06lx): \x00" as *const u8 as
                                *const libc::c_char,
                            i +
                                ((rn_id as libc::c_int &
-                                     !(0x8000 as libc::c_int)) -
-                                    1 as libc::c_int) * 16 as libc::c_int,
+                                     !(0x8000i32)) -
+                                    1i32) * 16i32,
                            cursor);
                     print_escaped_string(length_0 as libc::c_long);
                     putchar('\n' as i32);
@@ -1300,29 +1298,21 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
             current_block_166 = 2885804587290726961;
         }
         32780 | 32782 => {
-            /* Cursor directory */
-            /* Icon directory */
-            /* All of the information supplied here is contained in the actual
-         * resource. Therefore we only list the components this refers to.
-         * Fortunately, the headers are different but the relevant information
-         * is stored in the same bytes. */
-            let mut count_0: word = 0;
+            
             fseek(f,
-                  (2 as libc::c_int as
-                       libc::c_ulong).wrapping_mul(::std::mem::size_of::<word>()
+                  (2u64).wrapping_mul(::std::mem::size_of::<word>()
                                                        as libc::c_ulong) as
-                      libc::c_long, 1 as libc::c_int);
-            count_0 = read_word();
+                      libc::c_long, 1i32);
+              let mut count_0 =   read_word();
             printf(b"    Resources: \x00" as *const u8 as
                        *const libc::c_char);
             let fresh2 = count_0;
             count_0 = count_0.wrapping_sub(1);
             if fresh2 != 0 {
                 fseek(f,
-                      (6 as libc::c_int as
-                           libc::c_ulong).wrapping_mul(::std::mem::size_of::<word>()
+                      (6u64).wrapping_mul(::std::mem::size_of::<word>()
                                                            as libc::c_ulong)
-                          as libc::c_long, 1 as libc::c_int);
+                          as libc::c_long, 1i32);
                 printf(b"#%d\x00" as *const u8 as *const libc::c_char,
                        read_word() as libc::c_int);
             }
@@ -1331,10 +1321,9 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 count_0 = count_0.wrapping_sub(1);
                 if !(fresh3 != 0) { break ; }
                 fseek(f,
-                      (6 as libc::c_int as
-                           libc::c_ulong).wrapping_mul(::std::mem::size_of::<word>()
+                      (6u64).wrapping_mul(::std::mem::size_of::<word>()
                                                            as libc::c_ulong)
-                          as libc::c_long, 1 as libc::c_int);
+                          as libc::c_long, 1i32);
                 printf(b", #%d\x00" as *const u8 as *const libc::c_char,
                        read_word() as libc::c_int);
             }
@@ -1342,8 +1331,8 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
             current_block_166 = 2885804587290726961;
         }
         32784 => {
-            /* Version */
-            let mut header_0: version_header =
+             let mut header_0 =
+    
                 version_header{length: 0,
                                value_length: 0,
                                string: [0; 16],
@@ -1365,14 +1354,14 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                                flags_subtype: 0,
                                date_1: 0,
                                date_2: 0,}; /* for the String/VarFileInfo */
-            let mut info_length: word = 0; /* fixme: what is this? */
-            let mut value_length: word = 0;
-            let mut info_type: libc::c_char = 0;
-            let mut cursor_0: libc::c_long = 0;
+             /* fixme: what is this? */
+            
+            
+            
             fread(&mut header_0 as *mut version_header as *mut libc::c_void,
                   ::std::mem::size_of::<version_header>() as libc::c_ulong,
-                  1 as libc::c_int as size_t, f);
-            if header_0.value_length as libc::c_int != 52 as libc::c_int {
+                  1u64, f);
+            if header_0.value_length as libc::c_int != 52i32 {
                 fprintf(stderr,
                         b"Warning: Version header length is %d (expected 52).\n\x00"
                             as *const u8 as *const libc::c_char,
@@ -1386,14 +1375,14 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                             as *const u8 as *const libc::c_char,
                         header_0.string.as_mut_ptr());
             }
-            if header_0.magic != 0xfeef04bd as libc::c_uint {
+            if header_0.magic != 0xfeef04bdu32 {
                 fprintf(stderr,
                         b"Warning: Version magic number is 0x%08x (expected 0xfeef04bd).\n\x00"
                             as *const u8 as *const libc::c_char,
                         header_0.magic);
             }
-            if header_0.struct_1 as libc::c_int != 1 as libc::c_int ||
-                   header_0.struct_2 as libc::c_int != 0 as libc::c_int {
+            if header_0.struct_1 as libc::c_int != 1i32 ||
+                   header_0.struct_2 as libc::c_int != 0i32 {
                 fprintf(stderr,
                         b"Warning: Version header version is %d.%d (expected 1.0).\n\x00"
                             as *const u8 as *const libc::c_char,
@@ -1416,24 +1405,22 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                    ::std::mem::size_of::<version_header>() as libc::c_ulong {
                 return
             } /* I don't have any testcases available so I think this is correct */
-            cursor_0 = ftell(f);
-            info_length = read_word();
-            value_length = read_word();
-            if value_length as libc::c_int != 0 as libc::c_int {
+            
+            
+                let mut cursor_0 =   ftell(f); let mut info_length =   read_word(); let mut value_length =   read_word();
+            if value_length as libc::c_int != 0i32 {
                 fprintf(stderr,
                         b"Warning: Value length is nonzero: %04x\n\x00" as
                             *const u8 as *const libc::c_char,
                         value_length as libc::c_int);
             }
-            /* "type" is again omitted */
-            info_type = read_byte() as libc::c_char;
+              let mut info_type =   read_byte() as libc::c_char;
             if info_type as libc::c_int == 'S' as i32 {
                 /* we have a StringFileInfo */
                 fseek(f,
-                      (15 as libc::c_int as
-                           libc::c_ulong).wrapping_mul(::std::mem::size_of::<byte>()
+                      (15u64).wrapping_mul(::std::mem::size_of::<byte>()
                                                            as libc::c_ulong)
-                          as libc::c_long, 1 as libc::c_int);
+                          as libc::c_long, 1i32);
                 print_rsrc_stringfileinfo(cursor_0 +
                                               info_length as libc::c_long);
                 if header_0.length as libc::c_ulong ==
@@ -1444,28 +1431,28 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 }
                 info_length = read_word();
                 fseek(f,
-                      ::std::mem::size_of::<word>() as libc::c_ulong as
-                          libc::c_long, 1 as libc::c_int);
+                      
+                      ::std::mem::size_of::<word>() as
+                          libc::c_long, 1i32);
                 info_type = read_byte() as libc::c_char
             }
             if info_type as libc::c_int == 'V' as i32 {
                 /* we have a VarFileInfo */
                 fseek(f,
-                      (11 as libc::c_int as
-                           libc::c_ulong).wrapping_mul(::std::mem::size_of::<byte>()
+                      (11u64).wrapping_mul(::std::mem::size_of::<byte>()
                                                            as libc::c_ulong)
-                          as libc::c_long, 1 as libc::c_int);
+                          as libc::c_long, 1i32);
                 print_rsrc_varfileinfo(cursor_0 +
                                            info_length as libc::c_long);
             } else {
-                let mut c: libc::c_char = 0;
+                 let mut c =  0;
                 fprintf(stderr,
                         b"Warning: Unrecognized file info key: \x00" as
                             *const u8 as *const libc::c_char);
                 fseek(f,
                       (::std::mem::size_of::<byte>() as
                            libc::c_ulong).wrapping_neg() as libc::c_long,
-                      1 as libc::c_int);
+                      1i32);
                 loop  {
                     c = read_byte() as libc::c_char;
                     if !(c != 0) { break ; }
@@ -1476,10 +1463,10 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
             current_block_166 = 2885804587290726961;
         }
         _ => {
-            let mut cursor_1: libc::c_long = 0;
-            let mut row: [byte; 16] = [0; 16];
-            let mut len: libc::c_char = 0;
-            let mut i_0: libc::c_int = 0;
+            
+            
+            
+             let mut cursor_1 =  0; let mut row =  [0; 16]; let mut len =  0; let mut i_0 =  0;
             loop 
                  /* hexl-style dump */
                  {
@@ -1487,20 +1474,22 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 if !(cursor_1 < offset + length) { break ; }
                 len =
                     if offset + length - cursor_1 >=
-                           16 as libc::c_int as libc::c_long {
-                        16 as libc::c_int as libc::c_long
+                           16i64 {
+                        16i64
                     } else { (offset + length) - cursor_1 } as libc::c_char;
                 fread(row.as_mut_ptr() as *mut libc::c_void,
                       ::std::mem::size_of::<byte>() as libc::c_ulong,
                       len as size_t, f);
                 printf(b"    %lx:\x00" as *const u8 as *const libc::c_char,
                        cursor_1);
-                i_0 = 0 as libc::c_int;
-                while i_0 < 16 as libc::c_int {
-                    if i_0 & 1 as libc::c_int == 0 {
+                
+                 for i_0 in  0i32.. 16i32 {
+    
+                    if i_0 & 1i32 == 0 {
                         /* Since this is 16 bits, we put a space after (before) every other two bytes. */
                         putchar(' ' as i32);
                     }
+    
                     if i_0 < len as libc::c_int {
                         printf(b"%02x\x00" as *const u8 as
                                    *const libc::c_char,
@@ -1508,17 +1497,16 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                     } else {
                         printf(b"  \x00" as *const u8 as *const libc::c_char);
                     }
-                    i_0 += 1
-                }
+}
                 printf(b"  \x00" as *const u8 as *const libc::c_char);
-                i_0 = 0 as libc::c_int;
-                while i_0 < len as libc::c_int {
+                
+                 for i_0 in  0i32.. len as libc::c_int {
+    
                     if row[i_0 as usize] as libc::c_int >= ' ' as i32 &&
                            row[i_0 as usize] as libc::c_int <= '~' as i32 {
                         putchar(row[i_0 as usize] as libc::c_int);
                     } else { putchar('.' as i32); }
-                    i_0 += 1
-                }
+}
                 putchar('\n' as i32);
             }
             current_block_166 = 2885804587290726961;
@@ -1536,10 +1524,11 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
         17778012151635330486 =>
         /* Icon */
         {
-            let mut header: header_bitmap_info =
+             let mut header =
+    
                 {
                     let mut init =
-                        header_bitmap_info{biSize: 0 as libc::c_int as dword,
+                        header_bitmap_info{biSize: 0u32,
                                            biWidth: 0,
                                            biHeight: 0,
                                            biPlanes: 0,
@@ -1552,23 +1541,40 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                                            biClrImportant: 0,};
                     init
                 };
-            /* header size should be 40 (INFOHEADER) or 12 (COREHEADER). */
-            header.biSize = read_dword(); /* todo: implied */
-            if header.biSize == 12 as libc::c_int as libc::c_uint {
-                header.biWidth = read_word() as dword;
-                header.biHeight = read_word() as dword;
-                header.biPlanes = read_word();
-                header.biBitCount = read_word();
+             
+            header =
+    crate::src::ne_resource::header_bitmap_info{biSize:
+                                                      read_dword(), ..
+            header}; /* todo: implied */
+            if header.biSize == 12u32 {
+                
+                
+                
+                
+                
+                
+                
+                 
+                header =
+    crate::src::ne_resource::header_bitmap_info{biWidth: 
+                                                 read_word() as dword,
+                                                biHeight:
+                                                    
+                                                 read_word() as dword,
+                                                biPlanes:   read_word(),
+                                                biBitCount:
+                                                      read_word(), ..
+                header};
                 current_block_166 = 8236137900636309791;
-            } else if header.biSize == 40 as libc::c_int as libc::c_uint {
+            } else if header.biSize == 40u32 {
                 fseek(f,
                       (::std::mem::size_of::<dword>() as
                            libc::c_ulong).wrapping_neg() as libc::c_long,
-                      1 as libc::c_int);
+                      1i32);
                 fread(&mut header as *mut header_bitmap_info as
                           *mut libc::c_void,
                       ::std::mem::size_of::<header_bitmap_info>() as
-                          libc::c_ulong, 1 as libc::c_int as size_t, f);
+                          libc::c_ulong, 1u64, f);
                 current_block_166 = 8236137900636309791;
             } else {
                 fprintf(stderr,
@@ -1581,17 +1587,16 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
                 _ => {
                     printf(b"    Size: %dx%dx%d\n\x00" as *const u8 as
                                *const libc::c_char, header.biWidth,
-                           header.biHeight.wrapping_div(2 as libc::c_int as
-                                                            libc::c_uint),
+                           header.biHeight.wrapping_div(2u32),
                            header.biBitCount as libc::c_int);
-                    if header.biPlanes as libc::c_int != 1 as libc::c_int {
+                    if header.biPlanes as libc::c_int != 1i32 {
                         fprintf(stderr,
                                 b"Warning: Bitmap specifies %d color planes (expected 1).\n\x00"
                                     as *const u8 as *const libc::c_char,
                                 header.biPlanes as libc::c_int);
                     }
                     if header.biCompression <=
-                           13 as libc::c_int as libc::c_uint &&
+                           13u32 &&
                            !rsrc_bmp_compression[header.biCompression as
                                                      usize].is_null() {
                         printf(b"    Compression: %s\n\x00" as *const u8 as
@@ -1628,19 +1633,19 @@ unsafe extern "C" fn print_rsrc_resource(mut type_0: word,
 unsafe extern "C" fn filter_resource(mut type_0: *const libc::c_char,
                                      mut id: *const libc::c_char)
  -> libc::c_int {
-    let mut i: libc::c_uint = 0;
-    if resource_filters_count == 0 { return 1 as libc::c_int }
-    i = 0 as libc::c_int as libc::c_uint;
+    
+    if resource_filters_count == 0 { return 1i32 }
+      let mut i =   0u32;
     while i < resource_filters_count {
-        let mut filter_type: *const libc::c_char =
-            *resource_filters.offset(i as isize);
-        let mut p: *const libc::c_char = 0 as *const libc::c_char;
-        let mut len: size_t = strlen(type_0);
+        
+        
+         let mut filter_type = 
+            *resource_filters.offset(i as isize); let mut p =  0 as *const libc::c_char; let mut len =  strlen(type_0);
         /* note that both resource types and IDs are case insensitive */
         /* if the filter is just a resource type or ID and we match that */
         if strcasecmp(type_0, filter_type) == 0 ||
                strcasecmp(id, filter_type) == 0 {
-            return 1 as libc::c_int
+            return 1i32
         }
         /* if the filter is a resource type followed by an ID and we match both */
         if !(strncasecmp(type_0, filter_type, len) != 0 ||
@@ -1648,24 +1653,25 @@ unsafe extern "C" fn filter_resource(mut type_0: *const libc::c_char,
                      ' ' as i32) {
             p = filter_type.offset(len as isize);
             while *p as libc::c_int == ' ' as i32 { p = p.offset(1) }
-            if strcasecmp(id, p) == 0 { return 1 as libc::c_int }
+            if strcasecmp(id, p) == 0 { return 1i32 }
         }
         i = i.wrapping_add(1)
     }
-    return 0 as libc::c_int;
+    return 0i32;
 }
 /* in ne_resource.c */
 #[no_mangle]
 pub unsafe extern "C" fn print_rsrc(mut start: libc::c_long) {
     let mut current_block: u64; /* fixme: what is this? */
-    let mut align: word = read_word();
-    let mut type_id: word = 0;
-    let mut count: word = 0;
-    let mut resloader: dword = 0;
-    let mut rn: resource =
-        resource{offset: 0, length: 0, flags: 0, id: 0, handle: 0, usage: 0,};
-    let mut cursor: libc::c_long = 0;
-    let mut idstr: *mut libc::c_char = 0 as *mut libc::c_char;
+    
+    
+    
+    
+    
+    
+     let mut align =  read_word(); let mut type_id =  0; let mut count =  0; let mut resloader =  0; let mut rn =
+    
+        resource{offset: 0, length: 0, flags: 0, id: 0, handle: 0, usage: 0,}; let mut cursor =  0; let mut idstr =  0 as *mut libc::c_char;
     loop  {
         type_id = read_word();
         if !(type_id != 0) { break ; }
@@ -1682,38 +1688,37 @@ pub unsafe extern "C" fn print_rsrc(mut start: libc::c_long) {
             if !(fresh4 != 0) { break ; }
             fread(&mut rn as *mut resource as *mut libc::c_void,
                   ::std::mem::size_of::<resource>() as libc::c_ulong,
-                  1 as libc::c_int as size_t, f);
+                  1u64, f);
             cursor = ftell(f);
-            if rn.id as libc::c_int & 0x8000 as libc::c_int != 0 {
+            if rn.id as libc::c_int & 0x8000i32 != 0 {
                 idstr =
-                    malloc(6 as libc::c_int as libc::c_ulong) as
+                    malloc(6u64) as
                         *mut libc::c_char;
                 sprintf(idstr, b"%d\x00" as *const u8 as *const libc::c_char,
-                        rn.id as libc::c_int & !(0x8000 as libc::c_int));
+                        rn.id as libc::c_int & !(0x8000i32));
             } else {
                 idstr = dup_string_resource(start + rn.id as libc::c_long)
             }
-            if type_id as libc::c_int & 0x8000 as libc::c_int != 0 {
-                if ((type_id as libc::c_int & !(0x8000 as libc::c_int)) as
+            if type_id as libc::c_int & 0x8000i32 != 0 {
+                if ((type_id as libc::c_int & !(0x8000i32)) as
                         libc::c_ulong) < rsrc_types_count &&
                        !rsrc_types[(type_id as libc::c_int &
-                                        !(0x8000 as libc::c_int)) as
+                                        !(0x8000i32)) as
                                        usize].is_null() {
                     if filter_resource(rsrc_types[(type_id as libc::c_int &
-                                                       !(0x8000 as
-                                                             libc::c_int)) as
+                                                       !(0x8000i32)) as
                                                       usize], idstr) == 0 {
                         current_block = 1916172849665352563;
                     } else {
                         printf(b"\n%s\x00" as *const u8 as
                                    *const libc::c_char,
                                rsrc_types[(type_id as libc::c_int &
-                                               !(0x8000 as libc::c_int)) as
+                                               !(0x8000i32)) as
                                               usize]);
                         current_block = 17788412896529399552;
                     }
                 } else {
-                    let mut typestr: [libc::c_char; 7] = [0; 7];
+                     let mut typestr =  [0; 7];
                     sprintf(typestr.as_mut_ptr(),
                             b"0x%04x\x00" as *const u8 as *const libc::c_char,
                             type_id as libc::c_int);
@@ -1726,7 +1731,7 @@ pub unsafe extern "C" fn print_rsrc(mut start: libc::c_long) {
                     }
                 }
             } else {
-                let mut typestr_0: *mut libc::c_char =
+                 let mut typestr_0 = 
                     dup_string_resource(start + type_id as libc::c_long);
                 if filter_resource(typestr_0, idstr) == 0 {
                     free(typestr_0 as *mut libc::c_void);
@@ -1761,7 +1766,7 @@ pub unsafe extern "C" fn print_rsrc(mut start: libc::c_long) {
                 _ => { }
             }
             free(idstr as *mut libc::c_void);
-            fseek(f, cursor, 0 as libc::c_int);
+            fseek(f, cursor, 0i32);
         }
     };
 }

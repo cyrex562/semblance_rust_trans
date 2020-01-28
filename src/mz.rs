@@ -33,13 +33,8 @@ extern "C" {
     #[no_mangle]
     fn fseek(__stream: *mut FILE, __off: libc::c_long, __whence: libc::c_int)
      -> libc::c_int;
-    #[no_mangle]
-    fn get_instr(ip: dword, p: *const byte, instr: *mut instr,
-                 bits: libc::c_int) -> libc::c_int;
-    #[no_mangle]
-    fn print_instr(ip: *mut libc::c_char, p: *mut byte, len: libc::c_int,
-                   flags: byte, instr: *mut instr,
-                   comment: *const libc::c_char, bits: libc::c_int);
+    
+    
 }
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
@@ -52,8 +47,8 @@ pub type uint8_t = __uint8_t;
 pub type uint16_t = __uint16_t;
 pub type uint32_t = __uint32_t;
 pub type uint64_t = __uint64_t;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_FILE {
     pub _flags: libc::c_int,
     pub _IO_read_ptr: *mut libc::c_char,
@@ -86,8 +81,8 @@ pub struct _IO_FILE {
     pub _unused2: [libc::c_char; 20],
 }
 pub type _IO_lock_t = ();
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct _IO_marker {
     pub _next: *mut _IO_marker,
     pub _sbuf: *mut _IO_FILE,
@@ -102,8 +97,8 @@ pub type C2RustUnnamed = libc::c_uint;
 pub const MASM: C2RustUnnamed = 2;
 pub const NASM: C2RustUnnamed = 1;
 pub const GAS: C2RustUnnamed = 0;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct mz {
     pub header: header_mz,
     pub reltab: *mut reloc,
@@ -112,14 +107,14 @@ pub struct mz {
     pub start: dword,
     pub length: dword,
 }
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct reloc {
     pub offset: word,
     pub segment: word,
 }
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
+
+#[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct header_mz {
     pub e_magic: word,
     pub e_cblp: word,
@@ -136,8 +131,8 @@ pub struct header_mz {
     pub e_lfarlc: word,
     pub e_ovno: word,
 }
-#[derive(Copy, Clone, BitfieldStruct)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone, BitfieldStruct)]
 pub struct instr {
     pub prefix: word,
     pub op: op,
@@ -181,8 +176,8 @@ pub const DISP_16: disptype = 2;
 /* no disp, i.e. mod == 0 && m != 6 */
 pub const DISP_8: disptype = 1;
 pub const DISP_NONE: disptype = 0;
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct arg {
     pub string: [libc::c_char; 32],
     pub ip: dword,
@@ -274,8 +269,8 @@ pub const AL: argtype = 2;
 pub const ONE: argtype = 1;
 pub const NONE: argtype = 0;
 /* branch to target (jmp, jXX) */
-#[derive(Copy, Clone)]
-#[repr(C)]
+
+#[repr(C)]#[derive(Copy, Clone)]
 pub struct op {
     pub opcode: word,
     pub subcode: byte,
@@ -286,7 +281,7 @@ pub struct op {
     pub flags: dword,
 }
 #[no_mangle]
-pub static mut f: *mut FILE = 0 as *const FILE as *mut FILE;
+pub static mut f: *mut FILE =  0 as *mut FILE;
 #[inline]
 unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
 #[no_mangle]
@@ -297,7 +292,8 @@ pub static mut opts: word = 0;
 pub static mut asm_syntax: C2RustUnnamed = GAS;
 #[no_mangle]
 pub static mut resource_filters: *mut *mut libc::c_char =
-    0 as *const *mut libc::c_char as *mut *mut libc::c_char;
+    
+    0 as *mut *mut libc::c_char;
 #[no_mangle]
 pub static mut resource_filters_count: libc::c_uint = 0;
 #[inline]
@@ -308,13 +304,13 @@ unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
  * use the actual value. */
 #[inline]
 unsafe extern "C" fn realaddr(mut segment: word, mut offset: word) -> dword {
-    if (segment as libc::c_uint) < 0xfff0 as libc::c_uint {
-        return (segment as libc::c_int * 0x10 as libc::c_int +
+    if (segment as libc::c_uint) < 0xfff0u32 {
+        return (segment as libc::c_int * 0x10i32 +
                     offset as libc::c_int) as dword
     } else {
         /* relative segments >= 0xfff0 really point into PSP */
-        return (segment as libc::c_int * 0x10 as libc::c_int +
-                    offset as libc::c_int - 0x100000 as libc::c_int) as dword
+        return (segment as libc::c_int * 0x10i32 +
+                    offset as libc::c_int - 0x100000i32) as dword
     };
 }
 /*
@@ -342,10 +338,10 @@ unsafe extern "C" fn print_header(mut header: *mut header_mz) {
     putchar('\n' as i32); /* 0a */
     printf(b"Minimum extra allocation: %d bytes\n\x00" as *const u8 as
                *const libc::c_char,
-           (*header).e_minalloc as libc::c_int * 16 as libc::c_int); /* 0c */
+           (*header).e_minalloc as libc::c_int * 16i32); /* 0c */
     printf(b"Maximum extra allocation: %d bytes\n\x00" as *const u8 as
                *const libc::c_char,
-           (*header).e_maxalloc as libc::c_int * 16 as libc::c_int); /* 0e */
+           (*header).e_maxalloc as libc::c_int * 16i32); /* 0e */
     printf(b"Initial stack location: %#x\n\x00" as *const u8 as
                *const libc::c_char,
            realaddr((*header).e_ss, (*header).e_sp)); /* 14 */
@@ -357,12 +353,16 @@ unsafe extern "C" fn print_header(mut header: *mut header_mz) {
 }
 unsafe extern "C" fn print_mz_instr(mut ip: dword, mut p: *mut byte,
                                     mut flags: *const byte) -> libc::c_int {
-    let mut instr: instr =
+    
+    
+    
+      let mut instr =
+    
         {
             let mut init =
                 instr{usedmem_vex_vex_reg_vex_256: [0; 1],
                       c2rust_padding: [0; 4],
-                      prefix: 0 as libc::c_int as word,
+                      prefix: 0u16,
                       op:
                           op{opcode: 0,
                              subcode: 0,
@@ -386,36 +386,35 @@ unsafe extern "C" fn print_mz_instr(mut ip: dword, mut p: *mut byte,
             init.set_vex_reg(0);
             init.set_vex_256(0);
             init
-        };
-    let mut len: libc::c_uint = 0;
-    let mut ip_string: [libc::c_char; 7] = [0; 7];
-    len = get_instr(ip, p, &mut instr, 16 as libc::c_int) as libc::c_uint;
+        }; let mut ip_string =  [0; 7]; let mut len =
+    
+     crate::src::x86_instr::get_instr(ip, p, &mut instr, 16i32) as libc::c_uint;
     sprintf(ip_string.as_mut_ptr(),
             b"%05x\x00" as *const u8 as *const libc::c_char, ip);
-    print_instr(ip_string.as_mut_ptr(), p, len as libc::c_int,
+    crate::src::x86_instr::print_instr(ip_string.as_mut_ptr(), p, len as libc::c_int,
                 *flags.offset(ip as isize), &mut instr,
-                0 as *const libc::c_char, 16 as libc::c_int);
+                0 as *const libc::c_char, 16i32);
     return len as libc::c_int;
 }
 unsafe extern "C" fn print_code(mut mz: *mut mz) {
-    let mut ip: dword = 0 as libc::c_int as dword;
-    let mut buffer: [byte; 16] = [0; 16];
+    
+     let mut ip =  0u32; let mut buffer =  [0; 16];
     putchar('\n' as i32);
     printf(b"Code (start = 0x%x, length = 0x%x):\n\x00" as *const u8 as
                *const libc::c_char, (*mz).start, (*mz).length);
     while ip < (*mz).length {
         fseek(f, (*mz).start.wrapping_add(ip) as libc::c_long,
-              0 as libc::c_int);
+              0i32);
         /* find a valid instruction */
         if *(*mz).flags.offset(ip as isize) as libc::c_int &
-               0x2 as libc::c_int == 0 {
-            if opts as libc::c_int & 0x1 as libc::c_int != 0 {
+               0x2i32 == 0 {
+            if opts as libc::c_int & 0x1i32 != 0 {
                 /* still skip zeroes */
-                if read_byte() as libc::c_int == 0 as libc::c_int {
+                if read_byte() as libc::c_int == 0i32 {
                     printf(b"      ...\n\x00" as *const u8 as
                                *const libc::c_char);
                     ip = ip.wrapping_add(1);
-                    while read_byte() as libc::c_int == 0 as libc::c_int {
+                    while read_byte() as libc::c_int == 0i32 {
                         ip = ip.wrapping_add(1)
                     }
                 }
@@ -423,42 +422,44 @@ unsafe extern "C" fn print_code(mut mz: *mut mz) {
                 printf(b"     ...\n\x00" as *const u8 as *const libc::c_char);
                 while ip < (*mz).length &&
                           *(*mz).flags.offset(ip as isize) as libc::c_int &
-                              0x2 as libc::c_int == 0 {
+                              0x2i32 == 0 {
                     ip = ip.wrapping_add(1)
                 }
             }
         }
         fseek(f, (*mz).start.wrapping_add(ip) as libc::c_long,
-              0 as libc::c_int);
+              0i32);
         if ip >= (*mz).length { return }
         /* fixme: disassemble everything for now; we'll try to fix it later.
          * this is going to be a little more difficult since dos executables
          * unabashedly mix code and data, so we need to figure out a solution
          * for that. but we needed to do that anyway. */
         fread(buffer.as_mut_ptr() as *mut libc::c_void,
-              1 as libc::c_int as size_t,
+              1u64,
               if (::std::mem::size_of::<[byte; 16]>() as libc::c_ulong) <
                      (*mz).length.wrapping_sub(ip) as libc::c_ulong {
                   ::std::mem::size_of::<[byte; 16]>() as libc::c_ulong
               } else { (*mz).length.wrapping_sub(ip) as libc::c_ulong }, f);
         if *(*mz).flags.offset(ip as isize) as libc::c_int &
-               0x8 as libc::c_int != 0 {
+               0x8i32 != 0 {
             printf(b"\n\x00" as *const u8 as *const libc::c_char);
             printf(b"%05x <no name>:\n\x00" as *const u8 as
                        *const libc::c_char, ip);
         }
         ip =
-            (ip as
-                 libc::c_uint).wrapping_add(print_mz_instr(ip,
+            
+            (ip).wrapping_add(print_mz_instr(ip,
                                                            buffer.as_mut_ptr(),
                                                            (*mz).flags) as
-                                                libc::c_uint) as dword as
-                dword
+                                                libc::c_uint)
     };
 }
 unsafe extern "C" fn scan_segment(mut ip: dword, mut mz: *mut mz) {
-    let mut buffer: [byte; 16] = [0; 16];
-    let mut instr: instr =
+    
+    
+    
+     let mut buffer =  [0; 16]; let mut instr =
+    
         instr{prefix: 0,
               op:
                   op{opcode: 0,
@@ -475,9 +476,7 @@ unsafe extern "C" fn scan_segment(mut ip: dword, mut mz: *mut mz) {
               sib_scale: 0,
               sib_index: 0,
               usedmem_vex_vex_reg_vex_256: [0; 1],
-              c2rust_padding: [0; 4],};
-    let mut instr_length: libc::c_int = 0;
-    let mut i: libc::c_int = 0;
+              c2rust_padding: [0; 4],}; let mut instr_length =  0; let mut i =  0;
     if ip > (*mz).length {
         fprintf(stderr,
                 b"Warning: %05x: \x00" as *const u8 as *const libc::c_char,
@@ -488,7 +487,7 @@ unsafe extern "C" fn scan_segment(mut ip: dword, mut mz: *mut mz) {
         return
     }
     if *(*mz).flags.offset(ip as isize) as libc::c_int &
-           (0x2 as libc::c_int | 0x1 as libc::c_int) == 0x1 as libc::c_int {
+           (0x2i32 | 0x1i32) == 0x1i32 {
         fprintf(stderr,
                 b"Warning: %05x: \x00" as *const u8 as *const libc::c_char,
                 ip);
@@ -499,31 +498,31 @@ unsafe extern "C" fn scan_segment(mut ip: dword, mut mz: *mut mz) {
     while ip < (*mz).length {
         /* check if we already read from here */
         if *(*mz).flags.offset(ip as isize) as libc::c_int &
-               0x1 as libc::c_int != 0 {
+               0x1i32 != 0 {
             return
         }
         /* read the instruction */
         fseek(f, (*mz).start.wrapping_add(ip) as libc::c_long,
-              0 as libc::c_int); // fixme
-        memset(buffer.as_mut_ptr() as *mut libc::c_void, 0 as libc::c_int,
+              0i32); // fixme
+        memset(buffer.as_mut_ptr() as *mut libc::c_void, 0i32,
                ::std::mem::size_of::<[byte; 16]>() as libc::c_ulong);
         fread(buffer.as_mut_ptr() as *mut libc::c_void,
-              1 as libc::c_int as size_t,
+              1u64,
               if (::std::mem::size_of::<[byte; 16]>() as libc::c_ulong) <
                      (*mz).length.wrapping_sub(ip) as libc::c_ulong {
                   ::std::mem::size_of::<[byte; 16]>() as libc::c_ulong
               } else { (*mz).length.wrapping_sub(ip) as libc::c_ulong }, f);
         instr_length =
-            get_instr(ip, buffer.as_mut_ptr(), &mut instr, 16 as libc::c_int);
+            crate::src::x86_instr::get_instr(ip, buffer.as_mut_ptr(), &mut instr, 16i32);
         /* mark the bytes */
         let ref mut fresh0 = *(*mz).flags.offset(ip as isize);
-        *fresh0 = (*fresh0 as libc::c_int | 0x2 as libc::c_int) as byte;
+        *fresh0 = (*fresh0 as libc::c_int | 0x2i32) as byte;
         i = ip as libc::c_int;
         while (i as libc::c_uint) <
                   ip.wrapping_add(instr_length as libc::c_uint) &&
                   (i as libc::c_uint) < (*mz).length {
             let ref mut fresh1 = *(*mz).flags.offset(i as isize);
-            *fresh1 = (*fresh1 as libc::c_int | 0x1 as libc::c_int) as byte;
+            *fresh1 = (*fresh1 as libc::c_int | 0x1i32) as byte;
             i += 1
         }
         /* instruction which hangs over the minimum allocation */
@@ -532,32 +531,30 @@ unsafe extern "C" fn scan_segment(mut ip: dword, mut mz: *mut mz) {
             break ;
         }
         /* handle conditional and unconditional jumps */
-        if instr.op.flags & 0x8000 as libc::c_int as libc::c_uint != 0 {
+        if instr.op.flags & 0x8000u32 != 0 {
             /* near relative jump, loop, or call */
             if strcmp(instr.op.name.as_mut_ptr(),
                       b"call\x00" as *const u8 as *const libc::c_char) == 0 {
                 let ref mut fresh2 =
-                    *(*mz).flags.offset(instr.args[0 as libc::c_int as
-                                                       usize].value as isize);
+                    *(*mz).flags.offset(instr.args[0usize].value as isize);
                 *fresh2 =
-                    (*fresh2 as libc::c_int | 0x8 as libc::c_int) as byte
+                    (*fresh2 as libc::c_int | 0x8i32) as byte
             } else {
                 let ref mut fresh3 =
-                    *(*mz).flags.offset(instr.args[0 as libc::c_int as
-                                                       usize].value as isize);
+                    *(*mz).flags.offset(instr.args[0usize].value as isize);
                 *fresh3 =
-                    (*fresh3 as libc::c_int | 0x4 as libc::c_int) as byte
+                    (*fresh3 as libc::c_int | 0x4i32) as byte
             }
             /* scan it */
-            scan_segment(instr.args[0 as libc::c_int as usize].value as dword,
+            scan_segment(instr.args[0usize].value as dword,
                          mz);
         }
-        if instr.op.flags & 0x4000 as libc::c_int as libc::c_uint != 0 {
+        if instr.op.flags & 0x4000u32 != 0 {
             return
         }
         ip =
-            (ip as libc::c_uint).wrapping_add(instr_length as libc::c_uint) as
-                dword as dword
+            
+            (ip).wrapping_add(instr_length as libc::c_uint)
     }
     fprintf(stderr,
             b"Warning: %05x: \x00" as *const u8 as *const libc::c_char, ip);
@@ -566,21 +563,30 @@ unsafe extern "C" fn scan_segment(mut ip: dword, mut mz: *mut mz) {
                 *const libc::c_char);
 }
 unsafe extern "C" fn read_code(mut mz: *mut mz) {
-    (*mz).entry_point = realaddr((*mz).header.e_cs, (*mz).header.e_ip);
-    (*mz).length =
-        (((*mz).header.e_cp as libc::c_int - 1 as libc::c_int) *
-             512 as libc::c_int + (*mz).header.e_cblp as libc::c_int) as
-            dword;
-    if (*mz).header.e_cblp as libc::c_int == 0 as libc::c_int {
-        (*mz).length =
-            ((*mz).length as
-                 libc::c_uint).wrapping_add(512 as libc::c_int as
-                                                libc::c_uint) as dword as
-                dword
+    
+     *mz =
+    crate::src::mz::mz{entry_point:
+                           
+                        realaddr((*mz).header.e_cs, (*mz).header.e_ip),
+                       length:
+                           
+                       
+        (((*mz).header.e_cp as libc::c_int - 1i32) *
+             512i32 + (*mz).header.e_cblp as libc::c_int) as
+            dword, ..*mz};
+    if (*mz).header.e_cblp as libc::c_int == 0i32 {
+        *mz =
+            
+            crate::src::mz::mz{length: 
+            
+            ((*mz).length).wrapping_add(512u32), ..*mz}
     }
-    (*mz).flags =
+     *mz =
+    crate::src::mz::mz{flags:
+                           
+                       
         calloc((*mz).length as libc::c_ulong,
-               ::std::mem::size_of::<byte>() as libc::c_ulong) as *mut byte;
+               ::std::mem::size_of::<byte>() as libc::c_ulong) as *mut byte, ..*mz};
     if (*mz).entry_point > (*mz).length {
         fprintf(stderr,
                 b"Warning: Entry point %05x exceeds segment length (%05x)\n\x00"
@@ -588,28 +594,32 @@ unsafe extern "C" fn read_code(mut mz: *mut mz) {
                 (*mz).length);
     }
     let ref mut fresh4 = *(*mz).flags.offset((*mz).entry_point as isize);
-    *fresh4 = (*fresh4 as libc::c_int | 0x8 as libc::c_int) as byte;
+    *fresh4 = (*fresh4 as libc::c_int | 0x8i32) as byte;
     scan_segment((*mz).entry_point, mz);
 }
 #[no_mangle]
 pub unsafe extern "C" fn readmz(mut mz: *mut mz) {
-    fseek(f, 0 as libc::c_int as libc::c_long, 0 as libc::c_int);
+    fseek(f, 0i64, 0i32);
     fread(&mut (*mz).header as *mut header_mz as *mut libc::c_void,
           ::std::mem::size_of::<header_mz>() as libc::c_ulong,
-          1 as libc::c_int as size_t, f);
-    /* read the relocation table */
-    (*mz).reltab =
+          1u64, f);
+     *mz =
+    crate::src::mz::mz{reltab:
+                           
+                       
         malloc(((*mz).header.e_crlc as
                     libc::c_ulong).wrapping_mul(::std::mem::size_of::<reloc>()
                                                     as libc::c_ulong)) as
-            *mut reloc;
-    fseek(f, (*mz).header.e_lfarlc as libc::c_long, 0 as libc::c_int);
+            *mut reloc, ..*mz};
+    fseek(f, (*mz).header.e_lfarlc as libc::c_long, 0i32);
     fread((*mz).reltab as *mut libc::c_void,
           ::std::mem::size_of::<reloc>() as libc::c_ulong,
           (*mz).header.e_crlc as size_t, f);
-    /* read the code */
-    (*mz).start =
-        ((*mz).header.e_cparhdr as libc::c_int * 16 as libc::c_int) as dword;
+     *mz =
+    crate::src::mz::mz{start:
+                           
+                       
+        ((*mz).header.e_cparhdr as libc::c_int * 16i32) as dword, ..*mz};
     read_code(mz);
 }
 #[no_mangle]
@@ -625,7 +635,8 @@ pub unsafe extern "C" fn freemz(mut mz: *mut mz) {
 /* Entry points */
 #[no_mangle]
 pub unsafe extern "C" fn dumpmz() {
-    let mut mz: mz =
+     let mut mz =
+    
         mz{header:
                header_mz{e_magic: 0,
                          e_cblp: 0,
@@ -649,9 +660,9 @@ pub unsafe extern "C" fn dumpmz() {
     readmz(&mut mz);
     printf(b"Module type: MZ (DOS executable)\n\x00" as *const u8 as
                *const libc::c_char);
-    if mode as libc::c_int & 0x1 as libc::c_int != 0 {
+    if mode as libc::c_int & 0x1i32 != 0 {
         print_header(&mut mz.header);
     }
-    if mode as libc::c_int & 0x10 as libc::c_int != 0 { print_code(&mut mz); }
+    if mode as libc::c_int & 0x10i32 != 0 { print_code(&mut mz); }
     freemz(&mut mz);
 }

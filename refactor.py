@@ -28,7 +28,7 @@ def get_cmd_or_die(cmd: str) -> Command:
 refactor = get_cmd_or_die("c2rust-refactor")
 
 
-def run_refactor(args, tgt_file, mode='inplace'):
+def run_refactor(command, tgt_file, mode='inplace'):
     """
     full_args = ['-r', mode] + args + [
             '--', 'src/lib.rs', '--crate-type=dylib',
@@ -40,10 +40,8 @@ def run_refactor(args, tgt_file, mode='inplace'):
     :param mode:
     :return:
     """
-    full_args = ['-r', mode] + args + [
-        '--cargo', tgt_file
-    ]
-    refactor[full_args]()
+    full_args = ['refactor', '-r', mode, command, '--cargo', tgt_file]
+    c2rust[full_args]()
 
 REFACTORINGS = [
     'link_incomplete_types',
@@ -57,7 +55,7 @@ REFACTORINGS = [
     'struct_assign_to_update',
     'struct_merge_updates',
     ## last
-    'reorganize definitions'
+    # 'reorganize definitions'
 ]
 
 def run() -> int:
