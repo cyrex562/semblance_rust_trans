@@ -27,5 +27,6 @@ pub mod ne_segment;
 pub mod pe_header;
 pub mod pe_section;
 pub mod x86_instr;
+    pub mod common;
 } // mod src
 

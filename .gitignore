@@ -313,3 +313,7 @@ fabric.properties
 .idea/semblance_rust_trans.iml
 .idea/vcs.xml
 
+.idea/codeStyles/
+.idea/compilerexplorer.settings.xml
+.idea/inspectionProfiles/
+

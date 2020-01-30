@@ -201,13 +201,13 @@ unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
 pub static mut f: *mut FILE =  0 as *mut FILE;
 #[inline]
 unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
-#[inline]
-unsafe extern "C" fn read_word() -> word {
-     let mut w =  0;
-    fread(&mut w as *mut word as *mut libc::c_void,
-          2u64, 1u64, f);
-    return w;
-}
+//#[inline]
+//unsafe extern "C" fn read_word() -> word {
+//     let mut w =  0;
+//    fread(&mut w as *mut word as *mut libc::c_void,
+//          2u64, 1u64, f);
+//    return w;
+//}
 #[inline]
 unsafe extern "C" fn read_dword() -> dword {
      let mut d =  0;

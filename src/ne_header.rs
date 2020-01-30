@@ -1,10 +1,12 @@
 use ::libc;
-use crate::src::x86_instr::{Instruction, Operation, Argument, _IO_FILE, size_t, __int8_t,
-                            __uint8_t, __int16_t, __uint16_t, __int32_t, __uint32_t,
-                            __uint64_t, __off_t, __off64_t, int8_t, int16_t, int32_t,
-                            uint8_t, uint16_t, uint32_t, uint64_t, FILE, byte, dword,
-                            word, qword, C2RustUnnamed, MASM, NASM, GAS, disptype,
-                            DISP_REG, DISP_16, DISP_8, DISP_NONE, argtype, NONE};
+use crate::src::x86_instr::{ MASM, NASM, GAS,  NONE};
+use crate::src::common::{ Instruction, Operation, Argument, _IO_FILE, size_t, __int8_t,
+                          __uint8_t, __int16_t, __uint16_t, __int32_t, __uint32_t,
+                          __uint64_t, __off_t, __off64_t, int8_t, int16_t, int32_t,
+                          uint8_t, uint16_t, uint32_t, uint64_t, FILE, byte, dword,
+                          word, qword, C2RustUnnamed, disptype,
+                          DISP_REG, DISP_16, DISP_8, DISP_NONE, argtype, GAS, NASM, MASM,
+                          f, asm_syntax, opts, mode};
 use crate::src::ne_segment::{read_segments, ne, segment, reloc, import_module, export,
                              entry, header_ne };
 
@@ -75,201 +77,14 @@ extern "C" {
     #[no_mangle]
     fn strlen(_: *const libc::c_char) -> libc::c_ulong;
 }
-//pub type size_t = libc::c_ulong;
-//pub type __uint8_t = libc::c_uchar;
-//pub type __uint16_t = libc::c_ushort;
-//pub type __uint32_t = libc::c_uint;
-//pub type __off_t = libc::c_long;
-//pub type __off64_t = libc::c_long;
-
-//#[repr(C)]#[derive(Copy, Clone)]
-//pub struct _IO_FILE {
-//    pub _flags: libc::c_int,
-//    pub _IO_read_ptr: *mut libc::c_char,
-//    pub _IO_read_end: *mut libc::c_char,
-//    pub _IO_read_base: *mut libc::c_char,
-//    pub _IO_write_base: *mut libc::c_char,
-//    pub _IO_write_ptr: *mut libc::c_char,
-//    pub _IO_write_end: *mut libc::c_char,
-//    pub _IO_buf_base: *mut libc::c_char,
-//    pub _IO_buf_end: *mut libc::c_char,
-//    pub _IO_save_base: *mut libc::c_char,
-//    pub _IO_backup_base: *mut libc::c_char,
-//    pub _IO_save_end: *mut libc::c_char,
-//    pub _markers: *mut _IO_marker,
-//    pub _chain: *mut _IO_FILE,
-//    pub _fileno: libc::c_int,
-//    pub _flags2: libc::c_int,
-//    pub _old_offset: __off_t,
-//    pub _cur_column: libc::c_ushort,
-//    pub _vtable_offset: libc::c_schar,
-//    pub _shortbuf: [libc::c_char; 1],
-//    pub _lock: *mut libc::c_void,
-//    pub _offset: __off64_t,
-//    pub __pad1: *mut libc::c_void,
-//    pub __pad2: *mut libc::c_void,
-//    pub __pad3: *mut libc::c_void,
-//    pub __pad4: *mut libc::c_void,
-//    pub __pad5: size_t,
-//    pub _mode: libc::c_int,
-//    pub _unused2: [libc::c_char; 20],
-//}
-//pub type _IO_lock_t = ();
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct _IO_marker {
-    pub _next: *mut _IO_marker,
-    pub _sbuf: *mut _IO_FILE,
-    pub _pos: libc::c_int,
-}
-//pub type FILE = _IO_FILE;
-//pub type uint8_t = __uint8_t;
-//pub type uint16_t = __uint16_t;
-//pub type uint32_t = __uint32_t;
-/* Common functions */
-//pub type byte = uint8_t;
-//pub type word = uint16_t;
-//pub type dword = uint32_t;
-/* additional options */
-//pub type C2RustUnnamed = libc::c_uint;
-//pub const MASM: C2RustUnnamed = 2;
-//pub const NASM: C2RustUnnamed = 1;
-//pub const GAS: C2RustUnnamed = 0;
-
-//#[repr(C)]
-//#[derive(Copy, Clone)]
-//pub struct ne {
-//    pub header: header_ne,
-//    pub name: *mut libc::c_char,
-//    pub description: *mut libc::c_char,
-//    pub nametab: *mut byte,
-//    pub enttab: *mut entry,
-//    pub entcount: libc::c_uint,
-//    pub imptab: *mut import_module,
-//    pub segments: *mut segment,
-//}
-
-//#[repr(C)]
-//#[derive(Copy, Clone)]
-//pub struct segment {
-//    pub cs: word,
-//    pub start: libc::c_long,
-//    pub length: word,
-//    pub flags: word,
-//    pub min_alloc: word,
-//    pub instr_flags: *mut byte,
-//    pub reloc_table: *mut reloc,
-//    pub reloc_count: word,
-//}
-
-//#[repr(C)]
-//#[derive(Copy, Clone)]
-//pub struct reloc {
-//    pub size: byte,
-//    pub type_0: byte,
-//    pub offset_count: word,
-//    pub offsets: *mut word,
-//    pub tseg: word,
-//    pub toffset: word,
-//    pub text: *mut libc::c_char,
-//}
-
-//#[repr(C)]
-//#[derive(Copy, Clone)]
-//pub struct import_module {
-//    pub name: *mut libc::c_char,
-//    pub exports: *mut export,
-//    pub export_count: libc::c_uint,
-//}
-/* may be NULL */
-
-//#[repr(C)]
-//#[derive(Copy, Clone)]
-//pub struct export {
-//    pub ordinal: word,
-//    pub name: *mut libc::c_char,
-//}
-
-//#[repr(C)]
-//#[derive(Copy, Clone)]
-//pub struct entry {
-//    pub flags: byte,
-//    pub segment: byte,
-//    pub offset: word,
-//    pub name: *mut libc::c_char,
-//}
-
-//#[repr(C, packed)]
-//#[derive(Copy, Clone)]
-//pub struct header_ne {
-//    pub ne_magic: word,
-//    pub ne_ver: byte,
-//    pub ne_rev: byte,
-//    pub ne_enttab: word,
-//    pub ne_cbenttab: word,
-//    pub ne_crc: dword,
-//    pub ne_flags: word,
-//    pub ne_autodata: byte,
-//    pub ne_unused: byte,
-//    pub ne_heap: word,
-//    pub ne_stack: word,
-//    pub ne_ip: word,
-//    pub ne_cs: word,
-//    pub ne_sp: word,
-//    pub ne_ss: word,
-//    pub ne_cseg: word,
-//    pub ne_cmod: word,
-//    pub ne_cbnrestab: word,
-//    pub ne_segtab: word,
-//    pub ne_rsrctab: word,
-//    pub ne_restab: word,
-//    pub ne_modtab: word,
-//    pub ne_imptab: word,
-//    pub ne_nrestab: dword,
-//    pub ne_cmovent: word,
-//    pub ne_align: word,
-//    pub ne_cres: word,
-//    pub ne_exetyp: byte,
-//    pub ne_flagsothers: byte,
-//    pub ne_pretthunks: word,
-//    pub ne_psegrefbytes: word,
-//    pub ne_swaparea: word,
-//    pub ne_expver_min: byte,
-//    pub ne_expver_maj: byte,
-//}
-
 #[inline]
 unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
     return _IO_putc(__c, stdout);
 }
 
-#[no_mangle]
-pub static mut f: *mut FILE = 0 as *mut FILE;
-
 #[inline]
 unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
 
-#[inline]
-unsafe extern "C" fn read_word() -> word {
-    let mut w = 0;
-    fread(&mut w as *mut word as *mut libc::c_void,
-          2u64, 1u64, f);
-    return w;
-}
-
-#[no_mangle]
-pub static mut mode: word = 0;
-#[no_mangle]
-pub static mut opts: word = 0;
-#[no_mangle]
-pub static mut asm_syntax: C2RustUnnamed = GAS;
-#[no_mangle]
-pub static mut resource_filters_count: libc::c_uint = 0;
-#[no_mangle]
-pub static mut resource_filters: *mut *mut libc::c_char =
-
-    0 as *mut *mut libc::c_char;
 /*
  * Functions for parsing the NE header
  *
@@ -547,11 +362,13 @@ unsafe extern "C" fn print_specfile(mut ne: *mut ne) {
     fclose(specfile);
 }
 
-unsafe extern "C" fn demangle_protection(mut buffer: *mut libc::c_char,
+unsafe extern "C" fn demangle_protection(mut buffer: &mut String,
                                          mut start: *mut libc::c_char,
                                          mut prot: *mut libc::c_char,
                                          mut func: *mut libc::c_char)
                                          -> libc::c_int {
+    ///
+    ///
     if *start as libc::c_int >= 'A' as i32 &&
         *start as libc::c_int <= 'V' as i32 {
         if *start as libc::c_int - 'A' as i32 & 2i32 != 0 {
@@ -596,7 +413,8 @@ unsafe extern "C" fn demangle_protection(mut buffer: *mut libc::c_char,
             return 2i32;
         } else {
             let str_off_ptr = strchr(start, '@' as i32).offset(1isize);
-            return (str_off_ptr. as i32 + start as i32) as *mut u8;
+            let start_val = libc::adr
+            return (str_off_ptr as i32 + start as i32) as *mut u8;
 //            return  strchr(start, '@' as i32).offset(1isize).wrapping_offset_from(start) as libc::c_int
         }
     } else if *start as libc::c_int == '_' as i32 &&
@@ -607,7 +425,7 @@ unsafe extern "C" fn demangle_protection(mut buffer: *mut libc::c_char,
          * a number (often 7 or 3). */
         demangle_protection(buffer, start.offset(1isize),
                             prot, func);
-        if *start.offset(3isize) as libc::c_int >=
+        return if *start.offset(3isize) as libc::c_int >=
             '0' as i32 &&
             *start.offset(3isize) as libc::c_int <=
                 '9' as i32 {
@@ -618,10 +436,10 @@ unsafe extern "C" fn demangle_protection(mut buffer: *mut libc::c_char,
             *buffer.offset(strlen(buffer).wrapping_sub(3u64) as
                 isize) =
                 *start.offset(3isize);
-            return 4i32;
+            4i32
         } else {
             let str_off_ptr = strchr(start, '@' as i32).offset(1isize);
-            return str_off_ptr + start;
+            str_off_ptr + start
 //            return  strchr(start,
 //                          '@' as
 //                              i32).offset(1isize).wrapping_offset_from(start) as libc::c_int
@@ -658,7 +476,7 @@ unsafe extern "C" fn demangle_type(mut known_names: *mut *mut libc::c_char,
         strcat(buffer, b" \x00" as *const u8 as *const libc::c_char);
         return 1i32;
     }
-    match *type_0 as libc::c_int {
+    return match *type_0 as libc::c_int {
         65 | 80 => {
             if *type_0.offset(1isize) as libc::c_int -
                 'A' as i32 & 1i32 != 0 {
@@ -683,16 +501,16 @@ unsafe extern "C" fn demangle_type(mut known_names: *mut *mut libc::c_char,
                    if *type_0 as libc::c_int == 'A' as i32 {
                        b"&\x00" as *const u8 as *const libc::c_char
                    } else { b"*\x00" as *const u8 as *const libc::c_char });
-            return ret + 2i32;
+            ret + 2i32
         }
         77 => {
             strcat(buffer, b"float \x00" as *const u8 as *const libc::c_char);
-            return 1i32;
+            1i32
         }
         78 => {
             strcat(buffer,
                    b"double \x00" as *const u8 as *const libc::c_char);
-            return 1i32;
+            1i32
         }
         85 | 86 => {
             let mut p = buffer;
@@ -733,43 +551,39 @@ unsafe extern "C" fn demangle_type(mut known_names: *mut *mut libc::c_char,
             let res_off = type_0 + end_off;
 
 //            return  end.offset(1isize).offset_from(type_0) as libc::c_int
-            return res_off;
+            res_off
         }
         88 => {
             strcat(buffer, b"void \x00" as *const u8 as *const libc::c_char);
-            return 1i32;
+            1i32
         }
-        _ => { return 0i32; }
+        _ => { 0i32 }
     };
 }
-/* Demangle a C++ function name. The scheme used seems to be mostly older
- * than any documented, but I was able to find documentation that is at
- * least close in Agner Fog's manual. */
-unsafe extern "C" fn demangle(mut func: *mut libc::c_char)
-                              -> *mut libc::c_char {
+
+
+unsafe extern "C" fn demangle(mut func: *mut libc::c_char) -> *mut libc::c_char {
+    /// Demangle a C++ function name. The scheme used seems to be mostly older than any
+    /// documented, but I was able to find documentation that is at least close in Agner
+    /// Fog's manual.
     let mut known_types =
-
         [0 as *mut libc::c_char, 0 as *mut libc::c_char,
             0 as *mut libc::c_char, 0 as *mut libc::c_char,
             0 as *mut libc::c_char, 0 as *mut libc::c_char,
             0 as *mut libc::c_char, 0 as *mut libc::c_char,
             0 as *mut libc::c_char, 0 as *mut libc::c_char];
-    let mut known_names =
 
-        [0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char];
     let mut known_type_idx = 0u32;
     let mut known_name_idx = 0u32;
-    let mut buffer = [0; 1024];
+//    let mut buffer = [0; 1024];
+    let mut buffer: String = String::from("");
     let mut prot = 0i8;
 
     if *func.offset(1isize) as libc::c_int == '?' as i32 {
         /* TODO: constructor/destructor */
         return func;
     }
+
     let mut p = func;
     while *p as libc::c_int != '@' as i32 &&
         known_name_idx < 10u32 {
@@ -779,10 +593,9 @@ unsafe extern "C" fn demangle(mut func: *mut libc::c_char)
         p = strchr(p, '@' as i32).offset(1isize)
     }
     /* Figure out the modifiers and calling convention. */
-    buffer[0usize] = 0i8;
+//    buffer[0usize] = 0i8;
     p = strstr(func, b"@@\x00" as *const u8 as *const libc::c_char).offset(2isize);
-    let mut len =
-        demangle_protection(buffer.as_mut_ptr(), p, &mut prot, func);
+    let mut len = demangle_protection(&mut buffer, p, &mut prot, func);
     if len == 0 { return func; }
     p = p.offset(len as isize);
     /* The next one seems to always be E or F. No idea why. */
@@ -1127,8 +940,6 @@ unsafe extern "C" fn load_exports(mut module: *mut import_module) {
         } else {
             *(*module).exports.offset(count as isize) =
                 crate::src::ne_header::export {
-                    ordinal:
-
                     ordinal,
                     ..*(*module).exports.offset(count as isize)
                 };

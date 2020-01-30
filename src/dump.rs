@@ -1,4 +1,12 @@
 use ::libc;
+
+use crate::src::common::{ Instruction, Operation, Argument, _IO_FILE, size_t, __int8_t,
+                          __uint8_t, __int16_t, __uint16_t, __int32_t, __uint32_t,
+                          __uint64_t, __off_t, __off64_t, int8_t, int16_t, int32_t,
+                          uint8_t, uint16_t, uint32_t, uint64_t, FILE, byte, dword,
+                          word, qword, C2RustUnnamed, disptype,
+                          DISP_REG, DISP_16, DISP_8, DISP_NONE, argtype, GAS, NASM, MASM, f};
+
 extern "C" {
     #[no_mangle]
     fn realloc(_: *mut libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
@@ -9,8 +17,8 @@ extern "C" {
     #[no_mangle]
     fn getopt_long(___argc: libc::c_int, ___argv: *const *mut libc::c_char,
                    __shortopts: *const libc::c_char,
-                   __longopts: *const option, __longind: *mut libc::c_int)
-     -> libc::c_int;
+                   __longopts: *const Option, __longind: *mut libc::c_int)
+                   -> libc::c_int;
     #[no_mangle]
     static mut optarg: *mut libc::c_char;
     #[no_mangle]
@@ -45,98 +53,16 @@ extern "C" {
     
     
 }
-pub type size_t = libc::c_ulong;
-pub type __uint16_t = libc::c_ushort;
-pub type __uint32_t = libc::c_uint;
-pub type __off_t = libc::c_long;
-pub type __off64_t = libc::c_long;
+
 
 #[repr(C)]#[derive(Copy, Clone)]
-pub struct option {
+pub struct Option {
     pub name: *const libc::c_char,
     pub has_arg: libc::c_int,
     pub flag: *mut libc::c_int,
     pub val: libc::c_int,
 }
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
 
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct _IO_FILE {
-    pub _flags: libc::c_int,
-    pub _IO_read_ptr: *mut libc::c_char,
-    pub _IO_read_end: *mut libc::c_char,
-    pub _IO_read_base: *mut libc::c_char,
-    pub _IO_write_base: *mut libc::c_char,
-    pub _IO_write_ptr: *mut libc::c_char,
-    pub _IO_write_end: *mut libc::c_char,
-    pub _IO_buf_base: *mut libc::c_char,
-    pub _IO_buf_end: *mut libc::c_char,
-    pub _IO_save_base: *mut libc::c_char,
-    pub _IO_backup_base: *mut libc::c_char,
-    pub _IO_save_end: *mut libc::c_char,
-    pub _markers: *mut _IO_marker,
-    pub _chain: *mut _IO_FILE,
-    pub _fileno: libc::c_int,
-    pub _flags2: libc::c_int,
-    pub _old_offset: __off_t,
-    pub _cur_column: libc::c_ushort,
-    pub _vtable_offset: libc::c_schar,
-    pub _shortbuf: [libc::c_char; 1],
-    pub _lock: *mut libc::c_void,
-    pub _offset: __off64_t,
-    pub __pad1: *mut libc::c_void,
-    pub __pad2: *mut libc::c_void,
-    pub __pad3: *mut libc::c_void,
-    pub __pad4: *mut libc::c_void,
-    pub __pad5: size_t,
-    pub _mode: libc::c_int,
-    pub _unused2: [libc::c_char; 20],
-}
-pub type _IO_lock_t = ();
-
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct _IO_marker {
-    pub _next: *mut _IO_marker,
-    pub _sbuf: *mut _IO_FILE,
-    pub _pos: libc::c_int,
-}
-pub type FILE = _IO_FILE;
-pub type word = uint16_t;
-pub type dword = uint32_t;
-/* additional options */
-pub type C2RustUnnamed = libc::c_uint;
-pub const MASM: C2RustUnnamed = 2;
-pub const NASM: C2RustUnnamed = 1;
-pub const GAS: C2RustUnnamed = 0;
-#[no_mangle]
-pub static mut f: *mut FILE =  0 as *mut FILE;
-#[inline]
-unsafe extern "C" fn read_word() -> word {
-     let mut w =  0;
-    fread(&mut w as *mut word as *mut libc::c_void,
-          2u64, 1u64, f);
-    return w;
-}
-#[inline]
-unsafe extern "C" fn read_dword() -> dword {
-     let mut d =  0;
-    fread(&mut d as *mut dword as *mut libc::c_void,
-          4u64, 1u64, f);
-    return d;
-}
-#[no_mangle]
-pub static mut mode: word = 0;
-#[no_mangle]
-pub static mut opts: word = 0;
-#[no_mangle]
-pub static mut asm_syntax: C2RustUnnamed = GAS;
-#[no_mangle]
-pub static mut resource_filters: *mut *mut libc::c_char =
-    
-    0 as *mut *mut libc::c_char;
-#[no_mangle]
-pub static mut resource_filters_count: libc::c_uint = 0;
 /*
  * Entry point of the "dump" program
  *
@@ -278,10 +204,10 @@ static mut help_message: [libc::c_char; 1439] =
      101, 108, 97, 116, 105, 118, 101, 32, 97, 100, 100, 114, 101, 115, 115,
      101, 115, 32, 102, 111, 114, 32, 80, 69, 32, 102, 105, 108, 101, 115, 46,
      10, 0];
-static mut long_options: [option; 18] =
+static mut long_options: [Option; 18] =
     [{
          let mut init =
-             option{name: b"resource\x00" as *const u8 as *const libc::c_char,
+             Option {name: b"resource\x00" as *const u8 as *const libc::c_char,
                     has_arg: 2i32,
                     flag:  0 as *mut libc::c_int,
                     val: 'a' as i32,};
@@ -289,7 +215,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"compilable\x00" as *const u8 as *const libc::c_char,
                     has_arg: 0i32,
                     flag:  0 as *mut libc::c_int,
@@ -298,7 +224,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name: b"demangle\x00" as *const u8 as *const libc::c_char,
+             Option {name: b"demangle\x00" as *const u8 as *const libc::c_char,
                     has_arg: 0i32,
                     flag:  0 as *mut libc::c_int,
                     val: 'C' as i32,};
@@ -306,7 +232,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"disassemble\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 0i32,
@@ -316,7 +242,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"disassemble-all\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 0i32,
@@ -326,7 +252,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name: b"exports\x00" as *const u8 as *const libc::c_char,
+             Option {name: b"exports\x00" as *const u8 as *const libc::c_char,
                     has_arg: 0i32,
                     flag:  0 as *mut libc::c_int,
                     val: 'e' as i32,};
@@ -334,7 +260,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"file-headers\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 0i32,
@@ -344,7 +270,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name: b"help\x00" as *const u8 as *const libc::c_char,
+             Option {name: b"help\x00" as *const u8 as *const libc::c_char,
                     has_arg: 0i32,
                     flag:  0 as *mut libc::c_int,
                     val: 'h' as i32,};
@@ -352,7 +278,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name: b"imports\x00" as *const u8 as *const libc::c_char,
+             Option {name: b"imports\x00" as *const u8 as *const libc::c_char,
                     has_arg: 0i32,
                     flag:  0 as *mut libc::c_int,
                     val: 'i' as i32,};
@@ -360,7 +286,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"disassembler-options\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 1i32,
@@ -370,7 +296,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name: b"specfile\x00" as *const u8 as *const libc::c_char,
+             Option {name: b"specfile\x00" as *const u8 as *const libc::c_char,
                     has_arg: 0i32,
                     flag:  0 as *mut libc::c_int,
                     val: 'o' as i32,};
@@ -378,7 +304,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"full-contents\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 0i32,
@@ -388,7 +314,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name: b"version\x00" as *const u8 as *const libc::c_char,
+             Option {name: b"version\x00" as *const u8 as *const libc::c_char,
                     has_arg: 0i32,
                     flag:  0 as *mut libc::c_int,
                     val: 'v' as i32,};
@@ -396,7 +322,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"all-headers\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 0i32,
@@ -406,7 +332,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"no-show-raw-insn\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 0i32,
@@ -416,7 +342,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"no-prefix-addresses\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 0i32,
@@ -426,7 +352,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name:
+             Option {name:
                         b"pe-rel-addr\x00" as *const u8 as
                             *const libc::c_char,
                     has_arg: 1i32,
@@ -436,7 +362,7 @@ static mut long_options: [option; 18] =
      },
      {
          let mut init =
-             option{name: 0 as *const libc::c_char,
+             Option {name: 0 as *const libc::c_char,
                     has_arg: 0,
                     flag:  0 as *mut libc::c_int,
                     val: 0,};

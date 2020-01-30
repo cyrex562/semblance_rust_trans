@@ -1,5 +1,13 @@
 use ::libc;
 use ::c2rust_bitfields;
+use crate::src::common::{ Instruction, Operation, Argument, _IO_FILE, size_t, __int8_t,
+                          __uint8_t, __int16_t, __uint16_t, __int32_t, __uint32_t,
+                          __uint64_t, __off_t, __off64_t, int8_t, int16_t, int32_t,
+                          uint8_t, uint16_t, uint32_t, uint64_t, FILE, byte, dword,
+                          word, qword, C2RustUnnamed, disptype,
+                          DISP_REG, DISP_16, DISP_8, DISP_NONE, argtype, GAS, NASM, MASM,
+                          f, asm_syntax, opts, mode};
+
 extern "C" {
     #[no_mangle]
     fn free(__ptr: *mut libc::c_void);
@@ -56,67 +64,7 @@ extern "C" {
     
     
 }
-pub type size_t = libc::c_ulong;
-pub type __uint8_t = libc::c_uchar;
-pub type __uint16_t = libc::c_ushort;
-pub type __uint32_t = libc::c_uint;
-pub type __uint64_t = libc::c_ulong;
-pub type __off_t = libc::c_long;
-pub type __off64_t = libc::c_long;
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
-pub type uint64_t = __uint64_t;
 
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct _IO_FILE {
-    pub _flags: libc::c_int,
-    pub _IO_read_ptr: *mut libc::c_char,
-    pub _IO_read_end: *mut libc::c_char,
-    pub _IO_read_base: *mut libc::c_char,
-    pub _IO_write_base: *mut libc::c_char,
-    pub _IO_write_ptr: *mut libc::c_char,
-    pub _IO_write_end: *mut libc::c_char,
-    pub _IO_buf_base: *mut libc::c_char,
-    pub _IO_buf_end: *mut libc::c_char,
-    pub _IO_save_base: *mut libc::c_char,
-    pub _IO_backup_base: *mut libc::c_char,
-    pub _IO_save_end: *mut libc::c_char,
-    pub _markers: *mut _IO_marker,
-    pub _chain: *mut _IO_FILE,
-    pub _fileno: libc::c_int,
-    pub _flags2: libc::c_int,
-    pub _old_offset: __off_t,
-    pub _cur_column: libc::c_ushort,
-    pub _vtable_offset: libc::c_schar,
-    pub _shortbuf: [libc::c_char; 1],
-    pub _lock: *mut libc::c_void,
-    pub _offset: __off64_t,
-    pub __pad1: *mut libc::c_void,
-    pub __pad2: *mut libc::c_void,
-    pub __pad3: *mut libc::c_void,
-    pub __pad4: *mut libc::c_void,
-    pub __pad5: size_t,
-    pub _mode: libc::c_int,
-    pub _unused2: [libc::c_char; 20],
-}
-pub type _IO_lock_t = ();
-
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct _IO_marker {
-    pub _next: *mut _IO_marker,
-    pub _sbuf: *mut _IO_FILE,
-    pub _pos: libc::c_int,
-}
-pub type FILE = _IO_FILE;
-pub type byte = uint8_t;
-pub type word = uint16_t;
-pub type dword = uint32_t;
-pub type qword = uint64_t;
-pub type C2RustUnnamed = libc::c_uint;
-pub const MASM: C2RustUnnamed = 2;
-pub const NASM: C2RustUnnamed = 1;
-pub const GAS: C2RustUnnamed = 0;
 
 #[repr(C)]#[derive(Copy, Clone)]
 pub struct pe {
@@ -282,17 +230,10 @@ pub struct export_header {
 unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
     return _IO_putc(__c, stdout);
 }
-#[no_mangle]
-pub static mut f: *mut FILE =  0 as *mut FILE;
+
 #[inline]
 unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
-#[inline]
-unsafe extern "C" fn read_word() -> word {
-     let mut w =  0;
-    fread(&mut w as *mut word as *mut libc::c_void,
-          2u64, 1u64, f);
-    return w;
-}
+
 #[inline]
 unsafe extern "C" fn read_dword() -> dword {
      let mut d =  0;
@@ -307,18 +248,7 @@ unsafe extern "C" fn read_qword() -> dword {
           8u64, 1u64, f);
     return q as dword;
 }
-#[no_mangle]
-pub static mut mode: word = 0;
-#[no_mangle]
-pub static mut opts: word = 0;
-#[no_mangle]
-pub static mut asm_syntax: C2RustUnnamed = GAS;
-#[no_mangle]
-pub static mut resource_filters: *mut *mut libc::c_char =
-    
-    0 as *mut *mut libc::c_char;
-#[no_mangle]
-pub static mut resource_filters_count: libc::c_uint = 0;
+
 /*
  * Functions for parsing the PE header
  *
@@ -841,7 +771,7 @@ unsafe extern "C" fn get_import_name_table(mut module: *mut import_module,
         i = i.wrapping_add(1)
         /* skip hint */
     }
-     *module = crate::src::pe_header::import_module{count:   count, ..*module};
+     *module = crate::src::pe_header::import_module{count, ..*module};
     fseek(f, cursor, 0i32);
 }
 unsafe extern "C" fn get_import_module_table(mut pe: *mut pe) {
