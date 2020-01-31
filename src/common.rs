@@ -160,3 +160,11 @@ unsafe extern "C" fn read_dword() -> dword {
     return d;
 }
 
+
+#[inline]
+unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
+    return _IO_putc(__c, stdout);
+}
+
+#[inline]
+unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }

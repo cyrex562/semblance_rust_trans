@@ -77,13 +77,6 @@ extern "C" {
     #[no_mangle]
     fn strlen(_: *const libc::c_char) -> libc::c_ulong;
 }
-#[inline]
-unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
-    return _IO_putc(__c, stdout);
-}
-
-#[inline]
-unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
 
 /*
  * Functions for parsing the NE header
@@ -107,7 +100,7 @@ unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 //#include <strings.h>
-unsafe extern "C" fn print_flags(mut flags: word) {
+unsafe extern "C" fn print_flags(mut flags: u16) {
     let mut buffer = [0; 1024]; /* FRAMEBUF */
     if flags as libc::c_int & 0x3i32 == 0i32 {
         strcpy(buffer.as_mut_ptr(),
@@ -202,7 +195,7 @@ unsafe extern "C" fn print_flags(mut flags: word) {
            flags as libc::c_int, buffer.as_mut_ptr());
 }
 
-unsafe extern "C" fn print_os2flags(mut flags: word) {
+unsafe extern "C" fn print_os2flags(mut flags: u16) {
     let mut buffer = [0; 1024];
     buffer[0usize] = 0i8;
     if flags as libc::c_int & 0x1i32 != 0 {
@@ -292,7 +285,7 @@ unsafe extern "C" fn print_header(mut header: *mut header_ne) {
                    *const libc::c_char,
                (*header).ne_exetyp as libc::c_int); /* 3c */
     }
-    print_os2flags((*header).ne_flagsothers as word);
+    print_os2flags((*header).ne_flagsothers as u16);
     printf(b"Swap area: %d\n\x00" as *const u8 as *const libc::c_char,
            (*header).ne_swaparea as libc::c_int);
     printf(b"Expected Windows version: %d.%d\n\x00" as *const u8 as
@@ -743,7 +736,7 @@ unsafe extern "C" fn read_res_name_table(mut start: libc::c_long,
           ::std::mem::size_of::<libc::c_char>() as libc::c_ulong,
           length as size_t, f);
     *first.offset(length as isize) = 0i8;
-    fseek(f, ::std::mem::size_of::<word>() as libc::c_long,
+    fseek(f, ::std::mem::size_of::<u16>() as libc::c_long,
           1i32);
     loop {
         length = read_byte();
@@ -933,7 +926,7 @@ unsafe extern "C" fn load_exports(mut module: *mut import_module) {
         if !p.is_null() { *p = 0i8 }
         if sscanf(line.as_mut_ptr(),
                   b"%hu\x00" as *const u8 as *const libc::c_char,
-                  &mut ordinal as *mut word) != 1i32 {
+                  &mut ordinal as *mut u16) != 1i32 {
             fprintf(stderr,
                     b"Error reading specfile near line: `%s\'\n\x00" as
                         *const u8 as *const libc::c_char, line.as_mut_ptr());

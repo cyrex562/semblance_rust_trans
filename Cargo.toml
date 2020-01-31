@@ -1,11 +1,10 @@
 [workspace]
-members = [
-]
+members = []
 
 [package]
 name = "semblance_rust"
-authors = ["C2Rust"]
-version = "0.0.0"
+authors = ["cyrex562"]
+version = "0.0.1"
 publish = false
 edition = "2018"
 autobins = false

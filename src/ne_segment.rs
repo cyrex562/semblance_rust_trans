@@ -1,5 +1,12 @@
 use ::libc;
 use ::c2rust_bitfields;
+use crate::src::common::{ Instruction, Operation, Argument, _IO_FILE, size_t, __int8_t,
+                          __uint8_t, __int16_t, __uint16_t, __int32_t, __uint32_t,
+                          __uint64_t, __off_t, __off64_t, int8_t, int16_t, int32_t,
+                          uint8_t, uint16_t, uint32_t, uint64_t, FILE, byte, dword,
+                          word, qword, C2RustUnnamed, disptype,
+                          DISP_REG, DISP_16, DISP_8, DISP_NONE, argtype, GAS, NASM, MASM,
+                          f, asm_syntax, opts, mode};
 extern "C" {
     #[no_mangle]
     static mut stdout: *mut _IO_FILE;
@@ -47,68 +54,8 @@ extern "C" {
     
     
 }
-pub type size_t = libc::c_ulong;
-pub type __uint8_t = libc::c_uchar;
-pub type __uint16_t = libc::c_ushort;
-pub type __uint32_t = libc::c_uint;
-pub type __uint64_t = libc::c_ulong;
-pub type __off_t = libc::c_long;
-pub type __off64_t = libc::c_long;
 
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct _IO_FILE {
-    pub _flags: libc::c_int,
-    pub _IO_read_ptr: *mut libc::c_char,
-    pub _IO_read_end: *mut libc::c_char,
-    pub _IO_read_base: *mut libc::c_char,
-    pub _IO_write_base: *mut libc::c_char,
-    pub _IO_write_ptr: *mut libc::c_char,
-    pub _IO_write_end: *mut libc::c_char,
-    pub _IO_buf_base: *mut libc::c_char,
-    pub _IO_buf_end: *mut libc::c_char,
-    pub _IO_save_base: *mut libc::c_char,
-    pub _IO_backup_base: *mut libc::c_char,
-    pub _IO_save_end: *mut libc::c_char,
-    pub _markers: *mut _IO_marker,
-    pub _chain: *mut _IO_FILE,
-    pub _fileno: libc::c_int,
-    pub _flags2: libc::c_int,
-    pub _old_offset: __off_t,
-    pub _cur_column: libc::c_ushort,
-    pub _vtable_offset: libc::c_schar,
-    pub _shortbuf: [libc::c_char; 1],
-    pub _lock: *mut libc::c_void,
-    pub _offset: __off64_t,
-    pub __pad1: *mut libc::c_void,
-    pub __pad2: *mut libc::c_void,
-    pub __pad3: *mut libc::c_void,
-    pub __pad4: *mut libc::c_void,
-    pub __pad5: size_t,
-    pub _mode: libc::c_int,
-    pub _unused2: [libc::c_char; 20],
-}
-pub type _IO_lock_t = ();
 
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct _IO_marker {
-    pub _next: *mut _IO_marker,
-    pub _sbuf: *mut _IO_FILE,
-    pub _pos: libc::c_int,
-}
-pub type FILE = _IO_FILE;
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
-pub type uint64_t = __uint64_t;
-pub type byte = uint8_t;
-pub type word = uint16_t;
-pub type dword = uint32_t;
-/* Common functions */
-pub type qword = uint64_t;
-pub type C2RustUnnamed = libc::c_uint;
-pub const MASM: C2RustUnnamed = 2;
-pub const NASM: C2RustUnnamed = 1;
-pub const GAS: C2RustUnnamed = 0;
 
 #[repr(C, packed)]#[derive(Copy, Clone)]
 pub struct header_ne {
@@ -206,119 +153,7 @@ pub struct ne {
 }
 /* branch to target (jmp, jXX) */
 
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct op {
-    pub opcode: word,
-    pub subcode: byte,
-    pub size: libc::c_char,
-    pub name: [libc::c_char; 16],
-    pub arg0: argtype,
-    pub arg1: argtype,
-    pub flags: dword,
-}
-pub type argtype = libc::c_uint;
-/* element of stack given by lowest three bytes of "modrm" */
-/* top of stack aka st(0) */
-pub const STX: argtype = 53;
-/* test register */
-/* floating point regs */
-pub const ST: argtype = 52;
-/* debug register */
-pub const TR32: argtype = 51;
-/* control register */
-pub const DR32: argtype = 50;
-/* 32-bit only register, used for cr/dr/tr */
-pub const CR32: argtype = 49;
-/* segment register */
-pub const REG32: argtype = 48;
-/* SSE register */
-pub const SEG16: argtype = 47;
-/* MMX register */
-pub const XMM: argtype = 46;
-/* register */
-pub const MMX: argtype = 45;
-/* SSE register only (not using 0x11xxxxxx is invalid) */
-pub const REG: argtype = 44;
-/* MMX register only (not using 0x11xxxxxx is invalid) */
-pub const XMMONLY: argtype = 43;
-/* register only (not using 0x11xxxxxx is invalid) */
-pub const MMXONLY: argtype = 42;
-/* memory only (using 0x11xxxxxx is invalid) */
-pub const REGONLY: argtype = 41;
-/* SSE register/memory */
-pub const MEM: argtype = 40;
-/* MMX register/memory */
-pub const XM: argtype = 39;
-/* register/memory */
-pub const MM: argtype = 38;
-/* to be read from ModRM, appropriately */
-pub const RM: argtype = 37;
-pub const ESDI: argtype = 36;
-pub const DSSI: argtype = 35;
-/* absolute location in memory, for A0-A3 MOV */
-/* specific memory addresses for string operations */
-pub const DSBX: argtype = 34;
-/* absolute instruction, used for far calls/jumps */
-pub const MOFFS16: argtype = 33;
-/* relative to current instruction */
-pub const PTR32: argtype = 32;
-pub const REL16: argtype = 31;
-/* immediate number */
-pub const REL8: argtype = 30;
-pub const IMM: argtype = 29;
-pub const IMM16: argtype = 28;
-/* the same as DX except GAS puts it in parentheses */
-/* absolute or relative numbers, given as 1/2/4 bytes */
-pub const IMM8: argtype = 27;
-/* the same as AL/AX except MASM doesn't print them */
-pub const DXS: argtype = 26;
-pub const AXS: argtype = 25;
-pub const ALS: argtype = 24;
-pub const GS: argtype = 23;
-pub const FS: argtype = 22;
-pub const DS: argtype = 21;
-pub const SS: argtype = 20;
-pub const CS: argtype = 19;
-pub const ES: argtype = 18;
-pub const DI: argtype = 17;
-pub const SI: argtype = 16;
-pub const BP: argtype = 15;
-pub const SP: argtype = 14;
-pub const BX: argtype = 13;
-pub const DX: argtype = 12;
-pub const CX: argtype = 11;
-pub const AX: argtype = 10;
-pub const BH: argtype = 9;
-pub const DH: argtype = 8;
-pub const CH: argtype = 7;
-pub const AH: argtype = 6;
-pub const BL: argtype = 5;
-pub const DL: argtype = 4;
-pub const CL: argtype = 3;
-/* specific registers */
-pub const AL: argtype = 2;
-/* the literal value 1, used for bit shift ops */
-pub const ONE: argtype = 1;
-pub const NONE: argtype = 0;
 
-#[repr(C)]#[derive(Copy, Clone, BitfieldStruct)]
-pub struct instr {
-    pub prefix: word,
-    pub op: op,
-    pub args: [arg; 3],
-    pub addrsize: byte,
-    pub modrm_disp: disptype,
-    pub modrm_reg: libc::c_char,
-    pub sib_scale: byte,
-    pub sib_index: libc::c_char,
-    #[bitfield(name = "usedmem", ty = "libc::c_int", bits = "0..=0")]
-    #[bitfield(name = "vex", ty = "libc::c_int", bits = "1..=1")]
-    #[bitfield(name = "vex_reg", ty = "libc::c_uint", bits = "2..=4")]
-    #[bitfield(name = "vex_256", ty = "libc::c_int", bits = "5..=5")]
-    pub usedmem_vex_vex_reg_vex_256: [u8; 1],
-    #[bitfield(padding)]
-    pub c2rust_padding: [u8; 4],
-}
 /* 26 */
 /* 2E */
 /* 36 */
@@ -336,53 +171,10 @@ pub struct instr {
 /* 42 */
 /* 44 */
 /* 48 */
-pub type disptype = libc::c_uint;
-/* register, i.e. mod == 3 */
-/* two bytes */
-pub const DISP_REG: disptype = 3;
-/* one byte */
-pub const DISP_16: disptype = 2;
-/* no disp, i.e. mod == 0 && m != 6 */
-pub const DISP_8: disptype = 1;
-pub const DISP_NONE: disptype = 0;
 
-#[repr(C)]#[derive(Copy, Clone)]
-pub struct arg {
-    pub string: [libc::c_char; 32],
-    pub ip: dword,
-    pub value: qword,
-    pub type_0: argtype,
-}
-#[inline]
-unsafe extern "C" fn putchar(mut __c: libc::c_int) -> libc::c_int {
-    return _IO_putc(__c, stdout);
-}
-/* Common globals */
-/* what to dump */
-/* additional options */
-#[no_mangle]
-pub static mut resource_filters: *mut *mut libc::c_char =
-    
-    0 as *mut *mut libc::c_char;
-#[no_mangle]
-pub static mut mode: word = 0;
-#[no_mangle]
-pub static mut opts: word = 0;
-#[no_mangle]
-pub static mut asm_syntax: C2RustUnnamed = GAS;
-#[inline]
-unsafe extern "C" fn read_word() -> word {
-     let mut w =  0;
-    fread(&mut w as *mut word as *mut libc::c_void,
-          2u64, 1u64, f);
-    return w;
-}
-#[no_mangle]
-pub static mut f: *mut FILE =  0 as *mut FILE;
-#[inline]
-unsafe extern "C" fn read_byte() -> byte { return _IO_getc(f) as byte; }
-#[no_mangle]
-pub static mut resource_filters_count: libc::c_uint = 0;
+
+
+
 /*
  * Functions for dumping NE code and data segments
  *
@@ -468,7 +260,7 @@ unsafe extern "C" fn get_imported_name(mut module: word, mut ordinal: word,
     return 0 as *mut libc::c_char;
 }
 /* Tweak the inline string and return the comment. */
-unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut arg,
+unsafe extern "C" fn relocate_arg(mut seg: *const segment, mut arg: *mut Argument,
                                   mut ne: *const ne) -> *const libc::c_char {
     
      let mut r =  get_reloc(seg, (*arg).ip as word); let mut module =  0 as *mut libc::c_char;
@@ -610,11 +402,11 @@ unsafe extern "C" fn print_ne_instr(mut seg: *const segment, mut ip: word,
     
         {
             let mut init =
-                instr{usedmem_vex_vex_reg_vex_256: [0; 1],
+                Instruction {usedmem_vex_vex_reg_vex_256: [0; 1],
                       c2rust_padding: [0; 4],
                       prefix: 0u16,
                       op:
-                          op{opcode: 0,
+                          Operation {opcode: 0,
                              subcode: 0,
                              size: 0,
                              name: [0; 16],
@@ -622,7 +414,7 @@ unsafe extern "C" fn print_ne_instr(mut seg: *const segment, mut ip: word,
                              arg1: NONE,
                              flags: 0,},
                       args:
-                          [arg{string: [0; 32],
+                          [Argument {string: [0; 32],
                                ip: 0,
                                value: 0,
                                type_0: NONE,}; 3],
@@ -805,16 +597,16 @@ unsafe extern "C" fn scan_segment(mut cs: word, mut ip: word,
         &mut *(*ne).segments.offset((cs as libc::c_int - 1i32) as
                                         isize) as *mut segment; let mut buffer =  [0; 16]; let mut instr =
     
-        instr{prefix: 0,
+        Instruction {prefix: 0,
               op:
-                  op{opcode: 0,
+                  Operation {opcode: 0,
                      subcode: 0,
                      size: 0,
                      name: [0; 16],
                      arg0: NONE,
                      arg1: NONE,
                      flags: 0,},
-              args: [arg{string: [0; 32], ip: 0, value: 0, type_0: NONE,}; 3],
+              args: [Argument {string: [0; 32], ip: 0, value: 0, type_0: NONE,}; 3],
               addrsize: 0,
               modrm_disp: DISP_NONE,
               modrm_reg: 0,

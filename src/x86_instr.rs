@@ -34,33 +34,60 @@ extern "C" {
                -> libc::c_int;
 }
 
+/* element of stack given by lowest three bytes of "modrm" */
+/* top of stack aka st(0) */
 pub const STX: argtype = 53;
+/* test register */
+/* floating point regs */
 pub const ST: argtype = 52;
+/* debug register */
 pub const TR32: argtype = 51;
+/* control register */
 pub const DR32: argtype = 50;
+/* 32-bit only register, used for cr/dr/tr */
 pub const CR32: argtype = 49;
+/* segment register */
 pub const REG32: argtype = 48;
+/* SSE register */
 pub const SEG16: argtype = 47;
+/* MMX register */
 pub const XMM: argtype = 46;
+/* register */
 pub const MMX: argtype = 45;
+/* SSE register only (not using 0x11xxxxxx is invalid) */
 pub const REG: argtype = 44;
+/* MMX register only (not using 0x11xxxxxx is invalid) */
 pub const XMMONLY: argtype = 43;
+/* register only (not using 0x11xxxxxx is invalid) */
 pub const MMXONLY: argtype = 42;
+/* memory only (using 0x11xxxxxx is invalid) */
 pub const REGONLY: argtype = 41;
+/* SSE register/memory */
 pub const MEM: argtype = 40;
+/* MMX register/memory */
 pub const XM: argtype = 39;
+/* register/memory */
 pub const MM: argtype = 38;
+/* to be read from ModRM, appropriately */
 pub const RM: argtype = 37;
 pub const ESDI: argtype = 36;
 pub const DSSI: argtype = 35;
+/* absolute location in memory, for A0-A3 MOV */
+/* specific memory addresses for string operations */
 pub const DSBX: argtype = 34;
+/* absolute instruction, used for far calls/jumps */
 pub const MOFFS16: argtype = 33;
+/* relative to current instruction */
 pub const PTR32: argtype = 32;
 pub const REL16: argtype = 31;
+/* immediate number */
 pub const REL8: argtype = 30;
 pub const IMM: argtype = 29;
 pub const IMM16: argtype = 28;
+/* the same as DX except GAS puts it in parentheses */
+/* absolute or relative numbers, given as 1/2/4 bytes */
 pub const IMM8: argtype = 27;
+/* the same as AL/AX except MASM doesn't print them */
 pub const DXS: argtype = 26;
 pub const AXS: argtype = 25;
 pub const ALS: argtype = 24;
@@ -85,7 +112,9 @@ pub const AH: argtype = 6;
 pub const BL: argtype = 5;
 pub const DL: argtype = 4;
 pub const CL: argtype = 3;
+/* specific registers */
 pub const AL: argtype = 2;
+/* the literal value 1, used for bit shift ops */
 pub const ONE: argtype = 1;
 pub const NONE: argtype = 0;
 
