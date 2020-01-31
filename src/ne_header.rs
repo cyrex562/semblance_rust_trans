@@ -100,29 +100,45 @@ extern "C" {
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 //#include <strings.h>
-unsafe extern "C" fn print_flags(mut flags: u16) {
-    let mut buffer = [0; 1024]; /* FRAMEBUF */
-    if flags as libc::c_int & 0x3i32 == 0i32 {
-        strcpy(buffer.as_mut_ptr(),
-               b"no DGROUP\x00" as *const u8 as
-                   *const libc::c_char); /* API compatible */
-    } else if flags as libc::c_int & 0x3i32 == 1i32 {
-        strcpy(buffer.as_mut_ptr(),
-               b"single DGROUP\x00" as *const u8 as
-                   *const libc::c_char); /* uses API */
-    } else if flags as libc::c_int & 0x3i32 == 2i32 {
-        strcpy(buffer.as_mut_ptr(),
-               b"multiple DGROUPs\x00" as *const u8 as
-                   *const libc::c_char); /* none? */
-    } else if flags as libc::c_int & 0x3i32 == 3i32 {
-        strcpy(buffer.as_mut_ptr(),
-               b"(unknown DGROUP type 3)\x00" as *const u8 as
-                   *const libc::c_char); /* OS/2 family */
-    } /* gangload */
-    if flags as libc::c_int & 0x4i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", global initialization\x00" as *const u8 as
-                   *const libc::c_char);
+unsafe extern "C" fn print_flags(flags: u16) {
+//    let mut buffer = [0; 1024]; /* FRAMEBUF */
+    let mut buffer: String = String::from("");
+    // dgroup type
+    //    if flags as libc::c_int & 0x3i32 == 0i32 {
+//        strcpy(buffer.as_mut_ptr(),
+//               b"no DGROUP\x00" as *const u8 as
+//                   *const libc::c_char); /* API compatible */
+//    } else if flags as libc::c_int & 0x3i32 == 1i32 {
+//        strcpy(buffer.as_mut_ptr(),
+//               b"single DGROUP\x00" as *const u8 as
+//                   *const libc::c_char); /* uses API */
+//    } else if flags as libc::c_int & 0x3i32 == 2i32 {
+//        strcpy(buffer.as_mut_ptr(),
+//               b"multiple DGROUPs\x00" as *const u8 as
+//                   *const libc::c_char); /* none? */
+//    } else if flags as libc::c_int & 0x3i32 == 3i32 {
+//        strcpy(buffer.as_mut_ptr(),
+//               b"(unknown DGROUP type 3)\x00" as *const u8 as
+//                   *const libc::c_char); /* OS/2 family */
+//    }
+    if flags & 0x3 == 0 {
+        buffer.push("no DGROUP");
+    } else if flags & 0x3 == 1 {
+        buffer.push("single DGROUP");
+    } else if flags & 0x3 == 2 {
+        buffer.push("multiple DGROUPS");
+    } else if flags & 0x3 == 3 {
+        buffer.push("unknown DGROUP type 3");
+    }
+
+
+//    if flags as libc::c_int & 0x4i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", global initialization\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x4 != 0 {
+        buffer.push(", global initialization")
     }
     if flags as libc::c_int & 0x8i32 != 0 {
         strcat(buffer.as_mut_ptr(),
@@ -145,6 +161,7 @@ unsafe extern "C" fn print_flags(mut flags: u16) {
         strcat(buffer.as_mut_ptr(),
                b", 80x87\x00" as *const u8 as *const libc::c_char);
     }
+
     if flags as libc::c_int & 0x700i32 == 0x100i32 {
         strcat(buffer.as_mut_ptr(),
                b", fullscreen\x00" as *const u8 as *const libc::c_char);
