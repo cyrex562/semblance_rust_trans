@@ -1,3 +1,5 @@
+use std::ffi::{CStr, CString};
+
 use ::libc;
 
 use crate::src::common::{__int16_t, __int32_t, __int8_t, __off64_t, __off_t, __uint16_t,
@@ -427,34 +429,47 @@ unsafe extern "C" fn header_to_string(mut header: *mut header_ne) -> String {
     buffer
 }
 
-unsafe extern "C" fn print_export(mut ne: *mut ne) {
+unsafe extern "C" fn export_to_string(mut ne: *mut ne) -> String {
     let mut i = 0i32;
-    while (i as libc::c_uint) < (*ne).entcount {
-        if (*(*ne).enttab.offset(i as isize)).segment as libc::c_int ==
-            0xfei32 {
+    let mut buffer: String = String::from_string("");
+    while i < *ne.entcount {
+        // convert enttab offset to name
+        let mut name_string: String = String::from("");
+        let entry = ne.enttab.offset(i as isize);
+        if !entry.name.is_null() {
+            let name_cstring: CString = CString::from_raw(entry.name);
+            name_string = name_cstring.into_string().unwrap_or(String::from(""));
+        }
+//        if (*(*ne).enttab.offset(i as isize)).segment as libc::c_int == 0xfei32 {
+        if entry.segment == 0xfe {
             /* absolute value */
-            printf(b"\t%5d\t   %04x\t%s\n\x00" as *const u8 as
-                       *const libc::c_char, i + 1i32,
-                   (*(*ne).enttab.offset(i as isize)).offset as libc::c_int,
-                   if !(*(*ne).enttab.offset(i as isize)).name.is_null() {
-                       (*(*ne).enttab.offset(i as isize)).name
-                   } else {
-                       b"<no name>\x00" as *const u8 as *const libc::c_char
-                   });
-        } else if (*(*ne).enttab.offset(i as isize)).segment != 0 {
-            printf(b"\t%5d\t%2d:%04x\t%s\n\x00" as *const u8 as
-                       *const libc::c_char, i + 1i32,
-                   (*(*ne).enttab.offset(i as isize)).segment as libc::c_int,
-                   (*(*ne).enttab.offset(i as isize)).offset as libc::c_int,
-                   if !(*(*ne).enttab.offset(i as isize)).name.is_null() {
-                       (*(*ne).enttab.offset(i as isize)).name
-                   } else {
-                       b"<no name>\x00" as *const u8 as *const libc::c_char
-                   });
+//            printf(b"\t%5d\t   %04x\t%s\n\x00" as *const u8 as
+//                       *const libc::c_char, i + 1i32,
+//                   (*(*ne).enttab.offset(i as isize)).offset as libc::c_int,
+//                   if !(*(*ne).enttab.offset(i as isize)).name.is_null() {
+//                       (*(*ne).enttab.offset(i as isize)).name
+//                   } else {
+//                       b"<no name>\x00" as *const u8 as *const libc::c_char
+//                   });
+            buffer.push_str(format!("\t{}\t{:04x}\t{}\n", i + 1, entry.offset, name_string).as_str());
+        } else if entry.segment != 0 {
+//            printf(b"\t%5d\t%2d:%04x\t%s\n\x00" as *const u8 as
+//                       *const libc::c_char, i + 1i32,
+//                   (*(*ne).enttab.offset(i as isize)).segment as libc::c_int,
+//                   (*(*ne).enttab.offset(i as isize)).offset as libc::c_int,
+//                   if !(*(*ne).enttab.offset(i as isize)).name.is_null() {
+//                       (*(*ne).enttab.offset(i as isize)).name
+//                   } else {
+//                       b"<no name>\x00" as *const u8 as *const libc::c_char
+//                   });
+            buffer.push_str(format!("\t{}\t{}:{:04x}\t{}\n",
+                                    i + 1, entry.segment, entry.offset, name_string).as_str());
         }
         i += 1
     }
-    putchar('\n' as i32);
+//    putchar('\n' as i32);
+    buffer.push_str("\n");
+    buffer
 }
 
 unsafe extern "C" fn print_specfile(mut ne: *mut ne) {
@@ -570,7 +585,7 @@ unsafe extern "C" fn demangle_protection(mut buffer: &mut String,
 //            return  strchr(start,
 //                          '@' as
 //                              i32).offset(1isize).wrapping_offset_from(start) as libc::c_int
-        }
+        };
     } else {
         fprintf(stderr,
                 b"Warning: Unknown modifier %c for function %s\n\x00" as
@@ -1312,7 +1327,7 @@ pub unsafe extern "C" fn dumpne(mut offset_ne: libc::c_long) {
     if mode as libc::c_int & 0x4i32 != 0 {
         putchar('\n' as i32);
         printf(b"Exports:\n\x00" as *const u8 as *const libc::c_char);
-        print_export(&mut ne);
+        export_to_string(&mut ne);
     }
     if mode as libc::c_int & 0x8i32 != 0 {
         putchar('\n' as i32);
