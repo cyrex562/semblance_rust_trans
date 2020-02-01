@@ -263,42 +263,69 @@ unsafe extern "C" fn print_flags(flags: u16) {
 }
 
 unsafe extern "C" fn print_os2flags(mut flags: u16) {
-    let mut buffer = [0; 1024];
-    buffer[0usize] = 0i8;
-    if flags as libc::c_int & 0x1i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", long filename support\x00" as *const u8 as
-                   *const libc::c_char);
+//    let mut buffer = [0; 1024];
+//    buffer[0usize] = 0i8;
+    let mut buffer: String = String::from("");
+
+//    if flags as libc::c_int & 0x1i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", long filename support\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x1 != 0 {
+        buffer.push_str(", long filename support");
     }
-    if flags as libc::c_int & 0x2i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", 2.x protected mode\x00" as *const u8 as
-                   *const libc::c_char);
+
+//    if flags as libc::c_int & 0x2i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", 2.x protected mode\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x2 != 0 {
+        buffer.push_str(", 2.x protected mode");
     }
-    if flags as libc::c_int & 0x4i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", 2.x proportional fonts\x00" as *const u8 as
-                   *const libc::c_char);
+
+//    if flags as libc::c_int & 0x4i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", 2.x proportional fonts\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x4 != 0 {
+        buffer.push_str(", 2.x proportional fonts");
     }
-    if flags as libc::c_int & 0x8i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", fast-load area\x00" as *const u8 as *const libc::c_char);
+
+//    if flags as libc::c_int & 0x8i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", fast-load area\x00" as *const u8 as *const libc::c_char);
+//    }
+    if flags & 0x8 != 0 {
+        buffer.push_str(", fast-load area");
     }
-    if flags as libc::c_int & 0xfff0i32 != 0 {
-        sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
-            isize),
-                b", (unknown flags 0x%04x)\x00" as *const u8 as
-                    *const libc::c_char,
-                flags as libc::c_int & 0xfff0i32);
+
+//    if flags as libc::c_int & 0xfff0i32 != 0 {
+//        sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
+//            isize),
+//                b", (unknown flags 0x%04x)\x00" as *const u8 as
+//                    *const libc::c_char,
+//                flags as libc::c_int & 0xfff0i32);
+//    }
+    if flags & 0xfff0 != 0 {
+        buffer.push_str(format!("unknown flags {:04x}", flags & 0xfff0).as_str());
     }
-    if buffer[0usize] != 0 {
-        printf(b"OS/2 flags: 0x%04x (%s)\n\x00" as *const u8 as
-                   *const libc::c_char, flags as libc::c_int,
-               buffer.as_mut_ptr().offset(2isize));
+
+//    if buffer[0usize] != 0 {
+//        printf(b"OS/2 flags: 0x%04x (%s)\n\x00" as *const u8 as
+//                   *const libc::c_char, flags as libc::c_int,
+//               buffer.as_mut_ptr().offset(2isize));
+//    } else {
+//        printf(b"OS/2 flags: 0x0000\n\x00" as *const u8 as
+//            *const libc::c_char);
+//    };
+    if buffer.len() > 0 {
+        print!("OS/2 flags: {:04x} ({})", flags, buffer);
     } else {
-        printf(b"OS/2 flags: 0x0000\n\x00" as *const u8 as
-            *const libc::c_char);
-    };
+        print!("OS/2 flags: {:04x}", flags);
+    }
 }
 
 static mut exetypes: [*const libc::c_char; 7] =
