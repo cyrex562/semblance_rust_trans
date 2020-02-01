@@ -101,9 +101,9 @@ extern "C" {
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 //#include <strings.h>
-unsafe extern "C" fn print_flags(flags: u16) {
+unsafe extern "C" fn flags_to_string(flags: u16) -> String {
 //    let mut buffer = [0; 1024]; /* FRAMEBUF */
-    let mut buffer: String = String::from("");
+    let mut buffer: String = String::from("Flags: ");
     // dgroup type
     //    if flags as libc::c_int & 0x3i32 == 0i32 {
 //        strcpy(buffer.as_mut_ptr(),
@@ -259,13 +259,13 @@ unsafe extern "C" fn print_flags(flags: u16) {
 
 //    printf(b"Flags: 0x%04x (%s)\n\x00" as *const u8 as *const libc::c_char,
 //           flags as libc::c_int, buffer.as_mut_ptr());
-    print!(buffer);
+    buffer
 }
 
-unsafe extern "C" fn print_os2flags(mut flags: u16) {
+unsafe extern "C" fn os2_flags_to_string(mut flags: u16) -> String {
 //    let mut buffer = [0; 1024];
 //    buffer[0usize] = 0i8;
-    let mut buffer: String = String::from("");
+    let mut buffer: String = format!("OS/2 flags: {:04x}", flags);
 
 //    if flags as libc::c_int & 0x1i32 != 0 {
 //        strcat(buffer.as_mut_ptr(),
@@ -321,11 +321,7 @@ unsafe extern "C" fn print_os2flags(mut flags: u16) {
 //        printf(b"OS/2 flags: 0x0000\n\x00" as *const u8 as
 //            *const libc::c_char);
 //    };
-    if buffer.len() > 0 {
-        print!("OS/2 flags: {:04x} ({})", flags, buffer);
-    } else {
-        print!("OS/2 flags: {:04x}", flags);
-    }
+    buffer
 }
 
 //static mut exetypes: [*const libc::c_char; 7] =
@@ -344,56 +340,91 @@ static exetypes: [String; 6] = [
     String::from("European Dos 4.x"),
     String::from("Windows 386 (32-bit)"),
     String::from("BOSS")
-]
+];
 
-unsafe extern "C" fn print_header(mut header: *mut header_ne) {
+unsafe extern "C" fn header_to_string(mut header: *mut header_ne) -> String {
     /* Still need to deal with:
      *
      * 34 - number of resource segments (all of my testcases return 0)
      * 38 - offset to return thunks (have testcases)
      * 3a - offset to segment ref. bytes (same)
      */
-    putchar('\n' as i32); /* 02 */
-    printf(b"Linker version: %d.%d\n\x00" as *const u8 as *const libc::c_char,
-           (*header).ne_ver as libc::c_int,
-           (*header).ne_rev as libc::c_int); /* 08 */
-    printf(b"Checksum: %08x\n\x00" as *const u8 as *const libc::c_char,
-           (*header).ne_crc); /* 0c */
-    print_flags((*header).ne_flags); /* 10 */
-    printf(b"Automatic data segment: %d\n\x00" as *const u8 as
-               *const libc::c_char,
-           (*header).ne_autodata as libc::c_int); /* 12 */
-    if (*header).ne_unused as libc::c_int != 0i32 {
-        fprintf(stderr,
-                b"Warning: Header byte at position 0f has value 0x%02x.\n\x00"
-                    as *const u8 as *const libc::c_char,
-                (*header).ne_unused as libc::c_int); /* 14 */
-    } /* 18 */
-    printf(b"Heap size: %d bytes\n\x00" as *const u8 as *const libc::c_char,
-           (*header).ne_heap as libc::c_int);
-    printf(b"Stack size: %d bytes\n\x00" as *const u8 as *const libc::c_char,
-           (*header).ne_stack as libc::c_int);
-    printf(b"Program entry point: %d:%04x\n\x00" as *const u8 as
-               *const libc::c_char, (*header).ne_cs as libc::c_int,
-           (*header).ne_ip as libc::c_int);
-    printf(b"Initial stack location: %d:%04x\n\x00" as *const u8 as
-               *const libc::c_char, (*header).ne_ss as libc::c_int,
-           (*header).ne_sp as libc::c_int);
-    if (*header).ne_exetyp as libc::c_int <= 5i32 {
-        /* 36 */
-        printf(b"Target OS: %s\n\x00" as *const u8 as *const libc::c_char,
-               exetypes[(*header).ne_exetyp as usize]); /* 37 */
-    } else {
-        printf(b"Target OS: (unknown value %d)\n\x00" as *const u8 as
-                   *const libc::c_char,
-               (*header).ne_exetyp as libc::c_int); /* 3c */
+    let mut buffer: String = String::from("");
+    /* 02 */
+//    putchar('\n' as i32);
+    buffer.push_str("\n");
+    /* 08 */
+//    printf(b"Linker version: %d.%d\n\x00" as *const u8 as *const libc::c_char,
+//           (*header).ne_ver as libc::c_int,
+//           (*header).ne_rev as libc::c_int);
+    buffer.push(format!("Linker version: {}.{}", *header.ne_ver, *header.ne_rev));
+    /* 0c */
+//    printf(b"Checksum: %08x\n\x00" as *const u8 as *const libc::c_char,
+//           (*header).ne_crc);
+    buffer.push(format!("Checksum: {:08x}\n", *header.ne_crc));
+    /* 10 */
+    buffer.push(flags_to_string(*header.ne_flags));
+    /* 12 */
+//    printf(b"Automatic data segment: %d\n\x00" as *const u8 as
+//               *const libc::c_char,
+//           (*header).ne_autodata as libc::c_int);
+    buffer.push(format!("Automatic data segment: {}\n", *header.ne_autodata));
+    /* 14 */
+//    if (*header).ne_unused as libc::c_int != 0i32 {
+//        fprintf(stderr,
+//                b"Warning: Header byte at position 0f has value 0x%02x.\n\x00"
+//                    as *const u8 as *const libc::c_char,
+//                (*header).ne_unused as libc::c_int);
+//    }
+    if *header.ne_unused != 0 {
+        print!("Warning: header byte at position 0xf has value {:02x}\n", *header.ne_unused);
     }
-    print_os2flags((*header).ne_flagsothers as u16);
-    printf(b"Swap area: %d\n\x00" as *const u8 as *const libc::c_char,
-           (*header).ne_swaparea as libc::c_int);
-    printf(b"Expected Windows version: %d.%d\n\x00" as *const u8 as
-               *const libc::c_char, (*header).ne_expver_maj as libc::c_int,
-           (*header).ne_expver_min as libc::c_int);
+    /* 18 */
+//    printf(b"Heap size: %d bytes\n\x00" as *const u8 as *const libc::c_char,
+//           (*header).ne_heap as libc::c_int);
+    buffer.push(format!("Heap size: {} bytes\n", *header.ne_heap));
+//    printf(b"Stack size: %d bytes\n\x00" as *const u8 as *const libc::c_char,
+//           (*header).ne_stack as libc::c_int);
+
+//    printf(b"Program entry point: %d:%04x\n\x00" as *const u8 as
+//               *const libc::c_char, (*header).ne_cs as libc::c_int,
+//           (*header).ne_ip as libc::c_int);
+    buffer.push(format!("Program entry point: {}:{:04x}\n", *header.ne_cs, *header.ne_ip));
+
+//    printf(b"Initial stack location: %d:%04x\n\x00" as *const u8 as
+//               *const libc::c_char, (*header).ne_ss as libc::c_int,
+//           (*header).ne_sp as libc::c_int);
+    buffer.push(format!("Initial stack location: {}:{:04x}\n", *header.ne_ss, *header.ne_sp));
+
+
+//    if (*header).ne_exetyp as libc::c_int <= 5i32 {
+//        /* 36 */
+//        printf(b"Target OS: %s\n\x00" as *const u8 as *const libc::c_char,
+//               exetypes[(*header).ne_exetyp as usize]);
+//    } else {
+//        printf(b"Target OS: (unknown value %d)\n\x00" as *const u8 as
+//                   *const libc::c_char,
+//               (*header).ne_exetyp as libc::c_int);
+//    }
+    /* 37, 3c */
+    if *header.ne_exetyp <= 5 {
+        buffer.push(format!("Target OS: {}\n", exetypes[*header.ne_exetyp]));
+    } else {
+        buffer.push(format!("Target OS: (unknown value {})\n", *header.ne_exetyp));
+    }
+
+//    print_os2flags((*header).ne_flagsothers as u16);
+    buffer.push(os2_flags_to_string(*header.ne_flagsothers));
+
+//    printf(b"Swap area: %d\n\x00" as *const u8 as *const libc::c_char,
+//           (*header).ne_swaparea as libc::c_int);
+    buffer.push(format!("Swap area: {}}\n", *header.ne_swaparea));
+
+//    printf(b"Expected Windows version: %d.%d\n\x00" as *const u8 as
+//               *const libc::c_char, (*header).ne_expver_maj as libc::c_int,
+//           (*header).ne_expver_min as libc::c_int);
+    buffer.push(format!("Expected Windows version: {}.{}\n", *header.ne_expver_maj, *header.ne_expver_min));
+    buffer
 }
 
 unsafe extern "C" fn print_export(mut ne: *mut ne) {
@@ -1276,7 +1307,7 @@ pub unsafe extern "C" fn dumpne(mut offset_ne: libc::c_long) {
     printf(b"Module description: %s\n\x00" as *const u8 as
                *const libc::c_char, ne.description);
     if mode as libc::c_int & 0x1i32 != 0 {
-        print_header(&mut ne.header);
+        header_to_string(&mut ne.header);
     }
     if mode as libc::c_int & 0x4i32 != 0 {
         putchar('\n' as i32);
