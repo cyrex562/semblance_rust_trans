@@ -328,14 +328,23 @@ unsafe extern "C" fn print_os2flags(mut flags: u16) {
     }
 }
 
-static mut exetypes: [*const libc::c_char; 7] =
-    [b"unknown\x00" as *const u8 as *const libc::c_char,
-        b"OS/2\x00" as *const u8 as *const libc::c_char,
-        b"Windows (16-bit)\x00" as *const u8 as *const libc::c_char,
-        b"European Dos 4.x\x00" as *const u8 as *const libc::c_char,
-        b"Windows 386 (32-bit)\x00" as *const u8 as *const libc::c_char,
-        b"BOSS\x00" as *const u8 as *const libc::c_char,
-        0 as *const libc::c_char];
+//static mut exetypes: [*const libc::c_char; 7] =
+//    [b"unknown\x00" as *const u8 as *const libc::c_char,
+//        b"OS/2\x00" as *const u8 as *const libc::c_char,
+//        b"Windows (16-bit)\x00" as *const u8 as *const libc::c_char,
+//        b"European Dos 4.x\x00" as *const u8 as *const libc::c_char,
+//        b"Windows 386 (32-bit)\x00" as *const u8 as *const libc::c_char,
+//        b"BOSS\x00" as *const u8 as *const libc::c_char,
+//        0 as *const libc::c_char];
+
+static exetypes: [String; 6] = [
+    String::from("unknown"),
+    String::from("OS/2"),
+    String::from("Windows (16-bit)"),
+    String::from("European Dos 4.x"),
+    String::from("Windows 386 (32-bit)"),
+    String::from("BOSS")
+]
 
 unsafe extern "C" fn print_header(mut header: *mut header_ne) {
     /* Still need to deal with:
