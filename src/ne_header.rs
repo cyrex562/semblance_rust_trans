@@ -526,96 +526,114 @@ unsafe extern "C" fn print_specfile(mut ne: *mut ne) {
     // spec_file goes out of scope
 }
 
+//unsafe extern "C" fn demangle_protection(mut buffer: &mut String,
+//                                         mut start: *mut libc::c_char,
+//                                         mut prot: *mut libc::c_char,
+//                                         mut func: *mut libc::c_char)
+//                                         -> libc::c_int {
 unsafe extern "C" fn demangle_protection(mut buffer: &mut String,
-                                         mut start: *mut libc::c_char,
-                                         mut prot: *mut libc::c_char,
-                                         mut func: *mut libc::c_char)
-                                         -> libc::c_int {
+                                         mut start: &str,
+                                         mut prot: &str,
+                                         mut func: &str) -> i32 {
     ///
     ///
-    if *start as libc::c_int >= 'A' as i32 &&
-        *start as libc::c_int <= 'V' as i32 {
-        if *start as libc::c_int - 'A' as i32 & 2i32 != 0 {
-            strcat(buffer,
-                   b"static \x00" as *const u8 as *const libc::c_char);
-        }
-        if *start as libc::c_int - 'A' as i32 & 4i32 != 0 {
-            strcat(buffer,
-                   b"virtual \x00" as *const u8 as *const libc::c_char);
-        }
-        if *start as libc::c_int - 'A' as i32 & 1i32 == 0 {
-            strcat(buffer, b"near \x00" as *const u8 as *const libc::c_char);
-        }
-        if *start as libc::c_int - 'A' as i32 & 24i32 ==
-            0i32 {
-            strcat(buffer,
-                   b"private \x00" as *const u8 as *const libc::c_char);
-        } else if *start as libc::c_int - 'A' as i32 & 24i32 ==
-            8i32 {
-            strcat(buffer,
-                   b"protected \x00" as *const u8 as *const libc::c_char);
-        } else if *start as libc::c_int - 'A' as i32 & 24i32 ==
-            16i32 {
-            strcat(buffer,
-                   b"public \x00" as *const u8 as *const libc::c_char);
-        }
-        *prot = *start
-    } else if *start as libc::c_int == 'Y' as i32 {
-        strcat(buffer, b"near \x00" as *const u8 as *const libc::c_char);
-    } else if *start as libc::c_int == 'Z' as i32 {} else if *start as libc::c_int == 'X' as i32 {
+//    if *start as libc::c_int >= 'A' as i32 &&
+//        *start as libc::c_int <= 'V' as i32 {
+    if start[0] >= 'A' && start[0] <= 'V' {
+//        if *start as libc::c_int - 'A' as i32 & 2i32 != 0 {
+//            strcat(buffer,
+//                   b"static \x00" as *const u8 as *const libc::c_char);
+//        }
+    }
+    if start[0] - 'A' & 2 != 0 {
+        buffer.push_str("static ");
+    }
+//        if *start as libc::c_int - 'A' as i32 & 4i32 != 0 {
+//            strcat(buffer,
+//                   b"virtual \x00" as *const u8 as *const libc::c_char);
+//        }
+    if start[0] - 'A' & 4 != 0 {
+        buffer.push_str("virtual ");
+    }
+//        if *start as libc::c_int - 'A' as i32 & 1i32 == 0 {
+//            strcat(buffer, b"near \x00" as *const u8 as *const libc::c_char);
+//        }
+    if start[0] - 'A' & 1 == 0 {
+        buffer.push_str("near ");
+    }
+//        if *start as libc::c_int - 'A' as i32 & 24i32 == 0i32 {
+    if start[0] - 'A' & 24 == 0 {
+//            strcat(buffer,
+//                   b"private \x00" as *const u8 as *const libc::c_char);
+        buffer.push_str("private ");
+        //} else if *start as libc::c_int - 'A' as i32 & 24i32 ==
+    } else if start[0] - 'A' & 24 == 8 {
+//            strcat(buffer,
+//                   b"protected \x00" as *const u8 as *const libc::c_char);
+        buffer.push_str("protected ");
+        // } else if *start as libc::c_int - 'A' as i32 & 24i32 == 16i32 {
+    } else if start[0] - 'A' & 24 == 16 {
+//            strcat(buffer,
+//                   b"public \x00" as *const u8 as *const libc::c_char);
+        buffer.push_str("public ");
+        prot = start;
+//    } else if *start as libc::c_int == 'Y' as i32 {
+    } else if start[0] == 'Y' {
+//        strcat(buffer, b"near \x00" as *const u8 as *const libc::c_char);
+        buffer.push_str("near ");
+//    } else if *start as libc::c_int == 'Z' as i32 {} else if *start as libc::c_int == 'X' as i32 {
+    } else if start[0] == 'Z' {} else if start[0] == 'X' {
         /* It's not clear what this means, but it always seems to be
          * followed by either a number, or a string of text and then @. */
-        *prot = 'V' as libc::c_char; /* just pretend that for now */
-        if *start.offset(1isize) as libc::c_int >=
-            '0' as i32 &&
-            *start.offset(1isize) as libc::c_int <=
-                '9' as i32 {
-            strcat(buffer, b"(X0) \x00" as *const u8 as *const libc::c_char);
-            *buffer.offset(strlen(buffer).wrapping_sub(3u64) as
-                isize) =
-                *start.offset(1isize);
-            return 2i32;
+        /* just pretend that for now */
+//        *prot = 'V' as libc::c_char;
+        prot[0] = 'V';
+//        if *start.offset(1isize) as libc::c_int >= '0' as i32 &&
+//            *start.offset(1isize) as libc::c_int <= '9' as i32 {
+        if start[1] >= '0' && start[1] <= '9' {
+//            strcat(buffer, b"(X0) \x00" as *const u8 as *const libc::c_char);
+            buffer.push_str(format!("(X{}}) ", start[1]).as_str());
+//            *buffer.offset(strlen(buffer).wrapping_sub(3u64) as
+//                isize) =
+//                *start.offset(1isize);
+//            return 2i32;
+            return 2;
         } else {
-            let str_off_ptr = strchr(start, '@' as i32).offset(1isize);
-            let start_val = libc::adr
-            return (str_off_ptr as i32 + start as i32) as *mut u8;
+////            let str_off_ptr = strchr(start, '@' as i32).offset(1isize);
+//
+//            let start_val = libc::adr
+//            return (str_off_ptr as i32 + start as i32) as *mut u8;
 //            return  strchr(start, '@' as i32).offset(1isize).wrapping_offset_from(start) as libc::c_int
+            start.find("@") + 1
         }
-    } else if *start as libc::c_int == '_' as i32 &&
-        *start.offset(1isize) as libc::c_int !=
-            '$' as i32 {
+        //   } else if *start as libc::c_int == '_' as i32 && *start.offset(1isize) as libc::c_int != '$' as i32 {
+    } else if start[0] == '_' && start[1] != '$' {
         /* Same as above, but there is an extra character first (which
          * is often V, so is likely to be the protection/etc), and then
          * a number (often 7 or 3). */
-        demangle_protection(buffer, start.offset(1isize),
-                            prot, func);
-        return if *start.offset(3isize) as libc::c_int >=
-            '0' as i32 &&
-            *start.offset(3isize) as libc::c_int <=
-                '9' as i32 {
-            strcat(buffer, b"(_00) \x00" as *const u8 as *const libc::c_char);
-            *buffer.offset(strlen(buffer).wrapping_sub(4u64) as
-                isize) =
-                *start.offset(2isize);
-            *buffer.offset(strlen(buffer).wrapping_sub(3u64) as
-                isize) =
-                *start.offset(3isize);
-            4i32
+        demangle_protection(buffer, &start[1..], prot, func);
+//        return if *start.offset(3isize) as libc::c_int >= '0' as i32 && *start.offset(3isize) as libc::c_int <= '9' as i32 {
+        return if start[3] >= '0' && start[3] <= '9' {
+//            strcat(buffer, b"(_00) \x00" as *const u8 as *const libc::c_char);
+            buffer.push_str(format!("(_{}{}) ", start[3], start[2]).as_str())
+//            *buffer.offset(strlen(buffer).wrapping_sub(4u64) as isize) = *start.offset(2isize);
+//            *buffer.offset(strlen(buffer).wrapping_sub(3u64) as isize) = *start.offset(3isize);
+            4
         } else {
-            let str_off_ptr = strchr(start, '@' as i32).offset(1isize);
-            str_off_ptr + start
 //            return  strchr(start,
 //                          '@' as
 //                              i32).offset(1isize).wrapping_offset_from(start) as libc::c_int
+            start.find("@") + 1;
         };
     } else {
-        fprintf(stderr,
-                b"Warning: Unknown modifier %c for function %s\n\x00" as
-                    *const u8 as *const libc::c_char, *start as libc::c_int,
-                func);
-        return 0i32;
+//        fprintf(stderr,
+//                b"Warning: Unknown modifier %c for function %s\n\x00" as
+//                    *const u8 as *const libc::c_char, *start as libc::c_int,
+//                func);
+        print!("warning: unknown modifier {} for function {}}\n", start[0], func);
+        0
     }
-    return 1i32;
+    1
 }
 
 static mut int_types: [*const libc::c_char; 9] =
@@ -726,16 +744,17 @@ unsafe extern "C" fn demangle_type(mut known_names: *mut *mut libc::c_char,
 }
 
 
-unsafe extern "C" fn demangle(mut func: *mut libc::c_char) -> *mut libc::c_char {
+//unsafe extern "C" fn demangle(mut func: *mut libc::c_char) -> *mut libc::c_char {
+unsafe extern "C" fn demangle(mut func: String) -> String {
     /// Demangle a C++ function name. The scheme used seems to be mostly older than any
     /// documented, but I was able to find documentation that is at least close in Agner
     /// Fog's manual.
-    let mut known_types =
-        [0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char,
-            0 as *mut libc::c_char, 0 as *mut libc::c_char];
+//    let mut known_types =
+//        [0 as *mut libc::c_char, 0 as *mut libc::c_char,
+//            0 as *mut libc::c_char, 0 as *mut libc::c_char,
+//            0 as *mut libc::c_char, 0 as *mut libc::c_char,
+//            0 as *mut libc::c_char, 0 as *mut libc::c_char,
+//            0 as *mut libc::c_char, 0 as *mut libc::c_char];
 
     let mut known_type_idx = 0u32;
     let mut known_name_idx = 0u32;
@@ -743,22 +762,41 @@ unsafe extern "C" fn demangle(mut func: *mut libc::c_char) -> *mut libc::c_char 
     let mut buffer: String = String::from("");
     let mut prot = 0i8;
 
-    if *func.offset(1isize) as libc::c_int == '?' as i32 {
-        /* TODO: constructor/destructor */
+//    if *func.offset(1isize) as libc::c_int == '?' as i32 {
+//        /* TODO: constructor/destructor */
+//        return func;
+//    }
+    if func[1 as isize] == '?' {
         return func;
     }
 
-    let mut p = func;
-    while *p as libc::c_int != '@' as i32 &&
-        known_name_idx < 10u32 {
-        let fresh1 = known_name_idx;
-        known_name_idx = known_name_idx.wrapping_add(1);
-        known_names[fresh1 as usize] = strndup(p, strchr(p, '@' as i32) + p);
-        p = strchr(p, '@' as i32).offset(1isize)
-    }
+//    let mut p = func;
+//    while *p as libc::c_int != '@' as i32 && known_name_idx < 10u32 {
+//        let fresh1 = known_name_idx;
+//        known_name_idx = known_name_idx.wrapping_add(1);
+//        known_names[fresh1 as usize] = strndup(p, strchr(p, '@' as i32) + p);
+//        p = strchr(p, '@' as i32).offset(1isize)
+//    }
+
+//    let mut p = &func[0..];
+//    while p[0] != '@' && known_name_idx < 10 {
+//        let fresh1 = known_name_idx;
+////        let start = p.find("@");
+//        known_name_idx = known_name_idx.wrapping_add(1);
+//        let end = p.find("@");
+//        known_names[fresh1] = String::from(&p[0..end]);
+//        p = &func[end..];
+//    }
+
+    let names: Vec<&str> = func.split("@");
+
     /* Figure out the modifiers and calling convention. */
 //    buffer[0usize] = 0i8;
-    p = strstr(func, b"@@\x00" as *const u8 as *const libc::c_char).offset(2isize);
+
+//    p = strstr(func, b"@@\x00" as *const u8 as *const libc::c_char).offset(2isize);
+    let start = func.find("@@") + 2;
+    let p: &str = &func[start..];
+
     let mut len = demangle_protection(&mut buffer, p, &mut prot, func);
     if len == 0 { return func; }
     p = p.offset(len as isize);
