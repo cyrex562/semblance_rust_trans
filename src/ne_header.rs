@@ -1,14 +1,15 @@
 use ::libc;
-use crate::src::x86_instr::{ MASM, NASM, GAS,  NONE};
-use crate::src::common::{ Instruction, Operation, Argument, _IO_FILE, size_t, __int8_t,
-                          __uint8_t, __int16_t, __uint16_t, __int32_t, __uint32_t,
-                          __uint64_t, __off_t, __off64_t, int8_t, int16_t, int32_t,
-                          uint8_t, uint16_t, uint32_t, uint64_t, FILE, byte, dword,
-                          word, qword, C2RustUnnamed, disptype,
-                          DISP_REG, DISP_16, DISP_8, DISP_NONE, argtype, GAS, NASM, MASM,
-                          f, asm_syntax, opts, mode};
-use crate::src::ne_segment::{read_segments, ne, segment, reloc, import_module, export,
-                             entry, header_ne };
+
+use crate::src::common::{__int16_t, __int32_t, __int8_t, __off64_t, __off_t, __uint16_t,
+                         __uint32_t, __uint64_t, __uint8_t, _IO_FILE, argtype,
+                         Argument, asm_syntax, byte, C2RustUnnamed, DISP_16, DISP_8,
+                         DISP_NONE, DISP_REG, disptype, dword, f, FILE, GAS,
+                         Instruction, int16_t, int32_t, int8_t,
+                         MASM, mode, NASM, Operation, opts, qword, size_t, uint16_t,
+                         uint32_t, uint64_t, uint8_t, word};
+use crate::src::ne_segment::{entry, export, header_ne, import_module, ne, read_segments,
+                             reloc, segment};
+use crate::src::x86_instr::{GAS, MASM, NASM, NONE};
 
 extern "C" {
     #[no_mangle]
@@ -122,15 +123,14 @@ unsafe extern "C" fn print_flags(flags: u16) {
 //                   *const libc::c_char); /* OS/2 family */
 //    }
     if flags & 0x3 == 0 {
-        buffer.push("no DGROUP");
+        buffer.push_str("no DGROUP");
     } else if flags & 0x3 == 1 {
-        buffer.push("single DGROUP");
+        buffer.push_str("single DGROUP");
     } else if flags & 0x3 == 2 {
-        buffer.push("multiple DGROUPS");
+        buffer.push_str("multiple DGROUPS");
     } else if flags & 0x3 == 3 {
-        buffer.push("unknown DGROUP type 3");
+        buffer.push_str("unknown DGROUP type 3");
     }
-
 
 //    if flags as libc::c_int & 0x4i32 != 0 {
 //        strcat(buffer.as_mut_ptr(),
@@ -138,78 +138,128 @@ unsafe extern "C" fn print_flags(flags: u16) {
 //                   *const libc::c_char);
 //    }
     if flags & 0x4 != 0 {
-        buffer.push(", global initialization")
+        buffer.push_str(", global initialization")
     }
-    if flags as libc::c_int & 0x8i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", protected mode only\x00" as *const u8 as
-                   *const libc::c_char);
-    }
-    if flags as libc::c_int & 0x10i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", 8086\x00" as *const u8 as *const libc::c_char);
-    }
-    if flags as libc::c_int & 0x20i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", 80286\x00" as *const u8 as *const libc::c_char);
-    }
-    if flags as libc::c_int & 0x40i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", 80386\x00" as *const u8 as *const libc::c_char);
-    }
-    if flags as libc::c_int & 0x80i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", 80x87\x00" as *const u8 as *const libc::c_char);
+//    if flags as libc::c_int & 0x8i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", protected mode only\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x8 != 0 {
+        buffer.push_str(", protected mode only");
     }
 
-    if flags as libc::c_int & 0x700i32 == 0x100i32 {
-        strcat(buffer.as_mut_ptr(),
-               b", fullscreen\x00" as *const u8 as *const libc::c_char);
-    } else if flags as libc::c_int & 0x700i32 ==
-        0x200i32 {
-        strcat(buffer.as_mut_ptr(),
-               b", console\x00" as *const u8 as *const libc::c_char);
-    } else if flags as libc::c_int & 0x700i32 ==
-        0x300i32 {
-        strcat(buffer.as_mut_ptr(),
-               b", GUI\x00" as *const u8 as *const libc::c_char);
-    } else if flags as libc::c_int & 0x700i32 == 0i32
-    {
-        strcat(buffer.as_mut_ptr(),
-               b", (no subsystem)\x00" as *const u8 as *const libc::c_char);
+//    if flags as libc::c_int & 0x10i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", 8086\x00" as *const u8 as *const libc::c_char);
+//    }
+    if flags & 0x10 != 0 {
+        buffer.push_str(", 8086");
+    }
+
+//    if flags as libc::c_int & 0x20i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", 80286\x00" as *const u8 as *const libc::c_char);
+//    }
+    if flags & 0x20 != 0 {
+        buffer.push_str(", 80286");
+    }
+
+//    if flags as libc::c_int & 0x40i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", 80386\x00" as *const u8 as *const libc::c_char);
+//    }
+    if flags & 0x40 != 0 {
+        buffer.push_str("80386");
+    }
+
+//    if flags as libc::c_int & 0x80i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", 80x87\x00" as *const u8 as *const libc::c_char);
+//    }
+    if flags & 0x80 != 0 {
+        buffer.push_str(", 80x87");
+    }
+
+//    if flags as libc::c_int & 0x700i32 == 0x100i32 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", fullscreen\x00" as *const u8 as *const libc::c_char);
+//    } else if flags as libc::c_int & 0x700i32 ==
+//        0x200i32 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", console\x00" as *const u8 as *const libc::c_char);
+//    } else if flags as libc::c_int & 0x700i32 ==
+//        0x300i32 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", GUI\x00" as *const u8 as *const libc::c_char);
+//    } else if flags as libc::c_int & 0x700i32 == 0i32
+//    {
+//        strcat(buffer.as_mut_ptr(),
+//               b", (no subsystem)\x00" as *const u8 as *const libc::c_char);
+//    } else {
+//        sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
+//            isize),
+//                b", (unknown application type %d)\x00" as *const u8 as
+//                    *const libc::c_char,
+//                (flags as libc::c_int & 0x700i32) >>
+//                    8i32);
+//    }
+    if flags & 0x700 == 0x100 {
+        buffer.push_str(", fullscreen");
+    } else if flags & 0x700 == 0x200 {
+        buffer.push_str(", console");
+    } else if flags & 0x700 == 0x300 {
+        buffer.push_str(", GUI");
+    } else if flags & 0x700 == 0x0 {
+        buffer.push_str(", no subsystem");
     } else {
-        sprintf(buffer.as_mut_ptr().offset(strlen(buffer.as_mut_ptr()) as
-            isize),
-                b", (unknown application type %d)\x00" as *const u8 as
-                    *const libc::c_char,
-                (flags as libc::c_int & 0x700i32) >>
-                    8i32);
+        buffer.push_str(format!(", (unknown application type {})", (flags & 0x700) >> 8).as_str());
     }
-    if flags as libc::c_int & 0x800i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", self-loading\x00" as *const u8 as *const libc::c_char);
+
+
+//    if flags as libc::c_int & 0x800i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", self-loading\x00" as *const u8 as *const libc::c_char);
+//    }
+    if flags & 0x800 != 0 {
+        buffer.push_str(", self-loading");
     }
-    if flags as libc::c_int & 0x1000i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", (unknown flag 0x1000)\x00" as *const u8 as
-                   *const libc::c_char);
+//    if flags as libc::c_int & 0x1000i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", (unknown flag 0x1000)\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x1000 != 0 {
+        buffer.push_str(", (unknown flag 0x1000)");
     }
-    if flags as libc::c_int & 0x2000i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", contains linker errors\x00" as *const u8 as
-                   *const libc::c_char);
+//    if flags as libc::c_int & 0x2000i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", contains linker errors\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x2000 != 0 {
+        buffer.push_str(", contains linker errors");
     }
-    if flags as libc::c_int & 0x4000i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", non-conforming program\x00" as *const u8 as
-                   *const libc::c_char);
+
+//    if flags as libc::c_int & 0x4000i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", non-conforming program\x00" as *const u8 as
+//                   *const libc::c_char);
+//    }
+    if flags & 0x4000 != 0 {
+        buffer.push_str(", non-conforming program");
     }
-    if flags as libc::c_int & 0x8000i32 != 0 {
-        strcat(buffer.as_mut_ptr(),
-               b", library\x00" as *const u8 as *const libc::c_char);
+//    if flags as libc::c_int & 0x8000i32 != 0 {
+//        strcat(buffer.as_mut_ptr(),
+//               b", library\x00" as *const u8 as *const libc::c_char);
+//    }
+    if flags & 0x8000 {
+        buffer.push_str(", library");
     }
-    printf(b"Flags: 0x%04x (%s)\n\x00" as *const u8 as *const libc::c_char,
-           flags as libc::c_int, buffer.as_mut_ptr());
+
+//    printf(b"Flags: 0x%04x (%s)\n\x00" as *const u8 as *const libc::c_char,
+//           flags as libc::c_int, buffer.as_mut_ptr());
+    print!(buffer);
 }
 
 unsafe extern "C" fn print_os2flags(mut flags: u16) {

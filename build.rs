@@ -11,3 +11,8 @@ fn main() {
     // add macos dependencies below
     // println!("cargo:rustc-flags=-l edit");
 }
+
+#[cfg(target_os = "windows")]
+fn main() {
+    // add windows dependencies below
+}
