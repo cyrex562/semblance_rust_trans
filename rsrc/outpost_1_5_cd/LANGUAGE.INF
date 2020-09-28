@@ -1,0 +1,113 @@
+[Ident]
+Title=Sierra Outpost 1.5
+ShortTitle=Outpost 1.5
+Version=150
+DirName=OUTPOST
+
+[Strings]
+OK=OK
+CANCEL=Cancel
+NONE=None
+YES=Yes
+NO=No
+SIZETITLE=Size of Outpost?
+SIZE1=Small, 5Mb
+SIZE2=Large, 40Mb
+SIZETXT=Selecting Large Install takes more disk space, but will cause Outpost to run faster on systems with more memory.
+SUCCESSTITLE=Outpost 1.5
+SUCCESS1=To run Outpost, double-click on the icon in the Sierra group in Program Manager.
+HELPTITLE=If You Need Help
+HELP1=If you encounter problems running Outpost, please run setup.exe again and choose the Test Hardware option to make sure your system is properly configured.
+HELP2=Outpost's performance depends upon your system's memory configuration, video card performance and CD-ROM speed.
+HELP3=If you need further help, check 'read.me' on the CD-ROM by opening it in an editor such as Notepad.
+SIERRAGROUP=Sierra
+LONGTITLE=Sierra Outpost 1.5
+SIERRASETUP=Setup & Uninstall
+ACCESSORIES=Accessories
+MPLAYER=Media Player
+RESTARTTITLE=Restart Windows?
+RESTARTPROMPT=You must restart Windows before you can run Outpost.
+RESTARTPROMPT2=Do you want to restart Windows now?
+INNTITLE=INN Install
+HINTTITLE=Outpost Hints
+TUTTXTTITLE=Outpost Tutorial
+READMETITLE=Outpost Read Me
+
+RemoveTitle=Uninstall Halloween Demos
+RegisterTitle=Register Halloween Demos
+GroupName = Halloween Demo Cd
+OKText=OK
+YESText=Yes
+NOText=No
+GoBackText=Previous Menu
+CancelText=Cancel
+Installation Complete=Installation Complete
+
+RestartPrompt1=Your Demos have been successfully installed.
+RestartPrompt2=Windows must be restarted before you can play.
+RestartNow=Restart now
+RestartLater=Restart later
+
+FailTitleWin32s=Win32s failed to install!
+FailTextWin32s=An error occurred while installing Win32s.  Installation is incomplete.
+FailTextWin32sShare=If you received a message about "SHARE.EXE" not being loaded, please do the following steps:
+FailTextWin32sShare1=1.  Exit this install program.
+FailTextWin32sShare2=2.  Quit out of Windows.
+FailTextWin32sShare3=3.  Type  SHARE
+FailTextWin32sShare4=4.  Type  WIN
+FailTextWin32sShare5=5.  Run this install program again.
+
+FailTitleWinG=WinG failed to install!
+FailTextWinG=An error occurred while installing WinG.  Installation is incomplete.
+
+FailTitleVFW=Video for Windows failed to install!
+FailTextVFW=An error occurred while installing Video for Windows.  Installation is incomplete.
+
+FailTitleWinSpace=Insufficient Disk Space!
+FailTextWinSpace=You do not have enough space in your system directory to install some of the system components.
+FailTextWinSpace2=This program requires up to 4,000,000 bytes of disk space in your system directory.
+
+Register=Register Halloween Demo CD
+RegisterText1=Do you want to Register your program now?
+
+AlldoneText=Remember to restart Windows before using these games.
+
+InstallSystem=
+NotifySysText=Install will now check to see if your copy of Windows contains some necessary extensions, and will install them if necessary.  Please choose the default option in any dialog boxes displayed.
+
+AllDone=Installation Completed
+AllDoneText=Remember to restart Windows before playing.
+
+Win32s=Install Win32s
+WinG=Install Windows graphics library (WinG)
+
+RDOSTitle = Install RAMA in DOS
+RDOS = Setup has detected that you have a 486 computer.  For best performance the RAMA Demo should be run in the DOS environment.  
+RDOS2 = Setup will add an icon to your RAMA DEMO CD program group to install RAMA in DOS.
+InstallRamaDOS = Install RAMA DOS
+
+picktitle = Select Demos to Install
+picktext = Select your demos to install from the ones listed below.
+Creep = 3D Ultra Pinball: Creep Night
+Hunter = Hunter Hunted
+Cyber = CyberGladiators
+Brain4 = The Time Warp of Dr. Brain
+GK2 = Gabriel Knight 2
+Phantas = Phantasmagoria
+Chess = PowerChess
+TBass2 = FPS: Trophy Bass 2
+Baseball = FPS: Baseball Pro 96
+CStorm = CyberStorm Demo
+Rama = Rama 
+REL = Robert E. Lee Civil War General Demo
+pa4demo = Print Artist 4.0
+Lords2 = Lords of the Realm 2
+RELREADME = Civil War Readme
+BaseballHelp = Baseball Help
+Lords2S = Lord's of the Realm 2 Setup
+
+LordsTitle = Seperate installation
+LordsText = Lord's of the Realm 2 requires a seperate install process.  Setup will add an icon to your program group to access the installation program.
+Acrobat = Adobe Acroreader Installer
+Docs = Outpost Online Documentation
+InstallAcrobat= The online documentation requires the use of Adobe Acrobat Reader(TM).  Setup has added an icon for the Acroread install program to your Sierra Program Group. Install Acroreader if you have any problems viewing the online documentation.

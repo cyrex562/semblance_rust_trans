@@ -1,0 +1,153 @@
+[Setup]
+SetupSize=400
+
+[Requirements]
+SetupVer=3.1.0.0
+Colors=256
+MemKB=7192
+PhysicalMem=7192
+VideoSpeed=300
+Wave=1
+MIDI=1
+CPU=386
+WinVer=310
+ScreenWidth=640
+ScreenHeight=480
+Joystick=0
+Printer=0
+CDROM=2
+
+[Ident]
+Version=150
+ProductID=80725
+
+[Archives]
+RESOURCE.000,1,0,1
+
+
+[Files]
+BLDGBLD.DAT,RESOURCE.000,12403,1
+BLDGOPS.DAT,RESOURCE.000,14049,1
+*SYSTEMDIR\AAPLAY.DLL,RESOURCE.000,182773,1
+*SYSTEMDIR\AAVGA.DLL,RESOURCE.000,13840,1
+*WINDOWSDIR\OUTHELP.DLL,RESOURCE.000,7200,1
+*SYSTEMDIR\DIB.DRV,RESOURCE.000,30544,1
+*SYSTEMDIR\MCIAAP.DRV,RESOURCE.000,16912,1
+OUTPOST.EXE,RESOURCE.000,640640,1
+OUTHLP.HLP,RESOURCE.000,561150,1
+OUTPOST.INI,RESOURCE.000,21,1
+READ.ME,RESOURCE.000,22679,1
+0WSCINIT.MID,RESOURCE.000,557,1
+MARS.MID,RESOURCE.000,133424,1
+TUTOR.OPS,RESOURCE.000,20276,1
+
+[Dialogs]
+BEGIN 0, Success
+SUCCESSTITLE
+1, SUCCESS1
+10, OK
+END
+BEGIN 0, Help
+HELPTITLE
+1, HELP1
+1, HELP2
+1, HELP3
+10, OK
+END
+BEGIN 0, RestartWin
+RESTARTTITLE
+1, RESTARTPROMPT
+1, RESTARTPROMPT2
+12, YES, (), FLAG3
+13, NO
+END
+BEGIN 0,NotifyInstallSystem
+InstallSystem
+1, NotifySysText
+10, OKText
+END
+BEGIN 1,Register
+Register
+1, RegisterText1
+12, YESText, (), FLAG8
+13, NOText
+END
+BEGIN 2, Restart
+Installation Complete
+1, RestartPrompt1
+1, RestartPrompt2
+10, RestartNow, (), FLAG9
+13, RestartLater
+END
+BEGIN 3, Done
+AllDone
+1, AllDoneText
+10, OKText
+END
+BEGIN 4, FailedWin32s
+FailTitleWin32s
+1, FailTextWin32s
+1, FailTextWin32sShare
+1, FailTextWin32sShare1
+1, FailTextWin32sShare2
+1, FailTextWin32sShare3
+1, FailTextWin32sShare4
+1, FailTextWin32sShare5
+10, OKText
+END
+BEGIN 5, FailedWinG
+FailTitleWinG
+1, FailTextWinG
+10, OKText
+END
+BEGIN 6, FailedVFW
+FailTitleVFW
+1, FailTextVFW
+10, OKText
+END
+BEGIN 7, FailedWinSpace
+FailTitleWinSpace
+1, FailTextWinSpace
+1, FailTextWinSpace2
+10, OKText
+END
+BEGIN 9, Acrobat
+AcrobatTitle
+1, InstallAcrobat
+10, OKText
+END
+
+[Script]
+PICKDEST Fini
+ONWIN95ONLY FLAG0
+NOTWINNT FLAG1
+;
+; Do the dasterdly deed
+COPY
+;
+; Set up Progman stuff
+ADDPROGMANGROUP SIERRAGROUP
+ADDPROGMANITEM *DESTDIR\OUTPOST.EXE, LONGTITLE, ,*DESTDIR
+ADDPROGMANITEM *SIERRADIR\SETUP.EXE, SIERRASETUP, ,*SIERRADIR
+ADDPROGMANITEM *CDROMDRIVE:\inn\install.pif, INNTITLE, *CDROMDRIVE:\inn\inn.ico, *CDROMDRIVE:\inn
+ADDPROGMANITEM *WINDOWSDIR\NOTEPAD.EXE read.me, READMETITLE, ,*DESTDIR
+ADDPROGMANITEM *SOURCEDIR\CSTORM\CSTORM.EXE, CStorm
+ADDPROGMANITEM *SOURCEDIR\ACROREAD.EXE, Acrobat
+ADDPROGMANITEM *SOURCEDIR\OUTPOST.PDF, Docs
+;
+; Update ini files
+ADDTOINI *WINDOWSDIR\win.ini,mci extensions,flc,Autodesk
+ADDTOINI *WINDOWSDIR\system.ini,mci,Autodesk,mciaap.drv
+ADDTOINI *WINDOWSDIR\system.ini,mciseq.drv,DisableWarning,True
+ADDTOINI *DESTDIR\outpost.ini,general,opimage,*CDROMDRIVE:\bitmaps;*CDROMDRIVE:\videos;*CDROMDRIVE:\music
+;
+:Success
+DIALOG Success
+DIALOG Acrobat
+DIALOG RestartWin
+FLAG3 RESTARTWINDOWS
+:Fini
+END
+
+[Misc]
+SourceDir=C:\GAMES\OUTPOST\

@@ -1,0 +1,18 @@
+File structure in Assets
+PNG are 24 bit with transparency
+
+Legacy/			Legacy Outpost Content. File structure and naming preserved
+Planets/		Assets for Planets
+Planets/<planet name>/	The name of the planet type goes here
+Planets/<planet name>/Art/
+Planets/<planet name>/Art/Tile/
+Planets/<planet name>/Art/Tile/Surface/		Folder for surface tile
+Planets/<planet name>/Art/Tile/Surface/Dozed.png	(64x64 pixles)
+Planets/<planet name>/Art/Tile/Surface/Clear.png
+Planets/<planet name>/Art/Tile/Surface/Rough.png
+Planets/<planet name>/Art/Tile/Surface/Difficult.png
+Planets/<planet name>/Art/Tile/Surface/Impassable.png
+Planets/<planet name>/Art/Tile/SubsurfaceN/	Folder for subserface tile art. N=0 is art for all subserface levels. N=1,2 for specific levels (overides 0)
+
+UI/			Elements for the User Interface
+UI/2DBuildingMesh.egg	Mesh for 2D sprite texture

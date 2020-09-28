@@ -1,0 +1,32 @@
+Folder format:
+<Building Name>/		Unique Folder name
+<Building Name>/structue.yaml	Definition for the building in yaml format
+<Building Name>/Mesh/		Mesh(s) for building if it is a 3D building
+<Building Name>/Texture/	Texture(s) for building
+
+structure.yaml example:
+is3D: <Boolian>		# Is structure a 3D model or a 2.5D sprite
+isLegacy: <Boolian>	# Will stucture be using legacy artwork?
+
+mesh: <relative path to mesh (if 3D)>	# If legacy is false, use these two definitions
+texture: <relative path to texture (if 2.5D)>
+legacyFile: TILE2.BMP	# If isLegacy is True, which file is the structure sprite in?
+legacyCoords: (94, 73)	# If isLegacy is True, The coordinate for the top left pixle for the sprite.
+
+
+english:
+  name: Structure name
+  description: Description of the structure
+deutsh:		# Translations
+  name: Struktur Name
+  description: Beschreibung der Struktur
+power: -10	# (Power used (neg) or produced (pos) by structure)
+food: 10	# Food produced by structure
+storage:	# What can be stored in this structure
+  food:	100	# And ammount
+residence: 0	# How many people can live in the structure
+build: <Boolian>	# is this structure selectable from the build menu?
+buildTime: 5	# Number of turns to build the structure
+needConnect: <Boolian>	# Does this structure need tube (power/lifesupport) connection to function?
+
+

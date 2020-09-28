@@ -2,22 +2,32 @@
 members = []
 
 [package]
-name = "semblance_rust"
+name = "netools"
 authors = ["cyrex562"]
 version = "0.0.1"
 publish = false
 edition = "2018"
-autobins = false
 
 [lib]
 name = "semblance_rust"
-path = "lib.rs"
+path = "src/lib.rs"
 crate-type = ["staticlib", "rlib"]
 
 
-[dependencies]
-c2rust-bitfields = "0.3"
-libc = "0.2"
+[[bin]]
+name = "netools"
+path = "src/main.rs"
 
+[dependencies]
+libc = "0.2.77"
+clap = "2.33.3"
+serde = { version = "1.0.116", features = ["derive"]}
+serde_yaml = "0.8.13"
+log = "0.4.11"
+fern = "0.6.0"
+chrono = "0.4.18"
+regex = "1.3.9"
+csv = "1.1.3"
+mapr = "0.8.0"
 
 

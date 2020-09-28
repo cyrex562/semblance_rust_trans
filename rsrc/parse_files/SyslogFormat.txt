@@ -1,0 +1,73 @@
+# https://www.balabit.com/documents/syslog-ng-ose-latest-guides/en/syslog-ng-ose-guide-admin/html/ietfsyslog-pri.html
+# <priority>VERSION ISOTIMESTAMP HOSTNAME APPLICATION PID MESSAGEID STRUCTURED-DATA MSG
+# PRI = facility * 8 + severity
+# facilities:
+#	0: kernel
+#	1: user-level
+#	2: mail
+#	3: system daemon
+#	4: security/auth
+#	5: messages generated internally by syslogd
+#	6: line printer
+#	7: network news
+#	8: UUCP
+#	9: clock daemon
+#	10: security/auth
+#	11: FTP
+#	12: NTP
+#	13: log audit
+#	14: log alert
+#	15: clock daemon
+#	16-23 locally used (local0-local7)
+#
+#severity:
+#	0: emergency: system is unusable
+#	1: alert: action must be taken immediately
+#	2: critical: critical conditions
+#	3: error: error conditions
+#	4: warning: warning conditions
+#	5: notice: normal but signifcant
+#	6: informational: informational messages
+#	7: debug: debug-level: messages
+#
+# VERSION: must be 1
+# ISOTIMESTAMP: yyyy-mm-ddThh:mm:ss+-ZONE
+# HOSTNAME
+# APPLICATION
+# PID
+# MESSAGEID
+#
+# STRUCTURED DATA
+# * meta-information or application-specific data (such as counters or IP addresses);
+# * data blocks in enclosed square brackets
+# * every block inlcudes the ID of the block, and one or more name=value pairs
+
+# python log attribs mapping to syslog
+# ISOTIMESTAMP = %(asctime)s
+# <PRI> = facility * 8 + levelno --
+# HOSTNAME = get hostname via socket and put in format string
+# APPLICATION = %(processName)s
+# PID = %(process)d
+# MESSAGEID = %(module)s + %(funcName)s + $(lineno)
+# STRUCTURED-DATA = -
+# MSG = %(message)s
+
+# ('%(ascitime)s: %(levelname)s: %(name)s: ')
+# def debug(self, msg, *args, **kwargs):
+#     """
+#     Delegate a debug call to the underlying logger, after adding
+#     contextual information from this adapter instance.
+#     """
+#     msg, kwargs = self.process(msg, kwargs)
+#     self.logger.debug(msg, *args, **kwargs)
+#
+# class CustomAdapter(logging.LoggerAdapter):
+#     """
+#     This example adapter expects the passed in dict-like object to have a
+#     'connid' key, whose value in brackets is prepended to the log message.
+#     """
+#     def process(self, msg, kwargs):
+#         return '[%s] %s' % (self.extra['connid'], msg), kwargs
+#
+# logger = logging.getLogger(__name__)
+# adapter = CustomAdapter(logger, {'connid': some_conn_id})
