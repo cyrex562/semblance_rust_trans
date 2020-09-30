@@ -1,5 +1,0 @@
-TESTDLL = httpapi.dll
-IMPORTS = httpapi
-
-C_SRCS = \
-	httpapi.c

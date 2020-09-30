@@ -1,5 +1,0 @@
-MODULE    = ninput.dll
-IMPORTLIB = ninput
-
-C_SRCS = \
-	main.c

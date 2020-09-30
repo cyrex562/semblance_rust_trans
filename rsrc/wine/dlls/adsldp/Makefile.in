@@ -1,8 +1,0 @@
-MODULE    = adsldp.dll
-IMPORTS   = oleaut32 secur32
-
-C_SRCS = \
-	adsldp.c
-
-IDL_SRCS = \
-	adsldp.idl

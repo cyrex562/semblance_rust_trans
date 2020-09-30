@@ -1,4 +1,0 @@
-MODULE    = wdscore.dll
-
-C_SRCS = \
-	wdscore_main.c

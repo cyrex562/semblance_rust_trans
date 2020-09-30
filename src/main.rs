@@ -42,14 +42,13 @@ fn parse_cmd_line() -> Result<AppContext, MultiError> {
         .long("input_file")
         .help("exe file to load")
         .takes_value(true))
-        .required(true)
     .get_matches();
 
     let mut app_ctx: AppContext = Default::default();
 
     if args.is_present("input_exe") {
-        let input_file_str = args.value_of("input_exe");
-        app_ctx.input_file = input_file_str;
+        let input_file_str = args.value_of("input_exe").unwrap();
+        app_ctx.input_file = input_file_str.to_string();
     }
 
     Ok(app_ctx)

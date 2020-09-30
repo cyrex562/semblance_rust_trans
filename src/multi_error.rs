@@ -1,3 +1,5 @@
+use std::fmt;
+
 ///
 /// 
 #[derive(Debug, Clone)]
@@ -34,6 +36,15 @@ impl From<csv::Error> for MultiError {
     fn from (error: csv::Error) -> Self {
         MultiError {
             kind: String::from("CsvError"),
+            message: error.to_string(),
+        }
+    }
+}
+
+impl From<fern::InitError> for MultiError {
+    fn from(error: fern::InitError) -> Self {
+        MultiError {
+            kind: String::from("InitError"),
             message: error.to_string(),
         }
     }

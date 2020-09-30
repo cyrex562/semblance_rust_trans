@@ -184,11 +184,11 @@ pub const IMAGE_SIZEOF_LINENUMBER: usize = 6;
 
 pub const IMAGE_ARCHIVE_START_SIZE: usize = 8;
 
-pub const IMAGE_ARCHIVE_START: str = "!<arch>\n";
-pub const IMAGE_ARCHIVE_END: str = "`\n";
-pub const IMAGE_ARCHIVE_PAD: str = "\n";
-pub const IMAGE_ARCHIVE_LINKER_MEMBER: str = "/               ";
-pub const IMAGE_ARCHIVE_LONGNAMES_MEMBER: str = "//              ";
+pub const IMAGE_ARCHIVE_START: &str = "!<arch>\n";
+pub const IMAGE_ARCHIVE_END: &str = "`\n";
+pub const IMAGE_ARCHIVE_PAD: &str = "\n";
+pub const IMAGE_ARCHIVE_LINKER_MEMBER: &str = "/               ";
+pub const IMAGE_ARCHIVE_LONGNAMES_MEMBER: &str = "//              ";
 
 pub const IMAGE_SIZEOF_ARCHIVE_MEMBER_HDR: usize = 60;
 
@@ -235,11 +235,15 @@ pub const NEW_SEG1_SIZE: usize = 10; // size of the NS_ stuff
 pub const SEGTYPE_V86: u8 = 1;
 pub const SEGTYPE_PROT: u8 = 2;
 
+pub const MAX_PATH_16: usize = 0xff;
+
 // #define HANDLE_NULL ((HANDLE)NULL)
 pub const HANDLE_NULL: u32 = 0;
 
 // TODO: define infinite
-pub const LONG_TIMEOUT: u32 = INFINITE;
+pub const LONG_TIMEOUT: u32 = INFINITE as u32;
+
+pub const MAX_MODULE_NAME: usize = 9;
 
 pub static w_kernel_seg: u16 = 0;
 pub static dw_offset_th_hook: u32 = 0;
@@ -401,7 +405,6 @@ pub union image_section_header_misc {
     virtual_size: u32,
 }
 
-#[derive(Debug, Clone, Default)]
 pub struct IMAGE_SECTION_HEADER {
     pub name: [u8;IMAGE_SIZEOF_SHORT_NAME],
     pub misc: image_section_header_misc,
@@ -428,7 +431,6 @@ pub union IMAGE_LINE_NUMBER_TYPE {
     pub virtual_address: u32,
 }
 
-#[derive(Debug, Clone, Default)]
 pub struct IMAGE_LINENUMBER {
     pub line_num_type: IMAGE_LINE_NUMBER_TYPE,
     pub line_number: u16,
@@ -446,7 +448,6 @@ pub struct IMAGE_ARCHIVE_MEMBER_HEADER {
     pub end_header: [u8;2], // string to end header
 }
 
-#[derive(Debug, Clone, Default)]
 pub struct IMAGE_EXPORT_DIRECTORY {
     pub characteristics: u32,
     pub time_date_stamp: u32,
@@ -461,7 +462,6 @@ pub struct IMAGE_EXPORT_DIRECTORY {
     pub address_of_name_ordinals: *mut u32,
 }
 
-#[derive(Debug, Clone, Default)]
 pub struct IMAGE_IMPORT_BY_NAME {
     pub hint: u16,
     pub name: [u8;1]
@@ -475,12 +475,10 @@ pub union image_thunk_data_u1 {
     address_of_data: *mut IMAGE_IMPORT_BY_NAME,
 }
 
-#[derive(Debug, Clone, Default)]
 pub struct IMAGE_THUNK_DATA {
     pub u1: image_thunk_data_u1,
 }
 
-#[derive(Debug, Clone, Default)]
 pub struct IMAGE_IMPORT_DESCRIPTOR {
     pub characteristics: u32,
     pub time_data_stamp: u32,
@@ -508,7 +506,6 @@ pub struct GLOBALENTRY16 {
 
 // TODO: find def for MAX_MODULE_NAME
 // TODO: find def ro MAX_PATH_16
-#[derive(Debug, Clone, Default)]
 pub struct MODULEENTRY16 {
     pub dw_size: u32,
     pub sz_module: [u8;MAX_MODULE_NAME],
@@ -518,7 +515,6 @@ pub struct MODULEENTRY16 {
     pub w_next: u16,
 }
 
-#[derive(Debug, Clone, Default)]
 pub struct seg_entry {
     // struct _segentry *Next,
     pub seg_entry_type: i32,
@@ -610,7 +606,7 @@ pub struct NEHEADER {
     pub ne_expver: u16
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct NT_CPU_REG {
     pub nano_reg: *mut u32, // where the nano CPU keeps the register
     pub reg: *mut u32, // whree the light compiler keeps the register

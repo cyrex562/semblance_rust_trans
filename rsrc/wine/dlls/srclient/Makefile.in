@@ -1,4 +1,0 @@
-MODULE    = srclient.dll
-
-C_SRCS = \
-	main.c

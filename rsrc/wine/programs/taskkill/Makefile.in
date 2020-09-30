@@ -1,7 +1,0 @@
-MODULE    = taskkill.exe
-APPMODE   = -mconsole -municode
-IMPORTS   = user32
-
-C_SRCS = taskkill.c
-
-RC_SRCS = taskkill.rc

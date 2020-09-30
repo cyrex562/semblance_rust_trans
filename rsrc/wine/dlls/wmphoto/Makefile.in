@@ -1,5 +1,0 @@
-MODULE = wmphoto.dll
-
-C_SRCS = main.c
-
-IDL_SRCS = wmphoto.idl
