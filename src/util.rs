@@ -1,4 +1,6 @@
 use fern::InitError;
+use crate::app_context::AppContext;
+use crate::multi_error::MultiError;
 
 ///
 /// Set up the logger
@@ -18,4 +20,12 @@ pub fn setup_logger() -> Result<(), InitError> {
         .chain(std::io::stdout())
         .apply()?;
     Ok(())
+}
+
+pub fn read_file(app_ctx: &mut AppContext) -> Result<(), MultiError> {
+    let mut file = File::open(app_ctx.input_file)
+}
+
+pub fn read_byte(app_ctx: &AppContext) -> u8 {
+
 }

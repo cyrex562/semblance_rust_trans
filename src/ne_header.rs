@@ -1,3 +1,5 @@
+use crate::multi_error::MultiError;
+
 pub struct NeHeader {
     pub ne_magic: u16,             /* 00 NE signature 'NE' */
     pub ne_ver: u8,               /* 02 Linker version number */
@@ -158,48 +160,48 @@ pub const EXE_TYPES: [String;6] = [
     "BOSS".to_string(),
 ];
 
-pub fn demangle_protection(buffer: &mut String, start: &mut str, prot: &mut str, func: &str) -> usize {
-    if start[0] >= 'A' && start[0] <= 'V' {
-        if (start[0] - 'A') & 2 {
+pub fn demangle_protection(buffer: &mut Vec<u8>, start: &[u8], prot: &u8, func: &[u8]) -> usize {
+    if start[0] >= b'A' && start[0] <= b'V' {
+        if (start[0] - b'A') & 2 {
             buffer.push_str("static ");
         }
-        if (start[0] - 'A') & 4 {
+        if (start[0] - b'A') & 4 {
             buffer.push_str("virtual ");
         }
-        if (start[0] - 'A') & 1 {
+        if (start[0] - b'A') & 1 {
             buffer.push_str("near ");
         }
-        if ((start[0] - 'A') & 24) == 0 {
+        if ((start[0] - b'A') & 24) == 0 {
             buffer.push_str("private ");
         }
-        else if ((start[0] - 'A') & 24) == 8 {
+        else if ((start[0] - b'A') & 24) == 8 {
             buffer.push_str("protected ");
-        } else if ((start[0] - 'A') & 24) == 16 {
+        } else if ((start[0] - b'A') & 24) == 16 {
             buffer.push_str("public ");
         }
         prot[0] = start[0];
-    } else if start[0] == 'Y' {
+    } else if start[0] == b'Y' {
         buffer.push_str("near ");
-    } else if start[0] == 'Z' {
+    } else if start[0] == b'Z' {
 
-    } else if start[0] == 'X' {
-        prot[0] = 'V';
-        return if start[1] >= '0' && start[1] <= '9' {
+    } else if start[0] == b'X' {
+        prot[0] = b'V';
+        return if start[1] >= b'0' && start[1] <= b'9' {
             buffer.push_str("(X0)");
             buffer[buffer.len() - 3] = start[1];
             2
         } else {
-            start.find('@').unwrap() + 1
+            start.find(b'@').unwrap() + 1
         }
-    } else if start[0] == '_' && start[1] != '$' {
-        demangle_protection(buffer, &mut start[1..], prot, func);
-        if start[3] >= '0' && start[3] <= '9' {
+    } else if start[0] == b'_' && start[1] != b'$' {
+        demangle_protection(buffer, &start[1..], prot, func);
+        if start[3] >= b'0' && start[3] <= b'9' {
             buffer.push_str("(_00) ");
             buffer[buffer.len() - 4] = start[2];
             buffer[buffer.len() - 3] = start[3];
             return 4;
         } else {
-            return start.find('@').unwrap() + 1;
+            return start.find(b'@').unwrap() + 1;
         }
 
         return 0;
@@ -221,7 +223,195 @@ pub const INT_TYPES: [String;9] = [
     "unsigned long".to_string(),
 ];
 
-pub fn demangle_type(known_names: Vec<String>, buffer: &mut String, type: &mut str) -> usize {
-    
+
+pub fn demangle_type(known_names: &mut Vec<String>, buffer: &mut Vec<u8>, tbuf: &[u8]) -> usize {
+    if tbuf[0] >= b'C' && tbuf[0] <= b'K' {
+        buffer.push_str(INT_TYPES[tbuf[0] - b'C'].to_str());
+        buffer.push_str(" ");
+        return 1;
+    }
+
+    return match tbuf[0] {
+        b'A' | b'P' => {
+            let mut ret = 0;
+            if (tbuf[1] - b'A') & 1 {
+                buffer.push_str("const ");
+            }
+            if (tbuf[1] - b'A') & 2 {
+                buffer.push_str("volatile ");
+            }
+            ret = demangle_type(known_names, buffer, &tbuf[2..]);
+            if !((tbuf[1] - b'A') & 4) {
+                buffer.push_str("near ");
+            }
+            if tbuf[0] == b'A' {
+                buffer.push_str("&");
+            } else {
+                buffer.push_str("*");
+            }
+            ret + 2
+        }
+        b'M' => {
+            buffer.push_str("float ");
+            1
+        },
+        b'N' => {
+            buffer.push_str("double ");
+            1
+        },
+        b'U' | b'V' => {
+            let i: u32 = 0;
+            let mut end: usize = 0;
+
+            if tbuf[1] >= b'0' && tbuf[1] <= b'9' {
+                buffer.push_str(known_names[type_str[1] - b'0']);
+                buffer.push_str(" ");
+                return 3;
+            }
+
+            end = tbuf.find(b"@").unwrap();
+            end += 1;
+            end = tbuf[end..].find(b"@").unwrap();
+            if tbuf[end - 1] == b"@" {
+                buffer.push_str(type_str[1..end - 2]);
+            } else {
+                buffer.push_str(type_str[1..end - 1]);
+            }
+
+            // todo: check if buffer already in known names
+            known_names.push(buffer.clone());
+            buffer.push_str(" ");
+            end + 1
+        },
+        b'X' => {
+            buffer.push_str("void ");
+            1
+        },
+        _ => {
+            0
+        }
+    };
 }
 
+pub fn demangle(func: &[u8]) -> Result<String, MultiError> {
+    let mut out: String = String::new();
+    let mut known_names: Vec<String> = Vec::new();
+    let mut known_types: Vec<String> = Vec::new();
+    let mut known_type_idx = 0;
+    let mut known_name_idx = 0;
+    let mut buffer: Vec<u8> = Vec::with_capacity(1024);
+    let mut start: usize = 0;
+    let mut end: usize = 0;
+    let mut ptr: &[u8];
+    let mut len = 0;
+    let mut prot: u8 = 0;
+
+    if func[1] == b'?' {
+        let func_str = func.to_str()?;
+        out.push_str(func_str);
+        return Ok(out);
+    }
+
+    // populate the known names up to the function name
+    ptr = func;
+    while ptr[0] != b'@' && known_name_idx < 10 {
+        let copy_start = ptr.find(b'@').unwrap();
+        let known_name = String::from(ptr[copy_start..]);
+        known_names.push(known_name);
+        known_name_idx += 1;
+        let next = ptr.find(b'@').unwrap() + 1;
+        ptr = &ptr[next..];
+    }
+
+    // figure out the modifiers and calling convention
+    buffer[0] = 0;
+    let mut idx = func.find("@@").unwrap() + 2;
+    ptr = &func[idx..];
+    len = demangle_protection(&mut buffer, ptr, &prot, func);
+    if !len {
+        out.push_str(func.to_str()?);
+        return Ok(out);
+    }
+    ptr = &ptr[len..];
+
+    // the next one always seems to be E or F
+    if prot >= b'A' && prot <= b'V' && ((prot - b'A') & 2) != 0 {
+        if ptr[0] != b'E' && ptr[0] != b'F' {
+            log::warn!("Unknown modifier {} for function {}", ptr[0], func);
+        }
+        ptr = &ptr[1..];
+    }
+
+    // this should mark the calling convention. Always seems to be A, but this corroborates the
+    // function body which uses CDECL.
+    if ptr[0] == b'A' {
+        buffer.push_str("__cdecl ");
+    } else if ptr[0] == b'C' {
+        buffer.push_str("__pascal ");
+    } else {
+        log::warn!("unknown calling convention {} for function {}", ptr[0], func);
+    }
+
+    // this marks the return value
+    ptr = &ptr[1..];
+    len = demangle_type(&mut known_names, &mut buffer, ptr);
+    if !len {
+        log::warn!("unknown return type {} for function {}", ptr[0], func);
+    }
+    ptr = &ptr[len..];
+
+    // get the classname. This is in reverse order, so find the first @@ and work backwards.
+    start = func.find("@@").unwrap();
+    end = start;
+
+    loop {
+        start -= 1;
+        while func[start] != b'?' && func[start] != b'@' {
+            start -= 1;
+        }
+        buffer.push_str(func[start+1..start+1+end]);
+        if func[start] == b'?' {
+            break;
+        }
+        buffer.push_str("::");
+        end = start;
+    }
+
+    // print the arguments
+    if ptr[0] == b'X' {
+        buffer.push_str("(void)");
+    } else {
+        buffer.push_str("(");
+        while ptr[0] != b'@' {
+            if ptr[0] >= b'0' && p[tr0] <= b'9' {
+                buffer.push_str(known_types[ptr[0] - b'0']);
+                ptr = &ptr[1..]
+            } else {
+                let arg_type: String = String::from(&buffer[buffer.len()..]);
+                len = demangle_type(&mut known_names, &mut buffer, ptr);
+                if buffer[buffer.len()-1] == b" " {
+                    known_types.push_str(&arg_type.as_str());
+                    known_type_idx += 1;
+                } else if (!len) {
+                    log::warn!("unknown argument type {} for function {}", ptr[0], func);
+                    len = 1;
+                }
+                ptr = &ptr[len..];
+            }
+            buffer.push_str(", ");
+        }
+        buffer.push_str(")");
+    }
+
+    out.push_str(buffer.to_str()?);
+    Ok(out)
+}
+
+pub fn read_res_name_table(start: usize, entry_table: &mut Vec<NeEntry>) -> String {
+    let mut cursor = start;
+    let mut length: usize = 0;
+    let mut first: Vec<u8> = Vec::new();
+    let mut name: &[u8];
+
+    length = read_byte()
+}
