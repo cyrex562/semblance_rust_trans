@@ -1,4 +1,6 @@
 use crate::multi_error::MultiError;
+use crate::app_context::AppContext;
+use crate::util::read_byte;
 
 pub struct NeHeader {
     pub ne_magic: u16,             /* 00 NE signature 'NE' */
@@ -407,11 +409,17 @@ pub fn demangle(func: &[u8]) -> Result<String, MultiError> {
     Ok(out)
 }
 
-pub fn read_res_name_table(start: usize, entry_table: &mut Vec<NeEntry>) -> String {
+pub fn read_res_name_table(app_ctx: &AppContext, start: usize, entry_table: &mut Vec<NeEntry>) -> Vec<u8> {
     let mut cursor = start;
+    let mut length_byte: u8 = 0;
     let mut length: usize = 0;
     let mut first: Vec<u8> = Vec::new();
     let mut name: &[u8];
 
-    length = read_byte()
+    length_byte = read_byte(&app_ctx, cursor);
+    cursor += 1;
+
+
+
+    first;
 }
