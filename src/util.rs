@@ -1,8 +1,11 @@
 use fern::InitError;
 use crate::app_context::AppContext;
 use crate::multi_error::MultiError;
+use crate::common::Endianness;
 use std::fs::File;
 use std::io::Read;
+use std::io::SeekFrom::End;
+
 
 ///
 /// Set up the logger
@@ -38,33 +41,33 @@ pub fn read_byte(app_ctx: &AppContext, offset: usize) -> u8 {
     app_ctx.file_buf[offset]
 }
 
-pub fn read_word(app_ctx: &AppContext, offset: usize, little_endian: bool) -> u16 {
+pub fn read_word(app_ctx: &AppContext, offset: usize, endianness: Endianness) -> u16 {
 
     let word_bytes: [u8;2] = [app_ctx.file_buf[offset], app_ctx.file_buf[offset+1]];
 
-    if little_endian {
+    if endianness == Endianness::LittleEndian {
         u16::from_le_bytes(word_bytes)
     } else {
         u16::from_be_bytes(word_bytes)
     }
 }
 
-pub fn read_dword(app_ctx: &AppContext, offset: usize, little_endian: bool) -> u32 {
+pub fn read_dword(app_ctx: &AppContext, offset: usize, endianness: Endianness) -> u32 {
 
     let word_bytes: [u8;4] = [app_ctx.file_buf[offset], app_ctx.file_buf[offset+1], app_ctx.file_buf[offset+2], app_ctx.file_buf[offset+3]];
 
-    if little_endian {
+    if endianness == Endianness::LittleEndian {
         u32::from_le_bytes(word_bytes)
     } else {
         u32::from_be_bytes(word_bytes)
     }
 }
 
-pub fn read_qword(app_ctx: &AppContext, offset: usize, little_endian: bool) -> u64 {
+pub fn read_qword(app_ctx: &AppContext, offset: usize, endianness: Endianness) -> u64 {
 
     let word_bytes: [u8;8] = [app_ctx.file_buf[offset], app_ctx.file_buf[offset+1], app_ctx.file_buf[offset+2], app_ctx.file_buf[offset+3], app_ctx.file_buf[offset+4], app_ctx.file_buf[offset+5], app_ctx.file_buf[offset+6], app_ctx.file_buf[offset+7]];
 
-    if little_endian {
+    if endianness == Endianness::LittleEndian {
         u64::from_le_bytes(word_bytes)
     } else {
         u64::from_be_bytes(word_bytes)

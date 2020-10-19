@@ -1,6 +1,9 @@
 use crate::multi_error::MultiError;
 use crate::app_context::AppContext;
-use crate::util::read_byte;
+use crate::util::{read_byte, read_word};
+use crate::dump::PeImportModule;
+use std::fs::File;
+use std::io::Read;
 
 pub struct NeHeader {
     pub ne_magic: u16,             /* 00 NE signature 'NE' */
@@ -54,8 +57,8 @@ pub struct NeExport {
 }
 
 pub struct NeImportModule {
-    pub name: *mut libc::c_char,
-    pub exports: *mut NeExport,
+    pub name: String,
+    pub exports: Vec<NeExport>
 }
 
 pub struct NeReloc {
@@ -79,15 +82,17 @@ pub struct NeSegment {
     pub reloc_count: u16,
 }
 
-pub struct Ne {
+pub struct NeInfo {
     pub header: NeHeader,
-    pub name: *mut libc::c_char,
-    pub description: *mut libc::c_char,
-    pub nametab: *mut u8,
-    pub enttab: *mut NeEntry,
-    pub ent_count: libc::c_uint,
-    pub imptab: *mut NeImportModule,
-    pub segments: *mut NeSegment,
+    pub name: String,
+    pub description: String,
+    pub nametab: Vec<String>,
+    // pub enttab: *mut NeEntry,
+    pub enttab: Vec<NeEntry>,
+    // pub imptab: *mut NeImportModule,
+    pub imptab: Vec<NeImportModule>,
+    // pub segments: *mut NeSegment,
+    pub segments: Vec<NeSegment>
 }
 
 pub fn parse_flags(flags: &u16) -> Vec<String> {
@@ -295,8 +300,8 @@ pub fn demangle_type(known_names: &mut Vec<String>, buffer: &mut Vec<u8>, tbuf: 
     };
 }
 
-pub fn demangle(func: &[u8]) -> Result<String, MultiError> {
-    let mut out: String = String::new();
+pub fn demangle(func: &[u8]) -> Result<Vec<u8>, MultiError> {
+    let mut out: Vec<u8> = Vec::new();
     let mut known_names: Vec<String> = Vec::new();
     let mut known_types: Vec<String> = Vec::new();
     let mut known_type_idx = 0;
@@ -414,12 +419,107 @@ pub fn read_res_name_table(app_ctx: &AppContext, start: usize, entry_table: &mut
     let mut length_byte: u8 = 0;
     let mut length: usize = 0;
     let mut first: Vec<u8> = Vec::new();
-    let mut name: &[u8];
 
     length_byte = read_byte(&app_ctx, cursor);
+    length = usize::from(length_byte);
     cursor += 1;
 
+    first.clone_from_slice(&app_ctx.file_buf[cursor..cursor+length]);
+    cursor += length + 2;
 
+    while length = usize::from(read_byte(&app_ctx, cursor)) {
+        cursor +=1;
 
-    first;
+        let mut name: Vec<u8> = Vec::new();
+        name.clone_from_slice(&app_ctx.file_buf[cursor..cursor+length]);
+        cursor += length;
+
+        if name[0] == b'?' {
+            name = demangle(&name.as_slice())?;
+        }
+
+        entry_table[read_word(&app_ctx, cursor, Endianness::LittleEndian) - 1].name = name;
+        cursor += 2;
+    }
+
+    first
+}
+
+pub fn get_entry_table(app_ctx: &AppContext, start: usize, ne: &mut NeInfo) -> Result<(), MultiError> {
+    let mut len_byte: u8 = 0;
+    let mut index: u8 = 0;
+    let mut count: usize = 0;
+    let mut i = 0;
+    let mut word: u16 = 0;
+    let mut cursor: usize = 0;
+
+    // get a count
+    cursor = start;
+    while len_byte = read_byte(&app_ctx, cursor) {
+        cursor += 1;
+        index = read_byte(&app_ctx, cursor);
+        cursor += 1;
+        count += len_byte;
+        if index != 0 {
+            if index == 0xff {
+                cursor += 6 * length;
+            } else {
+                cursor += 3 * length;
+            }
+
+        }
+    }
+
+    cursor = start;
+    while len_byte = read_byte(&app_ctx, cursor) {
+        cursor += 1;
+        index = read_byte(&app_ctx, cursor);
+        cursor += 1;
+        for i in 0..length {
+            let mut entry: NeEntry = Default::default();
+            if index == 0xff {
+                entry.flags = read_byte(&app_ctx, cursor);
+                word = read_word(&app_ctx, cursor + 1, Endianness::LittleEndian);
+                if word != 0x3fcd {
+                        log::warn!("entry {} has interrupt bytes {:02x}{:02x} (expected 3fcd)", count+1, word & 0xff, word >> 16);
+                }
+                entry.segment = read_byte(&app_ctx, cursor + 3);
+                entry.offset = read_word(&app_ctx, cursor + 4, Endianness::LittlEndian);
+                cursor += 6;
+            } else if index == 0x00 {
+                // no entries here
+            } else {
+                entry.flags = read_byte(&app_ctx, cursor);
+                entry.segment = index;
+                entry.offset = read_word(&app_ctx, cursor + 1, Endianness::LittleEndian);
+                cursor += 3;
+            }
+            count += 1;
+            ne.enttab.push(entry);
+        }
+    }
+
+    ne.ent_count = count;
+
+    Ok(())
+
+}
+
+pub fn get_import_module_table(app_ctx: &AppContext, start: usize, ne: &mut NeInfo) -> Result<(), MultiError> {
+    let offset: u16;
+    let length: u8;
+    let i: u32 = 0;
+
+    for i in 0..ne.header.ne_cmod {
+        offset = read_word(app_ctx, start + i * 2, Endianness::LittleEndian);
+        length = ne.nametab[offset];
+        let import = NeImportModule{
+            name: nametab[offset+1],
+            exports: vec![]
+        };
+        ne.imptab[i].
+    }
+
+    Ok(())
+
 }

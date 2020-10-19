@@ -137,7 +137,13 @@ pub struct NameTableEntry {
     pub is_ordinal: bool,
 }
 
-pub struct ImportModule {
+//
+// struct import_module {
+//     char *name;
+//     struct export *exports;
+//     unsigned export_count;
+// };
+pub struct PeImportModule {
     pub module: String,
     pub iat_addr: u32,
     pub nametab: Vec<NameTableEntry>,
@@ -159,7 +165,7 @@ pub struct PE {
     pub name: String,
     pub sections: Vec<Section>,
     pub exports: Vec<Export>,
-    pub imports: Vec<ImportModule>,
+    pub imports: Vec<PeImportModule>,
     pub relocs: Vec<RelocPe>,
 }
 

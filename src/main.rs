@@ -3,6 +3,7 @@ pub mod exe_format;
 pub mod multi_error;
 pub mod app_context;
 pub mod dump;
+pub mod common;
 mod ne_header;
 
 use clap::{App, Arg};
