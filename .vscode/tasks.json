@@ -1,0 +1,32 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cargo",
+			"subcommand": "build",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "Rust: cargo build - semblance_rust_trans"
+		},
+		{
+			"type": "cargo",
+			"subcommand": "fmt",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "fmt",
+			"label": "Rust: cargo fmt - semblance_rust_trans"
+		},
+		{
+			"type": "cargo",
+			"subcommand": "clean",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "clean",
+			"label": "Rust: cargo clean - semblance_rust_trans"
+		}
+	]
+}

@@ -1,7 +1,7 @@
 use std::fmt;
 
 ///
-/// 
+///
 #[derive(Debug, Clone)]
 pub struct MultiError {
     pub kind: String,
@@ -9,7 +9,7 @@ pub struct MultiError {
 }
 
 impl fmt::Display for MultiError {
-    fn fmt (&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "invalid command line")
     }
 }
@@ -24,7 +24,7 @@ impl From<std::num::ParseIntError> for MultiError {
 }
 
 impl From<std::io::Error> for MultiError {
-    fn from (error: std::io::Error) -> Self {
+    fn from(error: std::io::Error) -> Self {
         MultiError {
             kind: String::from("IoError"),
             message: error.to_string(),
@@ -33,7 +33,7 @@ impl From<std::io::Error> for MultiError {
 }
 
 impl From<csv::Error> for MultiError {
-    fn from (error: csv::Error) -> Self {
+    fn from(error: csv::Error) -> Self {
         MultiError {
             kind: String::from("CsvError"),
             message: error.to_string(),

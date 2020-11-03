@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemata.jklnet.org/Reko/v5">
+  <arch>x86-protected-16</arch>
+  <platform>win16</platform>
+  <input>
+    <filename>OUTPOST.EXE</filename>
+    <asmDir>OUTPOST.reko</asmDir>
+    <srcDir>OUTPOST.reko</srcDir>
+    <includeDir>OUTPOST.reko</includeDir>
+    <resources>OUTPOST.reko\resources</resources>
+    <user>
+      <processor />
+      <registerValues />
+      <outputFilePolicy>Segment</outputFilePolicy>
+    </user>
+  </input>
+</project>
