@@ -38,7 +38,7 @@ impl Display for ImageDosHeader {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "e_magic={:02x}, e_cbl_p={}, e_cp={}, e_crlc={}, e_cparhdr={}, e_minalloc={}, e_maxalloc={}, e_ss={:02x}, e_sp={:02x}, e_csum={:02x}, e_ip={:02x}, e_cs={:02x}, e_lfarlc={:02x}, e_ovno={}, e_oemid={:02x}, e_oeminfo={:02x}, e_lfanew={:04x}",
+            "e_magic={:02x}, e_cbl_p={}, e_cp={}, e_crlc={}, e_cparhdr={}, e_minalloc={}, e_maxalloc={}, e_ss={:02x}, e_sp={:02x}, e_csum={:02x}, e_ip={:02x}, e_cs={:02x}, e_lfarlc={:02x}, e_ovno={}, e_oemid={:02x}, e_oeminfo={:02x}, e_lfanew={}",
             self.e_magic, self.e_cbl_p, self.e_cp, self.e_crlc, self.e_cparhdr, self.e_minalloc, self.e_maxalloc, self.e_ss, self.e_sp, self.e_csum, self.e_ip, self.e_cs, self.e_lfarlc, self.e_ovno, self.e_oemid, self.e_oeminfo, self.e_lfanew
         )
     }
@@ -161,7 +161,7 @@ impl Display for ImageOs2Header {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write !(
             f,
-            "ne_magic={:02x}, ne_ver={}, ne_rev={}, ne_enttab={}, ne_cbenttab={}, ne_crc={:04x}, ne_flags={:16b}, ne_autodata={:02x}, ne_heap={:02x}, ne_stack={:02x}, ne_csip={:04x}, ne_sssp={:04x}, ne_cseg={:02x}, ne_cmod={}, ne_cbnrestab={}, ne_segtab={}, ne_rsrctab={}, ne_restab={}, ne_modtab={}, ne_imptab={}, ne_nrestab={:04x}, ne_cmovent={}, ne_align={:02x}, ne_cres={}, ne_exetyp={:01x}, ne_flagsothers={:08b}, ne_pretthunks={}, ne_psegrefbytes={}, ne_swaparea={}, ne_exper={:02x}",
+            "ne_magic={:02x}, ne_ver={}, ne_rev={}, ne_enttab={}, ne_cbenttab={}, ne_crc={:04x}, ne_flags={:16b}, ne_autodata={:02x}, ne_heap={:02x}, ne_stack={:02x}, ne_csip={:04x}, ne_sssp={:04x}, ne_cseg={}, ne_cmod={}, ne_cbnrestab={}, ne_segtab={}, ne_rsrctab={}, ne_restab={}, ne_modtab={}, ne_imptab={}, ne_nrestab={}, ne_cmovent={}, ne_align={:02x}, ne_cres={}, ne_exetyp={:01x}, ne_flagsothers={:08b}, ne_pretthunks={}, ne_psegrefbytes={}, ne_swaparea={}, ne_exper={:02x}",
             self.ne_magic, self.ne_ver, self.ne_rev, self.ne_enttab, self.ne_cbenttab, self.ne_crc, self.ne_flags, self.ne_autodata, self.ne_heap, self.ne_stack, self.ne_csip, self.ne_sssp, self.ne_cseg, self.ne_cmod, self.ne_cbnrestab, self.ne_segtab, self.ne_rsrctab, self.ne_restab, self.ne_modtab, self.ne_imptab, self.ne_nrestab, self.ne_cmovent, self.ne_align, self.ne_cres, self.ne_exetyp, self.ne_flagsothers, self.ne_pretthunks, self.ne_psegrefbytes, self.ne_swaparea, self.ne_expver
         )
     }
@@ -286,19 +286,21 @@ impl Display for NeSegmentFlag {
 pub struct NeSegmentTableEntry {
     pub logical_sector_offset: WORD,
     pub segment_length: WORD,
-    pub flag_word: WORD,
+    pub flags: WORD,
     pub min_seg_alloc_sz: WORD
 }
+
+pub const NE_SEG_TBL_ENTRY_SZ: usize = 8;
 
 impl Display for NeSegmentTableEntry {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write !(
             f,
-            "logical sector offset={}, segment length={}, flag_word={} ({:02x}), min seg alloc sz={}",
+            "logical sector offset={}, segment length={}, flags={} ({:02x}), min seg alloc sz={}",
             self.logical_sector_offset,
             self.segment_length,
-            self.get_flags(),
-            self.flag_word,
+            self.get_flags_as_str(),
+            self.flags,
             self.min_seg_alloc_sz
         )
     }
@@ -311,31 +313,35 @@ impl NeSegmentTableEntry {
         *ptr +=2;
         entry.segment_length = read_word(bytes, ptr, Endianness::LittleEndian)?;
         *ptr +=2;
-        entry.flag_word = read_word(bytes, ptr, Endianness::LittleEndian)?;
+        entry.flags = read_word(bytes, ptr, Endianness::LittleEndian)?;
         *ptr +=2;
         entry.min_seg_alloc_sz = read_word(bytes, ptr, Endianness::LittleEndian)?;
+        *ptr +=2;
         Ok(entry)
     }
 
     pub fn get_flags(&self) -> Vec<NeSegmentFlag> {
         let mut flags: Vec<NeSegmentFlag> = Vec::new();
-        if self.flags & (NeSegmentFlag.CODE as u16) != 0 {
-            flags.push(NeSegmentFlag.CODE);
+        let type_part: u16 = self.flags & (NeSegmentFlag::TYPE_MASK as u16);
+
+        if type_part & (NeSegmentFlag::DATA as u16) != 0 {
+            flags.push(NeSegmentFlag::DATA);
         }
-        if self.flags & (NeSegmentFlag.DATA as u16) != 0 {
-            flags.push(NeSegmentFlag.DATA);
+        if type_part == 0 {
+            flags.push(NeSegmentFlag::CODE);
         }
-        if self.flags & (NeSegmentFlag.MOVEABLE as u16) != 0 {
-            flags.push(NeSegmentFlag.MOVEABLE);
+
+        if self.flags & (NeSegmentFlag::MOVEABLE as u16) != 0 {
+            flags.push(NeSegmentFlag::MOVEABLE);
         }
-        if self.flags & (NeSegmentFlag.PRELOAD as u16) != 0 {
-            flags.push(NeSegmentFlag.PRELOAD);
+        if self.flags & (NeSegmentFlag::PRELOAD as u16) != 0 {
+            flags.push(NeSegmentFlag::PRELOAD);
         }
-        if self.flags & (NeSegmentFlag.RELOCINFO as u16) != 0 {
-            flags.push(NeSegmentFlag.RELOCINFO);
+        if self.flags & (NeSegmentFlag::RELOCINFO as u16) != 0 {
+            flags.push(NeSegmentFlag::RELOCINFO);
         }
-        if self.flags & (NeSegmentFlag.DISCARD as u16) != 0 {
-            flags.push(NeSegmentFlag.DISCARD);
+        if self.flags & (NeSegmentFlag::DISCARD as u16) != 0 {
+            flags.push(NeSegmentFlag::DISCARD);
         }
         flags
     }
@@ -344,27 +350,44 @@ impl NeSegmentTableEntry {
         let flags = self.get_flags();
         let mut out = String::new();
         for f in flags {
-            out.push_str()
+            out.push_str(format!("{}, ", f).as_str());
         }
+        out
     }
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct NeSegmentTable {
     pub offset: usize,
+    pub count: usize,
     pub entries: Vec<NeSegmentTableEntry>
 }
 
 impl Display for NeSegmentTable {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut entries = String::new();
-        for e in self.entries{
-            entries.push_str(format!("{{{}}}, ", e))
+        for e in &self.entries[..] {
+            entries.push_str(format!("{{{}}}, ", e).as_str());
         }
         write!(
             f,
             "table offset={}, entries=[{}]", self.offset, entries
         )
+    }
+}
+
+impl NeSegmentTable {
+    pub fn parse_from_bytes(bytes: &[u8], ptr: &mut usize, seg_cnt: usize) -> Result<NeSegmentTable, Box<dyn Error>> {
+        let mut table: NeSegmentTable = Default::default();
+        table.offset = *ptr;
+        table.count = seg_cnt;
+
+        for _i in 0..seg_cnt {
+            let entry = NeSegmentTableEntry::parse_from_bytes(bytes, ptr)?;
+            table.entries.push(entry);
+        }
+
+        Ok(table)
     }
 }
 
